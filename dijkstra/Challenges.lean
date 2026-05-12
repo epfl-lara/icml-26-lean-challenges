@@ -1,0 +1,4 @@
+-- Dijkstra challenge slice.
+import Challenges.BinaryHeap_Dijkstra.Challenge_Dijkstra_1
+import Challenges.BinaryHeap_Dijkstra.Challenge_Dijkstra_2
+import Challenges.BinaryHeap_Dijkstra.Challenge_Dijkstra_3

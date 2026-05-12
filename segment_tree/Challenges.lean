@@ -1,0 +1,5 @@
+-- Segment Tree challenge slice.
+import Challenges.Segment_Tree.Challenge_Build
+import Challenges.Segment_Tree.Challenge_CoverageIntervalDefs
+import Challenges.Segment_Tree.Challenge_Query_1
+import Challenges.Segment_Tree.Challenge_Query_2

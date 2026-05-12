@@ -1,0 +1,25 @@
+name = "challenges"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["Challenges"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+linter.style.whitespace = false
+linter.style.cdot = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.28.0"
+
+[[require]]
+name = "cslib"
+scope = "leanprover"
+rev = "v4.28.0"
+
+[[lean_lib]]
+name = "Challenges"

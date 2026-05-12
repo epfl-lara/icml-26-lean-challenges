@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Priority Queues and Heaps</title>
+        <!-- Favicon
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        -->
+        <!-- Bootstrap-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!-- Custom styles for this template -->
+        <link href="/cs/15121/css/starter-template.css" rel="stylesheet">
+        <!-- Code highlighting -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/default.min.css">
+
+    </head>
+    <body>
+<!-- Responsive navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #60b3b4;">
+  <div class="container">
+      <a class="navbar-brand" href="/cs/15121/">15-121: Intro to Data Structures</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/cs/15121/index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cs/15121/schedule.html">Schedule</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cs/15121/syllabus/">Syllabus</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/cs/15121/staff/">Staff</a>
+            </li>          
+            <li class="nav-item">
+              <a class="nav-link" href="/cs/15121/resources/">Resources</a>
+            </li>  
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Tools
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="https://coursebox.qatar.cmu.edu/121queue/" target="_blank">Office Hours Queue</a>
+                <a class="dropdown-item" href="https://www.gradescope.com/courses/1088846" target="_blank">Gradescope</a>
+                <a class="dropdown-item" href="https://coursebox.qatar.cmu.edu/app/grades/" target="_blank">Gradebook</a>
+              </div>
+            </li>  
+          </ul>
+      </div>
+  </div>
+</nav>
+
+
+<div class="container">
+<h1 id="priority-queues-and-heaps">Priority Queues and Heaps</h1>
+<hr>
+<!-- TOC depthFrom:2 depthTo:3 -->
+<ul>
+<li><a href="#1-introduction">1. Introduction</a></li>
+<li><a href="#2-priority-queue">2. Priority Queue</a>
+<ul>
+<li><a href="#21-pq-with-an-array">2.1. PQ with an Array</a></li>
+<li><a href="#22-pq-with-a-linked-list">2.2. PQ with a Linked List</a></li>
+<li><a href="#23-pq-with-a-binary-search-tree">2.3. PQ with a Binary Search Tree</a></li>
+<li><a href="#24-pq-efficiency-summary-table">2.4. PQ Efficiency Summary Table</a></li>
+</ul></li>
+<li><a href="#3-binary-heap">3. Binary Heap</a>
+<ul>
+<li><a href="#31-operations">3.1. Operations</a></li>
+<li><a href="#32-new-efficiency-summary-table">3.2. New Efficiency Summary Table</a></li>
+<li><a href="#33-array-implementation">3.3. Array Implementation</a></li>
+<li><a href="#34-heap-sort">3.4. Heap Sort</a></li>
+</ul></li>
+</ul>
+<!-- /TOC -->
+<hr>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>In this set of notes, we’ll talk about a new abstract data type: the priority queue. Then we’ll evaluate the efficiency of implementing it using a variety of the data structures we’ve studied so far. Finally, we’ll introduce a new data structure, the binary heap, that can be used to very efficiently implement a priority queue.</p>
+<h2 id="2-priority-queue">2. Priority Queue</h2>
+<div class="definition">
+<p>A <strong><em>priority queue</em></strong> is an abstract data type that is similar to a regular queue, but each item in the queue has an additional piece of information: Priority. When you remove from a priority queue, you remove the item with the highest priority.</p>
+</div>
+<p>Here is a potential interface for a priority queue:</p>
+<pre><code>public interface PriorityQueue&lt;DataType&gt; {
+    // Add an item to the queue who has priority pri
+    public void add(DataType item, int pri); 
+
+    // Remove and return the item in the queue with the highest priority
+    public DataType removeMax();
+
+    // Peek at the item in the queue with the highest priority
+    public DataType peekMax();
+}</code></pre>
+<p>There are several real-world applications of priority queues. They are part of most operating systems (programs are chosen to run based on their priority). Many network routers also use a priority queue to determine which packet to send next. (High priority traffic goes first.)</p>
+<p>Let’s evaluate different ways we could implement a priority queue using our three main data structures so far: Array (or <code>ArrayList</code>), <code>LinkedList</code>, or a binary search tree.</p>
+<div class="indent-one">
+<h3 id="21-pq-with-an-array">2.1. PQ with an Array</h3>
+<p>If we implement the PQ with an array, there are two main approaches: An unordered array and a sorted array.</p>
+<p>If we use an <em>unordered array</em> then <code>add</code> will be simply putting another item onto the end of the array, which is <span class="math inline">\(O(1)\)</span> assuming the array is large enough. <code>peekMax</code> would require linear searching the entire array for the max priority value, which is <span class="math inline">\(O(N)\)</span>. <code>removeMax</code> would require linear searching the entire array, finding the item, removing it, and shifting all the entries after it to remove the hole in the array. This is also <span class="math inline">\(O(N)\)</span>.</p>
+<p>If we use a <em>sorted array</em> then <code>add</code> will need to search for the correct location to place the new item (<span class="math inline">\(O(\textrm{log }N)\)</span> if we do a binary search on the sorted data) and then shift down all the items that follow that space (<span class="math inline">\(O(N)\)</span>) and adding the item. This makes <code>add</code> <span class="math inline">\(O(N)\)</span> overall. <code>peekMax</code> would require simply returning the last item in the array, which is <span class="math inline">\(O(1)\)</span>. <code>removeMax</code> would require removing the last item and returning it, which would also be <span class="math inline">\(O(1)\)</span>.</p>
+<h3 id="22-pq-with-a-linked-list">2.2. PQ with a Linked List</h3>
+<p>With a linked list we have the same basic approaches as the array: unordered and sorted. Let’s look at both.</p>
+<p>If we use an <em>unordered linked list</em> then <code>add</code> will simply be adding to the head of the list, which is <span class="math inline">\(O(1)\)</span>. <code>peekMax</code> would require a full search of the list, which is <span class="math inline">\(O(N)\)</span>. <code>removeMax</code> would effectively be the same as <code>peekMax</code>.</p>
+<p>If we use a <em>sorted linked list</em> then <code>add</code> requires a full search in order to figure out where to put the new item, which is <span class="math inline">\(O(N)\)</span>. Assuming we store the nodes so that the highest priority item is the head of the list, then <code>peekMax</code> and <code>removeMax</code> become <span class="math inline">\(O(1)\)</span> because the highest priority item is simply at the head of the list.</p>
+<h3 id="23-pq-with-a-binary-search-tree">2.3. PQ with a Binary Search Tree</h3>
+<p>If we implement a PQ using a BST, then we would use the priority as the key to sort by.</p>
+<p>Assuming the tree stays reasonably balanced (which might be a dangerous assumption), then <code>add</code> would be <span class="math inline">\(O(\textrm{log }N)\)</span> to find the correct location in the tree and add the new node. <code>peekMax</code> and <code>removeMax</code> would simply require searching in the tree, which would also be <span class="math inline">\(O(\textrm{log }N)\)</span>.</p>
+<h3 id="24-pq-efficiency-summary-table">2.4. PQ Efficiency Summary Table</h3>
+<p>Here is a summary of the efficiency of a priority queue depending on the data structure we use to implement it:</p>
+<table class="table table-bordered">
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Unordered Array</th>
+<th style="text-align: left;">Sorted Array</th>
+<th style="text-align: left;">Unordered Linked List</th>
+<th style="text-align: left;">Sorted Linked List</th>
+<th style="text-align: left;">Binary Search Tree<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>add</code></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+</tr>
+<tr class="even">
+<td><code>peekMax</code></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+</tr>
+<tr class="odd">
+<td><code>removeMax</code></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Can we do better than this? The answer, of course, is yes. We just need a new type of data structure.</p>
+</div>
+<h2 id="3-binary-heap">3. Binary Heap</h2>
+<div class="definition">
+<p>A <strong><em>binary heap</em></strong> is a type of binary tree (but not a binary <em>search</em> tree) that has the following properties:</p>
+<ol type="1">
+<li><p>Shape: It is a <em>complete</em> tree. (Remember that a complete binary tree is one where every level except the last one is completely filled, and the last level has all of the leaves as far left as possible.)</p></li>
+<li><p>Order (heap): The parent of a node is <span class="math inline">\(\ge\)</span> all of its children.</p></li>
+</ol>
+</div>
+<p>Consider the following example of a binary heap:</p>
+<p><img src="1.png" /></p>
+<p>Notice that this is <em>not</em> a BST. Left and right ordering is not relevant. Instead, it maintains the shape and heap properties we just talked about. Pause for a moment here to study the tree and make sure you understand both properties properly.</p>
+<div class="note">
+<p>This example is for a <em>max heap</em>, meaning that the largest node is at the root of the tree. This is perfect for building a priority queue where you want to have easy access to the item with the highest value.</p>
+<p>However, you could also define a binary heap as a <em>min-heap</em> by altering the heap property to be: “The parent of a node is <span class="math inline">\(\le\)</span> all of its children.”</p>
+<p>In these notes, we will only look at max heaps. You should simply be aware that a min-heap is also a valid way to build a heap.</p>
+</div>
+<div class="indent-one">
+<h3 id="31-operations">3.1. Operations</h3>
+<p>If we were to build a priority queue using a binary heap, how would the operations work, and what would be the efficiency?</p>
+<h4 id="add">Add</h4>
+<p>If we want to add to a binary heap, we need to ensure that our two properties are maintained after the new node is added. Let’s consider the binary heap above and say that we want to add 33 to it. To ensure that the tree remains a complete tree, we must add the new node at the last level, as far left as possible. So, if we add 33 there, we end up with:</p>
+<p><img src="2.png" /></p>
+<p>We still have a complete tree, which is good, but now the tree violates the heap property. (33 is below 3, and that should never happen.)</p>
+<p>To fix this, we will <em>heapify up</em> by continually swapping 33 with its parent until it is in the correct location:</p>
+<ol type="1">
+<li><p>First, we notice that 33 is greater than its parent 3, so we swap them:<br />
+<img src="3.png" /></p></li>
+<li><p>Then, we notice that 33 is larger than its new parent, 19, so we swap them:<br />
+<img src="4.png" /></p></li>
+<li><p>Now we notice that 33 is smaller than its parent, so we stop.</p></li>
+</ol>
+<p>The process of adding the node to the bottom of the tree is <span class="math inline">\(O(1)\)</span>. The process of heapifying up the tree is <span class="math inline">\(O(\textrm{log } N)\)</span>. An <span class="math inline">\(O(1)\)</span> operation followed by a <span class="math inline">\(O(\textrm{log } N)\)</span> operation is just <span class="math inline">\(O(\textrm{log } N)\)</span>. This is guaranteed worst-case efficiency; unlike the BST, where we assume a balanced tree, a binary heap <em>guarantees</em> a complete tree.</p>
+<h4 id="peek-max">Peek Max</h4>
+<p>If we want to quickly peek and see the largest node in the heap, that is easy. Just return a pointer to the root. This is <span class="math inline">\(O(1)\)</span>.</p>
+<h4 id="remove-max">Remove Max</h4>
+<p>Removing the maximum item from the heap is a bit more complicated than just peeking. Finding the max item is <span class="math inline">\(O(1)\)</span>, but removing it requires additional effort.</p>
+<p>Imagine we want to remove the max item from the last heap picture given above. There are two conflicting things we need to manage at the same time:</p>
+<ol type="1">
+<li><p>We want 100 to be gone from the heap.</p></li>
+<li><p>The node that disappears needs to be the node storing 3. (Because after the removal the tree has to be complete.)</p></li>
+</ol>
+<p>Let’s handle this the laziest way possible, and hopefully, we can do a swapping trick later to fix up any problems. Let’s just remove node 3 from the bottom of the tree, and replace 100 with 3:</p>
+<p><img src="6.png" /></p>
+<p>The good thing about this is that it is still a complete tree. The bad thing is that it doesn’t satisfy the heap property anymore.</p>
+<p>To fix the heap property, we will <em>heapify down</em> by continually swapping 3 with its largest child that is bigger than 3.</p>
+<ol type="1">
+<li><p>Swap with 36. (Because 36 is the largest child and is bigger than 3.):<br />
+<img src="7.png" /></p></li>
+<li><p>Swap with 25. (Because 25 is the largest child and is bigger than 3.):<br />
+<img src="8.png" /></p></li>
+<li><p>Now we notice that 3 is not smaller than its children. (Plus, it has no children.) So we stop. The heap is valid again.</p></li>
+</ol>
+<p>This entire process is <span class="math inline">\(O(\textrm{log } N)\)</span>, much the same reason that <code>add</code> is.</p>
+<h3 id="32-new-efficiency-summary-table">3.2. New Efficiency Summary Table</h3>
+<p>Here is a completed efficiency summary table for a priority queue, now including the binary heap:</p>
+<table class="table table-bordered">
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Unordered Array</th>
+<th style="text-align: left;">Sorted Array</th>
+<th style="text-align: left;">Unordered Linked List</th>
+<th style="text-align: left;">Sorted Linked List</th>
+<th style="text-align: left;">Binary Search Tree<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></th>
+<th style="text-align: left;">Binary Heap</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>add</code></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+</tr>
+<tr class="even">
+<td><code>peekMax</code></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+</tr>
+<tr class="odd">
+<td><code>removeMax</code></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(1)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(O(\textrm{ log } N)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>In general, a binary heap is going to be the best data structure for a priority queue. (Although it may vary somewhat depending on the details of implementation.)</p>
+<h3 id="33-array-implementation">3.3. Array Implementation</h3>
+<p>While we illustrated the binary heap using a traditional tree diagram, in practice it is perfectly suited for implementation using the array representation of binary trees presented in the <a href="/cs/15121/notes/more-trees/">previous notes</a>. While doing an add it is easy to find the next empty location in the complete tree (it is the next empty location in the array). Likewise, when doing a remove, finding the last node in the tree (the last used spot in the array) and swapping it into the root is also easy. Finally, the heapify procedure is also straightforward.</p>
+<p>You should practice the binary heap operations on a binary heap stored in an array. That sort of thing seems like a nice quiz or exam question…</p>
+<h3 id="34-heap-sort">3.4. Heap Sort</h3>
+<p>One final note about binary heaps: You can also use the concepts from a binary heap for sorting. We call that sorting algorithm heap sort. The basic concept is that you build a heap using the unsorted values and then continually remove the largest item from the heap, creating the sorted order. The algorithm is <span class="math inline">\(O(N\textrm{ log } N)\)</span>, but it is not a stable sort.</p>
+<p>For more details, check out the Wikipedia article on <a href="https://en.wikipedia.org/wiki/Heapsort">heap sort</a>.</p>
+</div>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>The BST efficiencies assume a balanced tree, which is not guaranteed. Actual efficiencies may be worse than stated.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>The BST efficiencies assume a balanced tree, which is not guaranteed. Actual efficiencies may be worse than stated.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+</div>
+        <!-- Bootstrap core JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <!-- Code highlighting -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+        <!-- Latex math -->
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>        
+    
+    </body>
+</html>

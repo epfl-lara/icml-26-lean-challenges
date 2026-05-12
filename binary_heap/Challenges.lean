@@ -1,0 +1,5 @@
+-- Binary Heap challenge slice.
+import Challenges.BinaryHeap_Dijkstra.Challenge_BinaryHeap_1
+import Challenges.BinaryHeap_Dijkstra.Challenge_BinaryHeap_2
+import Challenges.BinaryHeap_Dijkstra.Challenge_BinaryHeap_3
+import Challenges.BinaryHeap_Dijkstra.Challenge_BinaryHeap_4

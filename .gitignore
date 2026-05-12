@@ -1,2 +1,17 @@
-# cache and other artifacts produced by Lean's Lake build tool
-.lake/
+# Lean/Lake build output and dependency caches.
+**/.lake/
+
+# EPFLemma runtime state. Keep .epflemma/project.yaml tracked.
+**/.epflemma/cache/
+**/.epflemma/runtime/
+**/.epflemma/workflow-state/
+**/.epflemma/workflows/
+
+# Editor and OS noise.
+.DS_Store
+**/.DS_Store
+
+# Python/transient tooling noise.
+__pycache__/
+**/__pycache__/
+*.pyc

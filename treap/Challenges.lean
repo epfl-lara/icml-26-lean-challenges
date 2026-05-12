@@ -1,0 +1,18 @@
+-- Treap challenge slice.
+import Challenges.Treap.Challenge_Analysis_1
+import Challenges.Treap.Challenge_Analysis_2
+import Challenges.Treap.Challenge_Treap_1
+import Challenges.Treap.Challenge_Treap_2
+import Challenges.Treap.Challenge_Treap_3
+import Challenges.Treap.Challenge_Treap_4
+import Challenges.Treap.Challenge_Treap_5
+import Challenges.Treap.Challenge_Treap_6
+import Challenges.Treap.Challenge_Treap_7
+import Challenges.Treap.Challenge_Treap_8
+import Challenges.Treap.Challenge_Treap_9
+import Challenges.Treap.Challenge_Treap_10
+import Challenges.Treap.Challenge_Treap_11
+import Challenges.Treap.Challenge_Treap_12
+import Challenges.Treap.Challenge_Treap_13
+import Challenges.Treap.Challenge_Treap_14
+import Challenges.Treap.Challenge_Treap_15
