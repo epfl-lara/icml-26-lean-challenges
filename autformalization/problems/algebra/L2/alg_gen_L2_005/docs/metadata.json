@@ -1,0 +1,9 @@
+{
+  "formalization_rules": "/-\nFormalize in Lean the Definition (S) from Text.\n\nThe definition must be named `S`.\n   Matched text (candidate 0, definition, label=S): \\begin{definition}[S] Let $k$ be an arbitrary field and let $S$ be the subset of all\n                                                    polynomials in $k[x_1,\\dots,x_n]$ that have no zeros in $k^n$. If $I$ is any ideal in\n                                                    $k[x_1,\\dots,x_n]$ such that $I \\cap S=\\varnothing$, show that $\\mathbf\n                                                    V(I)\\neq\\varnothing$. \\end{definition}\n-/\n",
+  "idx": "algebra/L2/alg_gen_L2_005",
+  "imports": [
+    "import Mathlib.RingTheory.Nullstellensatz",
+    "import Mathlib.RingTheory.Ideal.Span"
+  ],
+  "informal_proof": "\\begin{definition}[S]\nLet $k$ be an arbitrary field and let $S$ be the subset of all polynomials in $k[x_1,\\dots,x_n]$ that have no zeros in $k^n$. If $I$ is any ideal in $k[x_1,\\dots,x_n]$ such that $I \\cap S=\\varnothing$, show that $\\mathbf V(I)\\neq\\varnothing$.\n\\end{definition}\n"
+}

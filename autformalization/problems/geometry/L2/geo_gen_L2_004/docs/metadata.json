@@ -1,0 +1,9 @@
+{
+  "formalization_rules": "open Module\n\n/-\nFormalize in Lean the Theorem (caseys_theorem) from Text.\n\nThe theorem must be named `caseys_theorem`.\n   Matched text (candidate 0, theorem, label=caseys_theorem): \\begin{theorem}[caseys_theorem]\\label{thm:casey} Let $O$ be a circle of radius $R$. Let\n                                                              $O_1, O_2, O_3, O_4$ be (in that order) four non-intersecting circles that lie inside $O$\n                                                              and tangent to it. Denote by $t_{ij}$ the length of the exterior common bitangent of the\n                                                              circles $O_i, O_j$. Then: \\[ t_{12} \\cdot t_{34} + t_{14} \\cdot t_{23} = t_{13} \\cdot\n                                                              t_{24}. \\] Note that in the degenerate case, where all four circle…\n-/\n",
+  "idx": "geometry/L2/geo_gen_L2_004",
+  "imports": [
+    "import Mathlib.Analysis.InnerProductSpace.Defs",
+    "import Mathlib.LinearAlgebra.Dimension.Finrank"
+  ],
+  "informal_proof": "\\begin{theorem}[caseys_theorem]\\label{thm:casey}\nLet $O$ be a circle of radius $R$. Let $O_1, O_2, O_3, O_4$ be (in that order) four non-intersecting circles that lie inside $O$ and tangent to it. Denote by $t_{ij}$ the length of the exterior common bitangent of the circles $O_i, O_j$. Then:\n\\[\nt_{12} \\cdot t_{34} + t_{14} \\cdot t_{23} = t_{13} \\cdot t_{24}.\n\\]\nNote that in the degenerate case, where all four circles reduce to points, this is exactly Ptolemy's theorem.\n\\end{theorem}\n"
+}

@@ -1,0 +1,9 @@
+{
+  "formalization_rules": "open Real MeasureTheory Module\n\n/-\nFormalize in Lean the Theorem (brahmagupta_formula) from Text.\n\nThe theorem must be named `brahmagupta_formula`.\n   Matched text (candidate 0, theorem, label=brahmagupta_formula): \\begin{theorem}[brahmagupta_formula]\\label{thm:brahmagupta_formula} In Euclidean geometry,\n                                                                   Brahmagupta's formula gives the area $K$ of a convex cyclic quadrilateral (a quadrilateral\n                                                                   inscribed in a circle) given the lengths of its sides. Formally, let $A, B, C, D$ be the\n                                                                   vertices of a convex cyclic quadrilateral in order. Let $a = |AB|, b = |BC|, c = |CD|$, and\n                                                                   $d = |DA|$ be the lengths of the sides, and let $s$ be t…\n-/\n",
+  "idx": "geometry/L2/geo_gen_L2_007",
+  "imports": [
+    "import Mathlib.Geometry.Euclidean.Sphere.Basic",
+    "import Mathlib.MeasureTheory.Measure.MeasureSpaceDef"
+  ],
+  "informal_proof": "\\begin{theorem}[brahmagupta_formula]\\label{thm:brahmagupta_formula}\nIn Euclidean geometry, Brahmagupta's formula gives the area $K$ of a convex cyclic quadrilateral (a quadrilateral inscribed in a circle) given the lengths of its sides. \nFormally, let $A, B, C, D$ be the vertices of a convex cyclic quadrilateral in order. Let $a = |AB|, b = |BC|, c = |CD|$, and $d = |DA|$ be the lengths of the sides, and let $s$ be the semiperimeter, defined as:\n\\[\ns = \\frac{a + b + c + d}{2}\n\\]\nThen the area $K$ of the quadrilateral is given by:\n\\[\nK = \\sqrt{(s - a)(s - b)(s - c)(s - d)}\n\\]\n\\end{theorem}\n"
+}

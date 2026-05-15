@@ -1,0 +1,8 @@
+{
+  "formalization_rules": "open scoped Manifold\n\n/-\nFormalize in Lean the Definition (tangentBundleProdDiffeomorph) from Text.\n\nThe definition must be named `tangentBundleProdDiffeomorph`.\n   Matched text (candidate 0, definition, label=tangentBundleProdDiffeomorph): \\begin{definition}[tangentBundleProdDiffeomorph] Prove that if $M$ and $N$ are smooth\n                                                                               manifolds, then $T(M \\times N)$ is diffeomorphic to $TM \\times TN$. \\end{definition}\n-/\n",
+  "idx": "geometry/L2/geo_gen_L2_009",
+  "imports": [
+    "import Mathlib.Geometry.Manifold.ContMDiffMFDeriv"
+  ],
+  "informal_proof": "\\begin{definition}[tangentBundleProdDiffeomorph]\nProve that if $M$ and $N$ are smooth manifolds, then $T(M \\times N)$ is diffeomorphic to $TM \\times TN$.\n\\end{definition}\n"
+}

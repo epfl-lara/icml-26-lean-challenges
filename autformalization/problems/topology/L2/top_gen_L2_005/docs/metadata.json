@@ -1,0 +1,11 @@
+{
+  "formalization_rules": "open scoped unitInterval Topology\nopen Homeomorph\n\n/-\nFormalize in Lean the Definition (setoid) from Text.\n\nThe definition must be named `setoid`.\n   Matched text (candidate 0, definition, label=setoid): \\begin{definition}[setoid] Let $X$ be a topological space, $x \\in X$ and $\\Omega^{N}(X,x)$\n                                                         denote the space of \\emph{generalized $N$-loops in $X$ based at $x$} i.e. \\[ \\Omega^{N}(X,x)\n                                                         := \\Bigl\\{\\, f : I^{N} \\to X \\ \\text{continuous} \\ \\Bigm|\\ f(y)=x \\text{ for all } y \\in\n                                                         \\partial I^{N} \\Bigr\\} \\] With respect to the usual topology on $ \\Omega^{N}(X,x)$ inherited\n                                                         from the compact-open topology on continuous maps, th…\n-/\n",
+  "idx": "topology/L2/top_gen_L2_005",
+  "imports": [
+    "import Mathlib.Algebra.Group.Ext",
+    "import Mathlib.Algebra.Group.TransferInstance",
+    "import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup",
+    "import Mathlib.GroupTheory.EckmannHilton"
+  ],
+  "informal_proof": "\\begin{definition}[setoid]\nLet $X$ be a topological space, $x \\in X$ and $\\Omega^{N}(X,x)$ denote the space of \\emph{generalized $N$-loops in $X$ based at $x$} i.e.\n\\[\n\\Omega^{N}(X,x)\n:=\n\\Bigl\\{\\, f : I^{N} \\to X \\ \\text{continuous} \\ \\Bigm|\\ \nf(y)=x \\text{ for all } y \\in \\partial I^{N} \\Bigr\\}\n\\]\nWith respect to the usual topology on $ \\Omega^{N}(X,x)$ inherited from the compact-open topology on continuous maps, the evaluation map\n\\[\n\\mathrm{ev} : \\Omega^{N}(X,x) \\times I^{N} \\longrightarrow X,\n\\qquad\n(f,y) \\longmapsto f(y),\n\\]\nis continuous.  \nIn particular, for each fixed $y \\in I^{N}$, the map\n\\[\n\\Omega^{N}(X,x) \\longrightarrow X,\n\\qquad\nf \\longmapsto f(y),\n\\]\nis continuous.\n\\end{definition}\n"
+}

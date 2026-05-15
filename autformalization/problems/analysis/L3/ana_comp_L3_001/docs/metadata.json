@@ -1,0 +1,8 @@
+{
+  "formalization_rules": "/-\nFormalize in Lean the Definition (f) from Text.\n\nThe definition must be named `f`.\n   Matched text (candidate 0, definition, label=f): \\begin{definition}[f] If $g(x)[e^{2y} - e^{-2y}]$ is harmonic, $g(0) = 0, g'(0) = 1$, find\n                                                    $g(x)$. \\end{definition}\n-/\n",
+  "idx": "analysis/L3/ana_comp_L3_001",
+  "imports": [
+    "import Mathlib"
+  ],
+  "informal_proof": "\\begin{definition}[f]\nIf $g(x)[e^{2y} - e^{-2y}]$ is harmonic, $g(0) = 0, g'(0) = 1$, find $g(x)$.\n\\end{definition}\n\n\\begin{proof}\nLet $f(x,y) = g(x)[e^{2y} - e^{-2y}]$. Then\n\\[\n\\frac{\\partial^2 f}{\\partial x^2} = g''(x)[e^{2y} - e^{-2y}], \\qquad \\frac{\\partial^2 f}{\\partial y^2} = 4g(x)[e^{2y} - e^{-2y}].\n\\]\nSince $f$ is harmonic, $\\Delta f = 0$ implies $g''(x) + 4g(x) = 0$, which has the general solution $g(x) = A\\sin(2x) + B\\cos(2x)$. \nApplying the initial conditions, $g(0) = B = 0$ and $g'(0) = 2A\\cos(0) = 1$, which gives $A = 1/2$. Therefore,\n\\[\ng(x) = \\frac{1}{2}\\sin(2x).\n\\]\n\\end{proof}\n"
+}

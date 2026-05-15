@@ -1,0 +1,10 @@
+{
+  "formalization_rules": "open scoped Manifold\nopen Set\n\n/-\nFormalize in Lean the Theorem (isInteriorPoint_of_bijective_mfderiv) from Text.\n\nThe theorem must be named `isInteriorPoint_of_bijective_mfderiv`.\n   Matched text (candidate 0, theorem, label=isInteriorPoint_of_bijective_mfderiv): \\begin{theorem}[isInteriorPoint_of_bijective_mfderiv] Suppose $M$ is a smooth manifold\n                                                                                    (without boundary), $N$ is a smooth manifold with boundary, and $F: M \\to N$ is smooth. Show\n                                                                                    that if $p \\in M$ is a point such that $dF_p$ is nonsingular, then $F(p) \\in\n                                                                                    \\operatorname{Int} N$. \\end{theorem}\n-/\n",
+  "idx": "geometry/L2/geo_gen_L2_011",
+  "imports": [
+    "import Mathlib.Geometry.Manifold.ContMDiff.Defs",
+    "import Mathlib.Geometry.Manifold.Instances.Real",
+    "import Mathlib.Geometry.Manifold.MFDeriv.Defs"
+  ],
+  "informal_proof": "\\begin{theorem}[isInteriorPoint_of_bijective_mfderiv]\nSuppose $M$ is a smooth manifold (without boundary), $N$ is a smooth manifold with boundary, and $F: M \\to N$ is smooth. Show that if $p \\in M$ is a point such that $dF_p$ is nonsingular, then $F(p) \\in \\operatorname{Int} N$.\n\\end{theorem}\n"
+}

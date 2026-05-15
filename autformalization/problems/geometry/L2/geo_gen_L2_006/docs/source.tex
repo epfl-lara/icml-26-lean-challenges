@@ -1,0 +1,29 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench geometry/L2/geo\_gen\_L2\_006}
+\begin{document}
+\maketitle
+% Problem id: geometry/L2/geo_gen_L2_006
+% Companion instructions: docs/instructions.md
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{theorem}[napoleons_theorem_inner]\label{thm:napoleon_inner}
+Let $A,B,C$ be non-collinear points in the plane.
+On each side of $\triangle ABC$, construct an equilateral triangle \emph{internally} (all three on the same ``inner'' side).
+Let $X,Y,Z$ be the centroids of the equilateral triangles on $AB,BC,CA$, respectively.
+Then $\triangle XYZ$ is equilateral.
+\end{theorem}
+
+\begin{theorem}[napoleons_theorem_outer]\label{thm:napoleon_outer}
+Let $A,B,C$ be non-collinear points in the plane.
+On each side of $\triangle ABC$, construct an equilateral triangle \emph{externally} (all three on the same ``outer'' side).
+Let $X,Y,Z$ be the centroids of the equilateral triangles on $AB,BC,CA$, respectively.
+Then $\triangle XYZ$ is equilateral.
+\end{theorem}
+\end{document}

@@ -1,0 +1,23 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench algebra/L2/alg\_grob\_L2\_014}
+\begin{document}
+\maketitle
+% Problem id: algebra/L2/alg_grob_L2_014
+% Companion instructions: docs/instructions.md
+% Lean target: ShadowBench/Source/Main.lean
+
+Lemma (Cox, IVA, Ch.2, Sec.2, Lemma 8; generalization)
+Upper bound of the leading monomial of finite sum
+
+Let $f_1, f_2, \cdots, f_n \in R[\sigma]$ be multivariate polynomials (which might be zero). Here, $\sigma$ is a set of variable symbols over which a monomial order $>$ is fixed, and $R$ is a nontrivial commutative semiring. Given a monomial $x^\delta$ such that $\mathrm{LM}(f_i) \le x^\delta$ for every $i = 1, 2, \cdots, n$, we have $\mathrm{LM}(\sum_{i=1}^n f_i) \le x^\delta$.
+
+Proof)
+Induction on $n$, with initial case $n = 1$ assumed and $n = 2$ already proven, directly gives the conclusion.
+\end{document}

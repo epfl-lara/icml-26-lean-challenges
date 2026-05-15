@@ -1,0 +1,8 @@
+{
+  "formalization_rules": "open scoped Manifold Topology\nopen Set\n\n/-\nFormalize in Lean the Lemma (isMIntegralCurveAt_iff') from Text.\n\nThe lemma must be named `isMIntegralCurveAt_iff'`.\n   Matched text (candidate 0, theorem, label=isMIntegralCurveAt_iff'): \\begin{theorem}[isMIntegralCurveAt_iff'] Let $M$ be a manifold and $v$ be a vector field on\n                                                                       $M$. Then $\\Gamma : ℝ → M$ is an integral curve of $v$ at $t_o$ if and only if there exists\n                                                                       an open neighborhood $U$ of $t_o$ such that $\\Gamma$ is an integral curve of $v$ on $U$.\n                                                                       \\end{theorem}\n-/\n",
+  "idx": "geometry/L2/geo_diff_L2_003",
+  "imports": [
+    "imports: import Mathlib.Geometry.Manifold.MFDeriv.Tangent"
+  ],
+  "informal_proof": "\\begin{lemma}[isMIntegralCurveAt_iff']\nLet $M$ be a manifold and $v$ be a vector field on $M$. Then $\\Gamma : ℝ → M$ is an integral curve of $v$ at $t_o$ \nif and only if there exists an open neighborhood $U$ of $t_o$ such that $\\Gamma$ is an integral curve of $v$ on $U$.\n\\end{lemma}\n"
+}

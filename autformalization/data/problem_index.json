@@ -1,0 +1,750 @@
+{
+  "by_area": {
+    "Topology": 1,
+    "algebra": 28,
+    "algebraic-geometry": 23,
+    "analysis": 29,
+    "combinatorics": 6,
+    "geometry": 30,
+    "number-theory": 2,
+    "probability": 1,
+    "topology": 25
+  },
+  "by_level": {
+    "L2": 77,
+    "L3": 54,
+    "L4": 14
+  },
+  "dataset": "DicoTiar/ShadowBench",
+  "dataset_url": "https://huggingface.co/datasets/DicoTiar/ShadowBench/resolve/main/test.jsonl",
+  "lean_toolchain": "leanprover/lean4:v4.28.0",
+  "mathlib_rev": "v4.28.0",
+  "problem_count": 145,
+  "problems": [
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_comp_L2_001",
+      "path": "problems/analysis/L2/ana_comp_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_comp_L2_002",
+      "path": "problems/analysis/L2/ana_comp_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_four_L2_001",
+      "path": "problems/analysis/L2/ana_four_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_four_L2_002",
+      "path": "problems/analysis/L2/ana_four_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_four_L2_003",
+      "path": "problems/analysis/L2/ana_four_L2_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_four_L2_004",
+      "path": "problems/analysis/L2/ana_four_L2_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_gen_L2_001",
+      "path": "problems/analysis/L2/ana_gen_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_gen_L2_002",
+      "path": "problems/analysis/L2/ana_gen_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_gen_L2_003",
+      "path": "problems/analysis/L2/ana_gen_L2_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_gen_L2_004",
+      "path": "problems/analysis/L2/ana_gen_L2_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_gen_L2_004_v2",
+      "path": "problems/analysis/L2/ana_gen_L2_004_v2"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_gen_L2_005",
+      "path": "problems/analysis/L2/ana_gen_L2_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_mero_L2_001",
+      "path": "problems/analysis/L2/ana_mero_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L2/ana_mero_L2_002",
+      "path": "problems/analysis/L2/ana_mero_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_comp_L3_001",
+      "path": "problems/analysis/L3/ana_comp_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_001",
+      "path": "problems/analysis/L3/ana_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_002",
+      "path": "problems/analysis/L3/ana_gen_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_003",
+      "path": "problems/analysis/L3/ana_gen_L3_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_004",
+      "path": "problems/analysis/L3/ana_gen_L3_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_005",
+      "path": "problems/analysis/L3/ana_gen_L3_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_006",
+      "path": "problems/analysis/L3/ana_gen_L3_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_007",
+      "path": "problems/analysis/L3/ana_gen_L3_007"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_gen_L3_008",
+      "path": "problems/analysis/L3/ana_gen_L3_008"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L3/ana_pde_L3_001",
+      "path": "problems/analysis/L3/ana_pde_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L4/ana_func_L4_001",
+      "path": "problems/analysis/L4/ana_func_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L4/ana_func_L4_002",
+      "path": "problems/analysis/L4/ana_func_L4_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L4/ana_func_L4_003",
+      "path": "problems/analysis/L4/ana_func_L4_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L4/ana_pde_L4_001",
+      "path": "problems/analysis/L4/ana_pde_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "analysis/L4/ana_real_L4_001",
+      "path": "problems/analysis/L4/ana_real_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "Topology/L2/top_gen_L2_001",
+      "path": "problems/Topology/L2/top_gen_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_004",
+      "path": "problems/topology/L2/top_gen_L2_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_005",
+      "path": "problems/topology/L2/top_gen_L2_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_006",
+      "path": "problems/topology/L2/top_gen_L2_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_007",
+      "path": "problems/topology/L2/top_gen_L2_007"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_008",
+      "path": "problems/topology/L2/top_gen_L2_008"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_009",
+      "path": "problems/topology/L2/top_gen_L2_009"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_010",
+      "path": "problems/topology/L2/top_gen_L2_010"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_011",
+      "path": "problems/topology/L2/top_gen_L2_011"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_012",
+      "path": "problems/topology/L2/top_gen_L2_012"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_013",
+      "path": "problems/topology/L2/top_gen_L2_013"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_014",
+      "path": "problems/topology/L2/top_gen_L2_014"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_015",
+      "path": "problems/topology/L2/top_gen_L2_015"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_016",
+      "path": "problems/topology/L2/top_gen_L2_016"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_017",
+      "path": "problems/topology/L2/top_gen_L2_017"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_018",
+      "path": "problems/topology/L2/top_gen_L2_018"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L2/top_gen_L2_019",
+      "path": "problems/topology/L2/top_gen_L2_019"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_001",
+      "path": "problems/topology/L3/top_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_002",
+      "path": "problems/topology/L3/top_gen_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_003",
+      "path": "problems/topology/L3/top_gen_L3_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_004",
+      "path": "problems/topology/L3/top_gen_L3_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_006",
+      "path": "problems/topology/L3/top_gen_L3_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_007",
+      "path": "problems/topology/L3/top_gen_L3_007"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_008",
+      "path": "problems/topology/L3/top_gen_L3_008"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_gen_L3_008_v2",
+      "path": "problems/topology/L3/top_gen_L3_008_v2"
+    },
+    {
+      "changed_files": 0,
+      "idx": "topology/L3/top_homo_L3_001",
+      "path": "problems/topology/L3/top_homo_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L3/alg_gen_L3_001",
+      "path": "problems/algebra/L3/alg_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L3/alg_gen_L3_002",
+      "path": "problems/algebra/L3/alg_gen_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L3/alg_gen_L3_004",
+      "path": "problems/algebra/L3/alg_gen_L3_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L3/alg_gen_L3_005",
+      "path": "problems/algebra/L3/alg_gen_L3_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L3/alg_grob_L3_001",
+      "path": "problems/algebra/L3/alg_grob_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L4/alg_geom_L4_001",
+      "path": "problems/algebra/L4/alg_geom_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L4/alg_geom_L4_002",
+      "path": "problems/algebra/L4/alg_geom_L4_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L4/alg_geom_L4_003",
+      "path": "problems/algebra/L4/alg_geom_L4_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L2/alg_gen_L2_001",
+      "path": "problems/algebraic-geometry/L2/alg_gen_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L2/alg_sche_L2_001",
+      "path": "problems/algebraic-geometry/L2/alg_sche_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_001",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_002",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_003",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_004",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_005",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_006",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_007",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_007"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_008",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_008"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_009",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_009"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_010",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_010"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_011",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_011"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_012",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_012"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_013",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_013"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_gen_L3_014",
+      "path": "problems/algebraic-geometry/L3/alg_gen_L3_014"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_sche_L3_001",
+      "path": "problems/algebraic-geometry/L3/alg_sche_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_sche_L3_002",
+      "path": "problems/algebraic-geometry/L3/alg_sche_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L3/alg_sche_L3_003",
+      "path": "problems/algebraic-geometry/L3/alg_sche_L3_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L4/alg_gen_L4_001",
+      "path": "problems/algebraic-geometry/L4/alg_gen_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L4/alg_gen_L4_002",
+      "path": "problems/algebraic-geometry/L4/alg_gen_L4_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L4/alg_sche_L4_001",
+      "path": "problems/algebraic-geometry/L4/alg_sche_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebraic-geometry/L4/alg_sche_L4_002",
+      "path": "problems/algebraic-geometry/L4/alg_sche_L4_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "combinatorics/L3/com_gen_L3_001",
+      "path": "problems/combinatorics/L3/com_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "combinatorics/L3/com_gen_L3_002",
+      "path": "problems/combinatorics/L3/com_gen_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "combinatorics/L3/com_gen_L3_003",
+      "path": "problems/combinatorics/L3/com_gen_L3_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "combinatorics/L3/com_gen_L3_004",
+      "path": "problems/combinatorics/L3/com_gen_L3_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "combinatorics/L3/com_gen_L3_005",
+      "path": "problems/combinatorics/L3/com_gen_L3_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "combinatorics/L3/com_gen_L3_006",
+      "path": "problems/combinatorics/L3/com_gen_L3_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_diff_L2_001",
+      "path": "problems/geometry/L2/geo_diff_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_diff_L2_002",
+      "path": "problems/geometry/L2/geo_diff_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_diff_L2_003",
+      "path": "problems/geometry/L2/geo_diff_L2_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_001",
+      "path": "problems/geometry/L2/geo_gen_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_002",
+      "path": "problems/geometry/L2/geo_gen_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_003",
+      "path": "problems/geometry/L2/geo_gen_L2_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_004",
+      "path": "problems/geometry/L2/geo_gen_L2_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_005",
+      "path": "problems/geometry/L2/geo_gen_L2_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_006",
+      "path": "problems/geometry/L2/geo_gen_L2_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_007",
+      "path": "problems/geometry/L2/geo_gen_L2_007"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_008",
+      "path": "problems/geometry/L2/geo_gen_L2_008"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_009",
+      "path": "problems/geometry/L2/geo_gen_L2_009"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_010",
+      "path": "problems/geometry/L2/geo_gen_L2_010"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_011",
+      "path": "problems/geometry/L2/geo_gen_L2_011"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_012",
+      "path": "problems/geometry/L2/geo_gen_L2_012"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_013",
+      "path": "problems/geometry/L2/geo_gen_L2_013"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_014",
+      "path": "problems/geometry/L2/geo_gen_L2_014"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_015",
+      "path": "problems/geometry/L2/geo_gen_L2_015"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_016",
+      "path": "problems/geometry/L2/geo_gen_L2_016"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_017",
+      "path": "problems/geometry/L2/geo_gen_L2_017"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_018",
+      "path": "problems/geometry/L2/geo_gen_L2_018"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_019",
+      "path": "problems/geometry/L2/geo_gen_L2_019"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_020",
+      "path": "problems/geometry/L2/geo_gen_L2_020"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L2/geo_gen_L2_021",
+      "path": "problems/geometry/L2/geo_gen_L2_021"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L3/geo_gen_L3_001",
+      "path": "problems/geometry/L3/geo_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L3/geo_gen_L3_002",
+      "path": "problems/geometry/L3/geo_gen_L3_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L3/geo_gen_L3_003",
+      "path": "problems/geometry/L3/geo_gen_L3_003"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L3/geo_gen_L3_004",
+      "path": "problems/geometry/L3/geo_gen_L3_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L3/geo_gen_L3_005",
+      "path": "problems/geometry/L3/geo_gen_L3_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "geometry/L3/geo_gen_L3_006",
+      "path": "problems/geometry/L3/geo_gen_L3_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "number-theory/L4/nt_gen_L4_001",
+      "path": "problems/number-theory/L4/nt_gen_L4_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "number-theory/L4/nt_gen_L4_002",
+      "path": "problems/number-theory/L4/nt_gen_L4_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "probability/L3/prob_gen_L3_001",
+      "path": "problems/probability/L3/prob_gen_L3_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_comp_L2_001",
+      "path": "problems/algebra/L2/alg_comp_L2_001"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_005",
+      "path": "problems/algebra/L2/alg_gen_L2_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_006",
+      "path": "problems/algebra/L2/alg_gen_L2_006"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_007",
+      "path": "problems/algebra/L2/alg_gen_L2_007"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_011",
+      "path": "problems/algebra/L2/alg_gen_L2_011"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_016",
+      "path": "problems/algebra/L2/alg_gen_L2_016"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_026",
+      "path": "problems/algebra/L2/alg_gen_L2_026"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_030",
+      "path": "problems/algebra/L2/alg_gen_L2_030"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_005",
+      "path": "problems/algebra/L2/alg_grob_L2_005"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_014",
+      "path": "problems/algebra/L2/alg_grob_L2_014"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_015",
+      "path": "problems/algebra/L2/alg_grob_L2_015"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_022",
+      "path": "problems/algebra/L2/alg_grob_L2_022"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_024",
+      "path": "problems/algebra/L2/alg_grob_L2_024"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_013",
+      "path": "problems/algebra/L2/alg_grob_L2_013"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_grob_L2_011",
+      "path": "problems/algebra/L2/alg_grob_L2_011"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_002",
+      "path": "problems/algebra/L2/alg_gen_L2_002"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_004",
+      "path": "problems/algebra/L2/alg_gen_L2_004"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_009",
+      "path": "problems/algebra/L2/alg_gen_L2_009"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_013",
+      "path": "problems/algebra/L2/alg_gen_L2_013"
+    },
+    {
+      "changed_files": 0,
+      "idx": "algebra/L2/alg_gen_L2_017",
+      "path": "problems/algebra/L2/alg_gen_L2_017"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "formalization_rules": "open Finset NNReal ENNReal\nopen scoped BigOperators\n\n/-\nFormalize in Lean the following named items from Text.\n\n1. Theorem (geom_mean_le_arith_mean_weighted)\n   The theorem must be named `geom_mean_le_arith_mean_weighted`.\n   Matched text (candidate 0, paragraph): Theorem (Young's inequility)\n2. Theorem (geom_mean_le_arith_mean2_weighted)\n   The theorem must be named `geom_mean_le_arith_mean2_weighted`.\n   Matched text (candidate 1, paragraph): If $a,b \\ge 0$ are non-negative real numbers and $p,q$ are positive real numbers satisfying\n                                          $\\frac{1}{p} + \\frac{1}{q} = 1$, then $$ ab \\le \\frac{a^p}{p} + \\frac{b^q}{q}$$\n3. Theorem (geom_mean_le_arith_mean2_weighted)\n   The theorem must be named `geom_mean_le_arith_mean2_weighted`.\n   Matched text (candidate 2, paragraph): proof\n4. Theorem (young_inequality_of_nonneg)\n   The theorem must be named `young_inequality_of_nonneg`.\n   Matched text (candidate 3, paragraph): Since $p^{-1} + q^{-1} = 1$, by the weighted AM-GM inequality, we have $$\n                                          {a^p}^{p^{-1}}{b^q}^{q^{-1}} \\le p^{-1}a^p + q^{-1} b^q$$ which is equivalent to $$ ab \\le\n                                          \\frac{a^p}{p} + \\frac{b^q}{q}$$\n\nEvery listed named item must be formalized with exactly the stated Lean name.\n-/\n",
+  "idx": "analysis/L2/ana_gen_L2_002",
+  "imports": [
+    "import Mathlib.Algebra.BigOperators.Field",
+    "import Mathlib.Analysis.Convex.Jensen",
+    "import Mathlib.Analysis.Convex.SpecificFunctions.Basic",
+    "import Mathlib.Analysis.SpecialFunctions.Pow.NNReal",
+    "import Mathlib.Data.Real.ConjExponents"
+  ],
+  "informal_proof": "Theorem (Young's inequility)\n\nIf $a,b \\ge 0$ are non-negative real numbers and $p,q$ are positive real numbers satisfying $\\frac{1}{p} + \\frac{1}{q} = 1$, then\n$$ ab \\le \\frac{a^p}{p} + \\frac{b^q}{q}$$\n\nproof\n\nSince $p^{-1} + q^{-1} = 1$, by the weighted AM-GM inequality, we have\n$$ {a^p}^{p^{-1}}{b^q}^{q^{-1}} \\le p^{-1}a^p + q^{-1} b^q$$\nwhich is equivalent to\n$$ ab \\le \\frac{a^p}{p} + \\frac{b^q}{q}$$\n"
+}

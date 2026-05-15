@@ -1,0 +1,8 @@
+{
+  "formalization_rules": "open scoped Manifold ContDiff\n\n/-\nFormalize in Lean the Definition (X) from Text.\n\nThe definition must be named `X`.\n   Matched text (candidate 0, definition, label=X): \\begin{definition}[X] Proposition 8.19 states that if $F: M \\to N$ is a diffeomorphism and\n                                                    $X$ is a smooth vector field on $M$, then there is a unique smooth vector field $Y$ on $N$\n                                                    such that $dF_p (X_p) = Y_{F(p)}$ for every $p \\in M$. Show that this can be false if $F$ is\n                                                    assumed only to be smooth and bijective: take $F: \\mathbb{R} \\to \\mathbb{R}$ defined by\n                                                    $F(x) = x^3$ and $X = d/dx$ on $\\mathbb{R}$. \\end{defini…\n-/\n",
+  "idx": "geometry/L2/geo_gen_L2_019",
+  "imports": [
+    "import Mathlib"
+  ],
+  "informal_proof": "\\begin{definition}[X]\nProposition 8.19 states that if $F: M \\to N$ is a diffeomorphism and $X$ is a smooth vector field on $M$, then there is a unique smooth vector field $Y$ on $N$ such that $dF_p (X_p) = Y_{F(p)}$ for every $p \\in M$. Show that this can be false if $F$ is assumed only to be smooth and bijective: take $F: \\mathbb{R} \\to \\mathbb{R}$ defined by $F(x) = x^3$ and $X = d/dx$ on $\\mathbb{R}$.\n\\end{definition}\n"
+}

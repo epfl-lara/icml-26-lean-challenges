@@ -1,0 +1,10 @@
+{
+  "formalization_rules": "open scoped BigOperators\nopen MvPolynomial\n\n/-\nFormalize in Lean the Definition (J) from Text.\n\nThe definition must be named `J`.\n   Matched text (candidate 0, definition, label=J): \\begin{definition}[J] Let $k$ be an arbitrary field and let $I,J$ be ideals in\n                                                    $k[x_1,\\ldots,x_n]$. Show the following: \\begin{enumerate} \\item $\\sqrt{IJ} = \\sqrt{I \\cap\n                                                    J}$. \\item In $k[x,y]$, let $I=\\langle x\\rangle$ and $J=\\langle x,y\\rangle$. Show that $I$\n                                                    and $J$ are radical ideals, but $IJ$ is not a radical ideal. \\item In $k[x,y]$, with\n                                                    $I=\\langle x\\rangle$ and $J=\\langle x,y\\rangle$ as above, show that $\\sqr…\n-/\n",
+  "idx": "algebra/L2/alg_gen_L2_009",
+  "imports": [
+    "import Mathlib.Algebra.MvPolynomial.Basic",
+    "import Mathlib.RingTheory.Ideal.Operations",
+    "import Mathlib.RingTheory.AdjoinRoot"
+  ],
+  "informal_proof": "\\begin{definition}[J]\nLet $k$ be an arbitrary field and let $I,J$ be ideals in $k[x_1,\\ldots,x_n]$.\nShow the following:\n\\begin{enumerate}\n  \\item $\\sqrt{IJ} = \\sqrt{I \\cap J}$.\n\n  \\item In $k[x,y]$, let $I=\\langle x\\rangle$ and $J=\\langle x,y\\rangle$.\n  Show that $I$ and $J$ are radical ideals, but $IJ$ is not a radical ideal.\n\n  \\item In $k[x,y]$, with $I=\\langle x\\rangle$ and $J=\\langle x,y\\rangle$ as above,\n  show that $\\sqrt{IJ} \\neq \\sqrt{I}\\,\\sqrt{J}$.\n\\end{enumerate}\n\\end{definition}\n"
+}

@@ -1,0 +1,9 @@
+{
+  "formalization_rules": "/-\nFormalize in Lean the Theorem (norm_cos_eq) from Text.\n\nThe theorem must be named `norm_cos_eq`.\n   Matched text (candidate 0, theorem, label=norm_cos_eq): \\begin{theorem}[norm_cos_eq] Show that $|\\cos z| = \\sqrt{\\sinh^2 y + \\cos^2 x}$.\n                                                           \\end{theorem}\n-/\n",
+  "idx": "analysis/L2/ana_comp_L2_002",
+  "imports": [
+    "import Mathlib.Analysis.Complex.Trigonometric",
+    "import Mathlib.Analysis.Normed.Ring.Basic"
+  ],
+  "informal_proof": "\\begin{theorem}[norm_cos_eq]\nShow that $|\\cos z| = \\sqrt{\\sinh^2 y + \\cos^2 x}$.\n\\end{theorem}\n\n\\begin{proof}\n\\[\n\\begin{aligned}\n|\\cos z| &= |\\cos x \\cosh y - i \\sin x \\sinh y| \\\\\n&= \\sqrt{\\cos^2 x \\cosh^2 y + \\sin^2 x \\sinh^2 y} \\\\\n&= \\sqrt{\\cos^2 x (1 + \\sinh^2 y) + \\sin^2 x \\sinh^2 y} \\\\\n&= \\sqrt{\\cos^2 x + \\sinh^2 y (\\cos^2 x + \\sin^2 x)} \\\\\n&= \\sqrt{\\cos^2 x + \\sinh^2 y}\n\\end{aligned}\n\\]\n\\end{proof}\n"
+}

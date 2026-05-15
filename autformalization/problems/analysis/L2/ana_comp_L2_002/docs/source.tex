@@ -1,0 +1,31 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench analysis/L2/ana\_comp\_L2\_002}
+\begin{document}
+\maketitle
+% Problem id: analysis/L2/ana_comp_L2_002
+% Companion instructions: docs/instructions.md
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{theorem}[norm_cos_eq]
+Show that $|\cos z| = \sqrt{\sinh^2 y + \cos^2 x}$.
+\end{theorem}
+
+\begin{proof}
+\[
+\begin{aligned}
+|\cos z| &= |\cos x \cosh y - i \sin x \sinh y| \\
+&= \sqrt{\cos^2 x \cosh^2 y + \sin^2 x \sinh^2 y} \\
+&= \sqrt{\cos^2 x (1 + \sinh^2 y) + \sin^2 x \sinh^2 y} \\
+&= \sqrt{\cos^2 x + \sinh^2 y (\cos^2 x + \sin^2 x)} \\
+&= \sqrt{\cos^2 x + \sinh^2 y}
+\end{aligned}
+\]
+\end{proof}
+\end{document}

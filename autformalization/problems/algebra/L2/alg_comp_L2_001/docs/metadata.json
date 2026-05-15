@@ -1,0 +1,9 @@
+{
+  "formalization_rules": "open MvPolynomial\nopen scoped MonomialOrder\n\n/-\nFormalize in Lean the Definition (expSet) from Text.\n\nThe definition must be named `expSet`.\n   Matched text (candidate 0, definition, label=expSet): \\begin{definition}[expSet] Suppose that $I = \\langle x^\\alpha \\mid \\alpha \\in A \\rangle$ is\n                                                         a monomial ideal, and let $S$ be the set of all exponents that occur as monomials of $I$.\n                                                         For any monomial order $>$, prove that the smallest element of $S$ with respect to $>$ must\n                                                         lie in $A$. \\end{definition}\n-/\n",
+  "idx": "algebra/L2/alg_comp_L2_001",
+  "imports": [
+    "import Mathlib.RingTheory.MvPolynomial.Ideal",
+    "import Mathlib.Data.Finsupp.MonomialOrder"
+  ],
+  "informal_proof": "\\begin{definition}[expSet]\nSuppose that $I = \\langle x^\\alpha \\mid \\alpha \\in A \\rangle$ is a monomial ideal, and let $S$ be the set of all exponents that occur as monomials of $I$. For any monomial order $>$, prove that the smallest element of $S$ with respect to $>$ must lie in $A$.\n\\end{definition}\n"
+}

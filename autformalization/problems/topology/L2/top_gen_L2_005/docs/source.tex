@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench topology/L2/top\_gen\_L2\_005}
+\begin{document}
+\maketitle
+% Problem id: topology/L2/top_gen_L2_005
+% Companion instructions: docs/instructions.md
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{definition}[setoid]
+Let $X$ be a topological space, $x \in X$ and $\Omega^{N}(X,x)$ denote the space of \emph{generalized $N$-loops in $X$ based at $x$} i.e.
+\[
+\Omega^{N}(X,x)
+:=
+\Bigl\{\, f : I^{N} \to X \ \text{continuous} \ \Bigm|\ 
+f(y)=x \text{ for all } y \in \partial I^{N} \Bigr\}
+\]
+With respect to the usual topology on $ \Omega^{N}(X,x)$ inherited from the compact-open topology on continuous maps, the evaluation map
+\[
+\mathrm{ev} : \Omega^{N}(X,x) \times I^{N} \longrightarrow X,
+\qquad
+(f,y) \longmapsto f(y),
+\]
+is continuous.  
+In particular, for each fixed $y \in I^{N}$, the map
+\[
+\Omega^{N}(X,x) \longrightarrow X,
+\qquad
+f \longmapsto f(y),
+\]
+is continuous.
+\end{definition}
+\end{document}

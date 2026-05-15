@@ -1,0 +1,20 @@
+name = "shadowbench_geometry_l3_geo_gen_l3_001"
+version = "0.1.0"
+keywords = ["math", "autoformalization", "shadowbench"]
+defaultTargets = ["ShadowBench"]
+
+[leanOptions]
+pp.unicode.fun = true
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+linter.style.whitespace = false
+linter.style.cdot = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.28.0"
+
+[[lean_lib]]
+name = "ShadowBench"

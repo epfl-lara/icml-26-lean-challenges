@@ -1,0 +1,8 @@
+{
+  "formalization_rules": "open Euclidean\n\n/-\nFormalize in Lean the Theorem (open_disc_not_disjoint_union_rectangles) from Text.\n\nThe theorem must be named `open_disc_not_disjoint_union_rectangles`.\n   Matched text (candidate 0, theorem, label=open_disc_not_disjoint_union_rectangles): \\begin{theorem}[open_disc_not_disjoint_union_rectangles] An open disc in $\\mathbb{R}^2$ is\n                                                                                       not the disjoint union of open rectangles. \\\\ \\end{theorem}\n-/\n",
+  "idx": "analysis/L3/ana_gen_L3_002",
+  "imports": [
+    "import Mathlib.Analysis.InnerProductSpace.EuclideanDist"
+  ],
+  "informal_proof": "\\begin{theorem}[open_disc_not_disjoint_union_rectangles]\nAn open disc in $\\mathbb{R}^2$ is not the disjoint union of open rectangles. \\\\\n\\end{theorem}\n"
+}

@@ -1,0 +1,9 @@
+{
+  "formalization_rules": "open Filter MeasureTheory Complex Module Metric Real Bornology\nopen scoped Topology FourierTransform RealInnerProductSpace Complex\n\n/-\nFormalize in Lean the Theorem (MeasureTheory.Integrable.fourierInv_fourier_eq) from Text.\n\nThe theorem must be named `MeasureTheory.Integrable.fourierInv_fourier_eq`.\n   Matched text (candidate 0, theorem, label=MeasureTheory.Integrable.fourierInv_fourier_eq): \\begin{theorem}[MeasureTheory.Integrable.fourierInv_fourier_eq] Let $f$ be an integrable\n                                                                                              function on a finite-dimensional real inner product space. If its Fourier transform\n                                                                                              $\\mathcal{F} f$ is also integrable, then at every point where $f$ is continuous, the inverse\n                                                                                              Fourier transform of $\\mathcal{F} f$ equals $f$ itself; that is,\n                                                                                              $\\mathcal{F}^{-1}(\\mathcal{F} f)(v) = f(v)$ for all continuity points $v$ of $f$. \\end{t…\n-/\n",
+  "idx": "analysis/L2/ana_four_L2_004",
+  "imports": [
+    "import Mathlib.MeasureTheory.Integral.PeakFunction",
+    "import Mathlib.Analysis.SpecialFunctions.Gaussian.FourierTransform"
+  ],
+  "informal_proof": "\\begin{theorem}[MeasureTheory.Integrable.fourierInv_fourier_eq] Let $f$ be an integrable function on a finite-dimensional real inner product space. If its Fourier transform $\\mathcal{F} f$ is also integrable, then at every point where $f$ is continuous, the inverse Fourier transform of $\\mathcal{F} f$ equals $f$ itself; that is, $\\mathcal{F}^{-1}(\\mathcal{F} f)(v) = f(v)$ for all continuity\n points $v$ of $f$.\n\\end{theorem}\n"
+}

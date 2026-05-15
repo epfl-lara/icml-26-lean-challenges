@@ -1,0 +1,11 @@
+{
+  "formalization_rules": "open CategoryTheory\nopen ContinuousMap\nopen scoped ContinuousMap\n\n/-\nFormalize in Lean the following named items from Text.\n\n1. Theorem (paths_homotopic)\n   The theorem must be named `paths_homotopic`.\n   Matched text (candidate 0, theorem): \\begin{theorem} A topological space $X$ is simply connected if its fundamental groupoid is\n                                        equivalent to the the groupoid with one object and the identity morphism. \\end{theorem}\n2. Theorem (simply_connected_iff_paths_homotopic)\n   The theorem must be named `simply_connected_iff_paths_homotopic`.\n   Matched text (candidate 1, theorem, label=simply_connected_iff_paths_homotopic): \\begin{theorem}[simply_connected_iff_paths_homotopic] A topological space is simply\n                                                                                    connected if and only if it is path connected, and there is at most one path up to homotopy\n                                                                                    between any two points. \\end{theorem}\n\nEvery listed named item must be formalized with exactly the stated Lean name.\n-/\n",
+  "idx": "topology/L2/top_gen_L2_008",
+  "imports": [
+    "import Mathlib.AlgebraicTopology.FundamentalGroupoid.InducedMaps",
+    "import Mathlib.Topology.Homotopy.Contractible",
+    "import Mathlib.CategoryTheory.PUnit",
+    "import Mathlib.AlgebraicTopology.FundamentalGroupoid.PUnit"
+  ],
+  "informal_proof": "\\begin{theorem}[paths_homotopic]\nA topological space $X$ is simply connected if its fundamental groupoid is equivalent to the the groupoid with one object and the identity morphism.\n\\end{theorem}\n\n\\begin{theorem}[simply_connected_iff_paths_homotopic]\nA topological space is simply connected if and only if it is path connected, and there is at most one path up to homotopy between any two points.\n\\end{theorem}\n\\begin{proof}\nLet $X$ be a simply connected space. The fundamental groupoid $\\Pi X$ being equivalent to a groupoid $\\mathcal{E}$ with one object $e$ and the identity morphism, is equivalent to being a groupoid having a unique morphism between any two objects. It is equivalent to say that any two points of $X$ have a unique path between them up to homotopy equivalence. In partiular, $X$ is path connected in such case.\n\\end{proof}\n"
+}

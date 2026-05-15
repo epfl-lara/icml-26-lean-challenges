@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench algebra/L2/alg\_gen\_L2\_016}
+\begin{document}
+\maketitle
+% Problem id: algebra/L2/alg_gen_L2_016
+% Companion instructions: docs/instructions.md
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{theorem}[span_pow_card_mul_le_span_image_pow]
+Let $s=\{g_1,\dots,g_r\}$ be a finite subset of $k[x_1,\dots,x_n]$.
+Set $J := \langle s\rangle$ and let $M\ge 0$. Then
+\[
+  J^{\,rM}
+  \;\subseteq\;
+  \left\langle\, g^M \mid g\in s \,\right\rangle.
+\]
+\end{theorem}
+\end{document}

@@ -1,0 +1,11 @@
+{
+  "formalization_rules": "/-\nFormalize in Lean the Theorem (span_pow_card_mul_le_span_image_pow) from Text.\n\nThe theorem must be named `span_pow_card_mul_le_span_image_pow`.\n   Matched text (candidate 0, theorem, label=span_pow_card_mul_le_span_image_pow): \\begin{theorem}[span_pow_card_mul_le_span_image_pow] Let $s=\\{g_1,\\dots,g_r\\}$ be a finite\n                                                                                   subset of $k[x_1,\\dots,x_n]$. Set $J := \\langle s\\rangle$ and let $M\\ge 0$. Then \\[ J^{\\,rM}\n                                                                                   \\;\\subseteq\\; \\left\\langle\\, g^M \\mid g\\in s \\,\\right\\rangle. \\] \\end{theorem}\n-/\n",
+  "idx": "algebra/L2/alg_gen_L2_016",
+  "imports": [
+    "import Mathlib.Algebra.MvPolynomial.Basic",
+    "import Mathlib.RingTheory.Noetherian.Defs",
+    "import Mathlib.RingTheory.Polynomial.Basic",
+    "import Mathlib.RingTheory.PrincipalIdealDomain"
+  ],
+  "informal_proof": "\\begin{theorem}[span_pow_card_mul_le_span_image_pow]\nLet $s=\\{g_1,\\dots,g_r\\}$ be a finite subset of $k[x_1,\\dots,x_n]$.\nSet $J := \\langle s\\rangle$ and let $M\\ge 0$. Then\n\\[\n  J^{\\,rM}\n  \\;\\subseteq\\;\n  \\left\\langle\\, g^M \\mid g\\in s \\,\\right\\rangle.\n\\]\n\\end{theorem}\n"
+}

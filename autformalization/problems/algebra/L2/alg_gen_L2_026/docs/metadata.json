@@ -1,0 +1,10 @@
+{
+  "formalization_rules": "/-\nFormalize in Lean the Theorem (irredundant_iInf_ideals_not_isPrime) from Text.\n\nThe theorem must be named `irredundant_iInf_ideals_not_isPrime`.\n   Matched text (candidate 0, theorem, label=irredundant_iInf_ideals_not_isPrime): \\begin{theorem}[irredundant_iInf_ideals_not_isPrime] Show that an irredundant intersection\n                                                                                   of at least two prime ideals is never prime. \\end{theorem}\n-/\n",
+  "idx": "algebra/L2/alg_gen_L2_026",
+  "imports": [
+    "import Mathlib.Algebra.Module.Submodule.Lattice",
+    "import Mathlib.RingTheory.Ideal.Operations",
+    "import ABM.Cox.Cox_Chapter4_Ex.Cox_Chapter4_Section6_Definition_append"
+  ],
+  "informal_proof": "\\begin{theorem}[irredundant_iInf_ideals_not_isPrime]\nShow that an irredundant intersection of at least two prime ideals is never prime.\n\\end{theorem}\n"
+}

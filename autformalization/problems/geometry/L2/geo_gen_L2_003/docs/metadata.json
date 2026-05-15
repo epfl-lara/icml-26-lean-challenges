@@ -1,0 +1,8 @@
+{
+  "formalization_rules": "open Affine\n\n/-\nFormalize in Lean the Theorem (erdos_mordell_inequality) from Text.\n\nThe theorem must be named `erdos_mordell_inequality`.\n   Matched text (candidate 0, theorem, label=erdos_mordell_inequality): \\begin{theorem}[erdos_mordell_inequality]\\label{thm:erdos_mordell} In Euclidean geometry,\n                                                                        the Erdős–Mordell inequality states that for any triangle $ABC$ and point $P$ inside $ABC$,\n                                                                        the sum of the distances from $P$ to the sides is less than or equal to half of the sum of\n                                                                        the distances from $P$ to the vertices. Let $PL, PM, PN$ be the perpendiculars from $P$ to\n                                                                        the sides $BC, CA, AB$ respectively. Then: \\[ PA + PB +…\n-/\n",
+  "idx": "geometry/L2/geo_gen_L2_003",
+  "imports": [
+    "import Mathlib.Geometry.Euclidean.Projection"
+  ],
+  "informal_proof": "\\begin{theorem}[erdos_mordell_inequality]\\label{thm:erdos_mordell}\nIn Euclidean geometry, the Erdős–Mordell inequality states that for any triangle $ABC$ and point $P$ inside $ABC$, the sum of the distances from $P$ to the sides is less than or equal to half of the sum of the distances from $P$ to the vertices.\nLet $PL, PM, PN$ be the perpendiculars from $P$ to the sides $BC, CA, AB$ respectively. Then:\n\\[\nPA + PB + PC \\ge 2(PL + PM + PN)\n\\]\n\\end{theorem}\n"
+}
