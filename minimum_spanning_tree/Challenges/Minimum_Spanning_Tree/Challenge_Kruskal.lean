@@ -101,6 +101,108 @@ lemma kruskal_IsSubgraph {n : ℕ} (G : WeightedGraph (Fin n)) :
   unfold kruskal
   apply FromEdgeSubset_IsSubgraph
 
+omit [Fintype V] [LinearOrder V] in
+lemma fromEdgeSet_edgeFinset_eq_of_forall_not_isDiag
+    {s : Finset (Sym2 V)} (hnd : ∀ e ∈ s, ¬ e.IsDiag) :
+    (SimpleGraph.fromEdgeSet (s : Set (Sym2 V))).edgeFinset = s := by
+  ext e
+  rw [SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet]
+  constructor
+  · intro h
+    exact h.1
+  · intro h
+    exact ⟨h, by simpa [Sym2.mem_diagSet] using hnd e h⟩
+
+omit [LinearOrder V] in
+lemma fromEdgeSet_insert_erase_connected_of_path
+    {T : WeightedGraph V} {u v : V} {e f : Sym2 V} {p : T.Walk u v}
+    (hT_conn : T.Connected) (hp : p.IsPath) (he : e = s(u, v)) (huv : u ≠ v)
+    (he_not_T : e ∉ T.edgeFinset) (hf_path : f ∈ p.edges.toFinset) (hfe : f ≠ e) :
+    (SimpleGraph.fromEdgeSet
+      (insert e (T.edgeFinset.erase f) : Set (Sym2 V))).Connected := by
+  let H : SimpleGraph V := T.toSimpleGraph ⊔ SimpleGraph.fromEdgeSet ({e} : Set (Sym2 V))
+  have hT_le_H : T.toSimpleGraph ≤ H := by
+    dsimp [H]
+    exact le_sup_left
+  have hH_conn : H.Connected := by
+    exact SimpleGraph.Connected.mono hT_le_H hT_conn
+  have he_adj_H : H.Adj u v := by
+    dsimp [H]
+    simp [SimpleGraph.fromEdgeSet_adj, he, huv]
+  let pH : H.Path u v := ⟨p.mapLe hT_le_H, hp.mapLe hT_le_H⟩
+  let pRev : H.Path v u := pH.reverse
+  have he_not_pRev : s(u, v) ∉ (pRev : H.Walk v u).edges := by
+    intro hmem
+    have hmem_p : e ∈ p.edges := by
+      have hmem_p' : s(u, v) ∈ p.edges := by
+        simpa [pRev, pH, SimpleGraph.Walk.edges_reverse, List.mem_reverse] using hmem
+      simpa [he] using hmem_p'
+    have he_T : e ∈ T.edgeFinset := by
+      rw [SimpleGraph.mem_edgeFinset]
+      exact SimpleGraph.Walk.edges_subset_edgeSet p hmem_p
+    exact he_not_T he_T
+  have hcycle : (SimpleGraph.Walk.cons he_adj_H (pRev : H.Walk v u)).IsCycle :=
+    SimpleGraph.Path.cons_isCycle pRev he_adj_H he_not_pRev
+  have hf_path_list : f ∈ p.edges := by
+    simpa using hf_path
+  have hf_cycle : f ∈ (SimpleGraph.Walk.cons he_adj_H (pRev : H.Walk v u)).edges := by
+    have hf_pRev : f ∈ (pRev : H.Walk v u).edges := by
+      simpa [pRev, pH, SimpleGraph.Walk.edges_reverse, List.mem_reverse] using hf_path_list
+    simp [hf_pRev]
+  have h_not_bridge_f : ¬ H.IsBridge f := by
+    intro hb
+    have hb' := (SimpleGraph.isBridge_iff_mem_and_forall_cycle_notMem (G := H) (e := f)).mp hb
+    exact hb'.2 (SimpleGraph.Walk.cons he_adj_H (pRev : H.Walk v u)) hcycle hf_cycle
+  have hdel_conn : (H.deleteEdges {f}).Connected := by
+    have hf_eq : s(f.out.1, f.out.2) = f := Quot.out_eq f
+    have h_not : ¬ H.IsBridge s(f.out.1, f.out.2) := by
+      rw [hf_eq]
+      exact h_not_bridge_f
+    have hdel_conn' := hH_conn.connected_delete_edge_of_not_isBridge h_not
+    rw [hf_eq] at hdel_conn'
+    exact hdel_conn'
+  have h_graph :
+      SimpleGraph.fromEdgeSet (insert e (T.edgeFinset.erase f) : Set (Sym2 V)) =
+        H.deleteEdges {f} := by
+    ext a b
+    dsimp [H]
+    rw [SimpleGraph.fromEdgeSet_adj, SimpleGraph.deleteEdges_adj, SimpleGraph.sup_adj,
+      SimpleGraph.fromEdgeSet_adj]
+    simp only [Set.mem_singleton_iff]
+    constructor
+    · rintro ⟨hmem, hne⟩
+      rcases Set.mem_insert_iff.mp hmem with heq | hmem_erase
+      · constructor
+        · right
+          exact ⟨heq, hne⟩
+        · intro hf_eq
+          exact hfe (by rw [←heq, hf_eq])
+      have hmem_erase_fin : s(a, b) ∈ T.edgeFinset.erase f := hmem_erase
+      rw [Finset.mem_erase] at hmem_erase_fin
+      constructor
+      · left
+        rw [← SimpleGraph.mem_edgeSet]
+        exact SimpleGraph.mem_edgeFinset.mp hmem_erase_fin.2
+      · exact hmem_erase_fin.1
+    · rintro ⟨hH, hnotf⟩
+      rcases hH with hT | hepart
+      · constructor
+        · apply Set.mem_insert_of_mem
+          change s(a, b) ∈ T.edgeFinset.erase f
+          rw [Finset.mem_erase]
+          constructor
+          · exact hnotf
+          · rw [SimpleGraph.mem_edgeFinset, SimpleGraph.mem_edgeSet]
+            exact hT
+        · exact hT.ne
+      · rcases hepart with ⟨heq, hne⟩
+        constructor
+        · rw [heq]
+          exact Set.mem_insert e (↑(T.edgeFinset.erase f) : Set (Sym2 V))
+        · exact hne
+  rw [h_graph]
+  exact hdel_conn
+
 -- === Lemmas about Forest.graft and find ===
 
 lemma graft_find_same {n : ℕ} (f : Forest n) (x root : Fin n)
@@ -438,7 +540,7 @@ lemma union_find_eq_preserve {n : ℕ} (s : UnionFindStructure n) (x y u v : Fin
 lemma preserve_inv_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2 (Fin n)))
   (e : Sym2 (Fin n)) (u v : Fin n)
   (he : e = s(u, v))
-  (h_diff : uf.find u ≠ uf.find v)
+  (_h_diff : uf.find u ≠ uf.find v)
   (hinv : ∀ x y, (SimpleGraph.fromEdgeSet forest).Reachable x y → uf.find x = uf.find y) :
   ∀ x y, (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable x y → (uf.union u v).find x = (uf.union u v).find y := by
   intro x y h_reach
@@ -449,15 +551,14 @@ lemma preserve_inv_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2 
     have h_eq1 : (uf.union u v).find x = (uf.union u v).find b := ih
     have h_eq2 : (uf.union u v).find b = (uf.union u v).find c := by
       have h_adj' : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Adj b c := h_adj
-      simp [SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff, Set.mem_singleton_iff] at h_adj'
+      simp [SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff] at h_adj'
       rcases h_adj' with ⟨h_mem, h_neq⟩
       rcases h_mem with h_mem | h_mem
       . -- s(b, c) = e = s(u, v)
         rw [he] at h_mem
         have h_bc : s(b, c) = s(u, v) := h_mem
         have h_eq' : (b = u ∧ c = v) ∨ (b = v ∧ c = u) := by
-          simp [Sym2.eq_iff] at h_bc
-          tauto
+          exact Sym2.eq_iff.mp h_bc
         cases h_eq' with
         | inl h_eq1 =>
           have hb : b = u := h_eq1.1
@@ -1093,8 +1194,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
         have hM_tree : M.IsTree := hM.2
         have hM_sub : M.IsSubgraph G := hM.1
         have hM_conn : M.Connected := hM_tree.1
-        have huvM : M.Reachable u v := hM_conn u v
-        rcases huvM with ⟨pM⟩
+        obtain ⟨pM, hpM_path⟩ := hM_conn.exists_isPath u v
         have hexists_f : ∃ f, f ∈ pM.edges.toFinset ∧ f ∉ forest_1 ∧ f ∈ (e :: es_1).toFinset := by
           by_contra h_all
           push_neg at h_all
@@ -1198,6 +1298,20 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
               · exact h3
             exact h4
           let M' := G.FromEdgeSubset s' hs'_sub
+          have h_s'_edgeFinset_outer :
+              (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset = s' := by
+            apply fromEdgeSet_edgeFinset_eq_of_forall_not_isDiag
+            intro x hx
+            have hxG : x ∈ G.edgeFinset := hs'_sub hx
+            rw [SimpleGraph.mem_edgeFinset] at hxG
+            intro h_diag
+            exact SimpleGraph.not_mem_edgeSet_of_isDiag G.toSimpleGraph h_diag hxG
+          have hM'_edgeFinset_outer : M'.edgeFinset = s' := by
+            ext x
+            rw [show x ∈ M'.edgeFinset ↔
+                x ∈ (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset by
+              simp [M', FromEdgeSubset, WeightedGraph.edgeFinset]]
+            rw [h_s'_edgeFinset_outer]
           use M'
           constructor
           · -- Show M' is a spanning tree of G
@@ -1207,9 +1321,6 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
             · -- Show M' is a tree
               have h1 : M'.toSimpleGraph = SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n))) := by
                 simp [M', FromEdgeSubset]
-              have h2 : M.toSimpleGraph = SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n))) := by
-                rw [←SimpleGraph.fromEdgeSet_edgeSet M.toSimpleGraph]
-                rw [SimpleGraph.coe_edgeFinset]
               have h3 : s'.card = M.edgeFinset.card := by
                 have h4 : e ∉ M.edgeFinset.erase f := by
                   simp [Finset.mem_erase, heM]
@@ -1223,313 +1334,75 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                 have h5 : M.toSimpleGraph.IsTree := hM_tree
                 apply SimpleGraph.IsTree.card_edgeFinset
                 exact h5
+              have h_s'_edgeFinset :
+                  (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset = s' := by
+                apply fromEdgeSet_edgeFinset_eq_of_forall_not_isDiag
+                intro x hx
+                have hxG : x ∈ G.edgeFinset := hs'_sub hx
+                rw [SimpleGraph.mem_edgeFinset] at hxG
+                intro h_diag
+                exact SimpleGraph.not_mem_edgeSet_of_isDiag G.toSimpleGraph h_diag hxG
               have h5 : M'.toSimpleGraph.IsTree := by
+                rw [h1]
                 rw [SimpleGraph.isTree_iff_connected_and_card]
                 constructor
-                · -- Show connected
-                  rw [h1]
-                  have h6 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset = s' := by
-                    have h_no_diag : ∀ x ∈ s', ¬x.IsDiag := by
-                      intro x hx
-                      simp only [s'] at hx
-                      rcases Finset.mem_insert.mp hx with hx | hx
-                      · rw [hx, he]
-                        have h7 : G.Adj u v := by
-                          rw [←SimpleGraph.mem_edgeSet]
-                          rw [he] at heG
-                          exact SimpleGraph.mem_edgeFinset.mp heG
-                        exact h7.ne
-                      · have h7 : x ∈ M.edgeFinset := by
-                          simp only [Finset.mem_erase] at hx
-                          exact hx.2
-                        have h8 : x ∈ G.edgeFinset := by
-                          have h9 : M.edgeFinset ⊆ G.edgeFinset := SimpleGraph.edgeFinset_mono hM_sub.1
-                          exact h9 h7
-                        have h9 : ¬x.IsDiag := by
-                          have h10 : x ∈ G.edgeFinset := h8
-                          rw [SimpleGraph.mem_edgeFinset] at h10
-                          intro h_diag
-                          exact SimpleGraph.not_mem_edgeSet_of_isDiag G.toSimpleGraph h_diag h10
-                        exact h9
-                    ext e'
-                    simp only [SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet]
-                    constructor
-                    · intro h
-                      exact h.1
-                    · intro he'
-                      exact ⟨he', h_no_diag e' he'⟩
-                  have h7 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset.card = M.edgeFinset.card := by
-                    rw [h6]
-                    exact h3
-                  have h8 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).Connected := by
-                    rw [←h2]
-                    exact hM_conn
-                  have h9 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).Connected := by
-                    have h10 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).edgeFinset = M.edgeFinset := by
-                      have h_no_diag : ∀ x ∈ M.edgeFinset, ¬x.IsDiag := by
-                        intro x hx
-                        have h11 : x ∈ M.edgeFinset := hx
-                        have h12 : x ∈ G.edgeFinset := by
-                          have h13 : M.edgeFinset ⊆ G.edgeFinset := SimpleGraph.edgeFinset_mono hM_sub.1
-                          exact h13 h11
-                        have h13 : ¬x.IsDiag := by
-                          have h14 : x ∈ G.edgeFinset := h12
-                          rw [SimpleGraph.mem_edgeFinset] at h14
-                          intro h_diag
-                          exact SimpleGraph.not_mem_edgeSet_of_isDiag G.toSimpleGraph h_diag h14
-                        exact h13
-                      ext e'
-                      simp [SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet]
-                      constructor
-                      · intro h
-                        exact h.1
-                      · intro he'
-                        exact ⟨he', h_no_diag e' he'⟩
-                    have h11 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset.card = (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).edgeFinset.card := by
-                      rw [h6, h10]
-                      exact h3
-                    have h12 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset.card + 1 = Fintype.card (Fin n) := by
-                      rw [h7]
-                      omega
-                    have h13 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).edgeFinset.card + 1 = Fintype.card (Fin n) := by
-                      rw [h10]
-                      omega
-                    have h14 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).IsAcyclic := by
-                      have h15 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).IsAcyclic := by
-                        rw [←h2]
-                        exact hM_tree.2
-                      have h16 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset = s' := h6
-                      have h17 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).edgeFinset = M.edgeFinset := h10
-                      have h18 : s' = insert e (M.edgeFinset.erase f) := rfl
-                      rw [h16, h17, h18]
-                      have h19 : e ∉ M.edgeFinset.erase f := by
-                        simp [Finset.mem_erase, heM]
-                      have h20 : (M.edgeFinset.erase f).card + 1 = M.edgeFinset.card := by
-                        rw [Finset.card_erase_add_one hfM]
-                      have h21 : M.edgeFinset.card + 1 = Fintype.card (Fin n) := by
-                        omega
-                      have h22 : (insert e (M.edgeFinset.erase f)).card = M.edgeFinset.card := by
-                        rw [Finset.card_insert_of_notMem h19]
-                        omega
-                      have h23 : Fintype.card (Fin n) > 0 := by
-                        have h24 : Fintype.card (Fin n) = n := Fintype.card_fin n
-                        have h25 : n > 0 := by
-                          have h26 : G.Connected := hM_sub.1.to_connected
-                          have h27 : Nonempty (Fin n) := h26.nonempty
-                          rcases h27 with ⟨x⟩
-                          have h28 : x.val < n := x.isLt
-                          omega
-                        omega
-                      have h24 : (insert e (M.edgeFinset.erase f)).card + 1 = Fintype.card (Fin n) := by
-                        rw [h22]
-                        omega
-                      have h25 : (SimpleGraph.fromEdgeSet (insert e (M.edgeFinset.erase f) : Set (Sym2 (Fin n)))).Connected := by
-                        have h26 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).Connected := h8
-                        have h27 : (SimpleGraph.fromEdgeSet (insert e (M.edgeFinset.erase f) : Set (Sym2 (Fin n)))) =
-                          (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).deleteEdges {f} ⊔ SimpleGraph.fromEdgeSet {e} := by
-                          ext a b
-                          simp [SimpleGraph.fromEdgeSet, SimpleGraph.deleteEdges]
-                          constructor
-                          · intro h
-                            simp at h
-                            rcases h with h | h
-                            · simp [h, he]
-                            · have hne : a ≠ b := h.2
-                              have hmem : s(a, b) ∈ M.edgeFinset := h.1
-                              have hnf : s(a, b) ≠ f := by
-                                intro h_eq
-                                rw [h_eq] at hmem
-                                exact hf_not_forest hmem
-                              simp [hmem, hne, hnf]
-                          · intro h
-                            simp at h
-                            rcases h with h | h
-                            · rcases h with ⟨hmem, hne, hnf⟩
-                              simp [hmem, hne]
-                            · have hne : a ≠ b := h.2
-                              have heq : s(a, b) = e := h.1
-                              simp [heq, hne]
-                        rw [h27]
-                        have h28 : ((SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).deleteEdges {f} ⊔ SimpleGraph.fromEdgeSet {e}).Connected := by
-                          have h29 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).deleteEdges {f} ⊔ SimpleGraph.fromEdgeSet {e} =
-                            (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))) ⊔ SimpleGraph.fromEdgeSet {e} := by
-                            ext a b
-                            simp [SimpleGraph.deleteEdges]
-                            constructor
-                            · intro h
-                              rcases h with h | h
-                              · simp at h
-                                rcases h with ⟨hmem, hne, hnf⟩
-                                have h1 : s(a, b) ∈ M.edgeFinset := hmem
-                                have h2 : s(a, b) ∈ (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).edgeSet := by
-                                  simp [SimpleGraph.fromEdgeSet]
-                                  exact ⟨h1, hne⟩
-                                simp [h2]
-                              · simp at h
-                                have h1 : s(a, b) = e := h.1
-                                have h2 : a ≠ b := h.2
-                                simp [h1, h2, he]
-                            · intro h
-                              simp at h
-                              rcases h with h | h
-                              · have h1 : s(a, b) ∈ M.edgeFinset := by
-                                  simp [SimpleGraph.fromEdgeSet] at h
-                                  exact h.1
-                                have h2 : s(a, b) ≠ f := by
-                                  intro h_eq
-                                  rw [h_eq] at h1
-                                  exact hf_not_forest h1
-                                simp [h1, h.2, h2]
-                              · simp at h
-                                have h1 : s(a, b) = e := h.1
-                                have h2 : a ≠ b := h.2
-                                simp [h1, h2]
-                          rw [h29]
-                          have h30 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n))) ⊔ SimpleGraph.fromEdgeSet {e}).Connected := by
-                            have h31 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).Connected := h26
-                            have h32 : (SimpleGraph.fromEdgeSet {e}).Connected := by
-                              rw [he]
-                              have h33 : (SimpleGraph.fromEdgeSet {s(u, v)}).Adj u v := by
-                                simp [SimpleGraph.fromEdgeSet]
-                              have h34 : (SimpleGraph.fromEdgeSet {s(u, v)}).Reachable u v := h33.reachable
-                              have h35 : ∀ a b, (SimpleGraph.fromEdgeSet {s(u, v)}).Reachable a b := by
-                                intro a b
-                                have h36 : ∀ x, (SimpleGraph.fromEdgeSet {s(u, v)}).Reachable x u ∨ (SimpleGraph.fromEdgeSet {s(u, v)}).Reachable x v := by
-                                  intro x
-                                  simp [SimpleGraph.fromEdgeSet]
-                                  by_cases h37 : x = u
-                                  · left
-                                    rw [h37]
-                                    exact SimpleGraph.Reachable.rfl
-                                  · by_cases h38 : x = v
-                                    · right
-                                      rw [h38]
-                                      exact SimpleGraph.Reachable.rfl
-                                    · have h39 : ∀ a b, ¬(SimpleGraph.fromEdgeSet {s(u, v)}).Adj a b := by
-                                        intro a b
-                                        simp [SimpleGraph.fromEdgeSet]
-                                        intro h40 h41
-                                        have h42 : a = u ∨ a = v := by
-                                          simp [Sym2.eq_iff] at h40
-                                          cases h40 with
-                                          | inl h43 => left; exact h43.1
-                                          | inr h43 => right; exact h43.1
-                                        have h43 : b = u ∨ b = v := by
-                                          simp [Sym2.eq_iff] at h41
-                                          cases h41 with
-                                          | inl h44 => left; exact h44.2
-                                          | inr h44 => right; exact h44.2
-                                        rcases h42 with h44 | h44
-                                        · rcases h43 with h45 | h45
-                                          · rw [h44] at h37; contradiction
-                                          · rw [h44, h45]
-                                            have h46 : u ≠ v := by
-                                              have h47 : G.Adj u v := by
-                                                rw [←SimpleGraph.mem_edgeSet]
-                                                rw [he] at heG
-                                                exact SimpleGraph.mem_edgeFinset.mp heG
-                                              exact h47.ne
-                                            contradiction
-                                        · rcases h43 with h45 | h45
-                                          · rw [h44, h45]
-                                            have h46 : v ≠ u := by
-                                              have h47 : G.Adj u v := by
-                                                rw [←SimpleGraph.mem_edgeSet]
-                                                rw [he] at heG
-                                                exact SimpleGraph.mem_edgeFinset.mp heG
-                                              exact h47.ne.symm
-                                            contradiction
-                                          · rw [h44] at h38; contradiction
-                                      have h40 : ∀ x y, (SimpleGraph.fromEdgeSet {s(u, v)}).Reachable x y → x = y := by
-                                        intro x y h_reach
-                                        induction h_reach with
-                                        | refl => rfl
-                                        | tail h_reach h_adj ih =>
-                                          exfalso
-                                          exact h39 _ _ h_adj
-                                      have h41 : x = u := by
-                                        apply h40 x u
-                                        exact h_reach
-                                      contradiction
-                                have h37 : (SimpleGraph.fromEdgeSet {s(u, v)}).Reachable a b := by
-                                  rcases h36 a with h38 | h38
-                                  · rcases h36 b with h39 | h39
-                                    · exact h38.trans h39.symm
-                                    · exact h38.trans h34.trans h39.symm
-                                  · rcases h36 b with h39 | h39
-                                    · exact h38.trans h34.symm.trans h39.symm
-                                    · exact h38.trans h39.symm
-                                exact h37
-                              have h36 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n))) ⊔ SimpleGraph.fromEdgeSet {e}).Reachable a b := by
-                                have h37 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))).Reachable a b := h31 a b
-                                have h38 : (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n)))) ≤
-                                  (SimpleGraph.fromEdgeSet (M.edgeFinset : Set (Sym2 (Fin n))) ⊔ SimpleGraph.fromEdgeSet {e}) := by
-                                  apply SimpleGraph.le_sup_left
-                                exact SimpleGraph.Reachable.mono h38 h37
-                              exact ⟨h36⟩
-                            exact h30
-                          exact h28
-                        have h26 : (SimpleGraph.fromEdgeSet (insert e (M.edgeFinset.erase f) : Set (Sym2 (Fin n)))).IsTree := by
-                          rw [SimpleGraph.isTree_iff_connected_and_card]
-                          constructor
-                          · exact h25
-                          · rw [h6, h10, h18]
-                            omega
-                        exact h26.2
-                      exact h14
-                    exact h9
-                  exact h9
-                · -- Show card condition
-                  rw [h1]
-                  have h6 : (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset = s' := by
-                    have h_no_diag : ∀ x ∈ s', ¬x.IsDiag := by
-                      intro x hx
-                      simp [s'] at hx
-                      rcases hx with rfl | hx
-                      · rw [he]
-                        have h7 : G.Adj u v := by
-                          rw [←SimpleGraph.mem_edgeSet]
-                          rw [he] at heG
-                          exact SimpleGraph.mem_edgeFinset.mp heG
-                        exact h7.ne
-                      · have h7 : x ∈ M.edgeFinset := by
-                          simp [Finset.mem_erase] at hx
-                          exact hx.2
-                        have h8 : x ∈ G.edgeFinset := by
-                          have h9 : M.edgeFinset ⊆ G.edgeFinset := SimpleGraph.edgeFinset_mono hM_sub.1
-                          exact h9 h7
-                        have h9 : ¬x.IsDiag := by
-                          have h10 : x ∈ G.edgeFinset := h8
-                          rw [SimpleGraph.mem_edgeFinset] at h10
-                          intro h_diag
-                          exact SimpleGraph.not_mem_edgeSet_of_isDiag G.toSimpleGraph h_diag h10
-                        exact h9
-                    ext e'
-                    simp [SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet]
-                    constructor
-                    · intro h
-                      exact h.1
-                    · intro he'
-                      exact ⟨he', h_no_diag e' he'⟩
-                  rw [h6]
+                · have huv_ne : u ≠ v := by
+                    have h_adj : G.Adj u v := by
+                      rw [←SimpleGraph.mem_edgeSet]
+                      rw [he] at heG
+                      exact SimpleGraph.mem_edgeFinset.mp heG
+                    exact h_adj.ne
+                  simpa [s'] using
+                    fromEdgeSet_insert_erase_connected_of_path
+                      (T := M) (u := u) (v := v) (e := e) (f := f) (p := pM)
+                      hM_conn hpM_path he huv_ne heM hf_path hfe
+                · have h_edge_card :
+                    Nat.card ↑(SimpleGraph.fromEdgeSet
+                      (s' : Set (Sym2 (Fin n)))).edgeSet = s'.card := by
+                    rw [Nat.card_eq_fintype_card]
+                    rw [SimpleGraph.card_edgeSet]
+                    rw [h_s'_edgeFinset]
+                  have h_vertex_card : Nat.card (Fin n) = Fintype.card (Fin n) := by
+                    rw [Nat.card_eq_fintype_card]
+                  rw [h_edge_card, h_vertex_card]
                   omega
+
               exact h5
           constructor
           · -- Show newforest ⊆ M'.edgeFinset
             intro x hx
-            simp [newforest, M', s'] at hx ⊢
-            rcases hx with rfl | hx
-            · simp
+            rw [hM'_edgeFinset_outer]
+            simp [newforest] at hx
+            rcases hx with hx_e | hx
+            · rw [hx_e]
+              exact Finset.mem_insert_self e (M.edgeFinset.erase f)
             · have h1 : x ∈ M.edgeFinset := hsub hx
               have h2 : x ≠ f := by
                 intro h_eq
                 rw [h_eq] at hx
                 exact hf_not_forest hx
-              simp [h1, h2]
+              exact Finset.mem_insert_of_mem (by
+                rw [Finset.mem_erase]
+                exact ⟨h2, h1⟩)
           · -- Show M'.weightSum ≤ M.weightSum
             have h1 : M'.weightSum = ∑ e ∈ s', G.weight e.out.1 e.out.2 := by
-              simp [M', weightSum, FromEdgeSubset]
-              rfl
+              dsimp [WeightedGraph.weightSum]
+              rw [hM'_edgeFinset_outer]
+              apply Finset.sum_congr
+              · rfl
+              · intro x hx
+                have hx_edge :
+                    x ∈ (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeSet := by
+                  rw [← SimpleGraph.mem_edgeFinset]
+                  rw [h_s'_edgeFinset_outer]
+                  exact hx
+                have hx_adj :
+                    (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).Adj x.out.1 x.out.2 := by
+                  rw [← SimpleGraph.mem_edgeSet]
+                  simpa [Quot.out_eq x] using hx_edge
+                have hx_adj' : x ∈ s' ∧ ¬x.out.1 = x.out.2 := by
+                  simpa [SimpleGraph.fromEdgeSet_adj, Quot.out_eq x] using hx_adj
+                simp [M', FromEdgeSubset, hx_adj']
             have h2 : M.weightSum = ∑ e ∈ M.edgeFinset, G.weight e.out.1 e.out.2 := by
               have h3 : M.IsSubgraph G := hM_sub
               simp [weightSum]
@@ -1541,8 +1414,8 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                   have h6 : e ∈ M.toSimpleGraph.edgeSet := by
                     rw [SimpleGraph.mem_edgeFinset] at h5
                     exact h5
-                  rw [SimpleGraph.mem_edgeSet] at h6
-                  exact h6
+                  rw [← SimpleGraph.mem_edgeSet]
+                  simpa [Quot.out_eq e] using h6
                 exact h3.2 e.out.1 e.out.2 h4
             rw [h1, h2]
             have h3 : s' = insert e (M.edgeFinset.erase f) := rfl
@@ -1559,9 +1432,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                 rw [Finset.insert_erase]
                 exact hfM
               rw [h7]
-              rw [Finset.sum_insert]
-              · simp [Finset.mem_erase]
-              · simp [Finset.mem_erase]
+              rw [Finset.sum_insert (by simp [Finset.mem_erase])]
             rw [h5, h6]
             exact Nat.add_le_add_right hweight _
         rcases hM' with ⟨M', hM'_tree, hM'_sub, hM'_le⟩
@@ -1736,7 +1607,7 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
           have he' : (kruskal G).Adj e.out.1 e.out.2 := by
             have h1 : s(e.out.1, e.out.2) ∈ (kruskal G).edgeFinset := by
               have h_eq_e : s(e.out.1, e.out.2) = e := by
-                simp [Sym2.eq_swap]
+                exact Quot.out_eq e
               rw [h_eq_e]
               rw [show (kruskal G).edgeFinset = T.edgeFinset by rw [h_eq]]
               exact he
@@ -1750,7 +1621,7 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
           have he' : T.Adj e.out.1 e.out.2 := by
             have h1 : s(e.out.1, e.out.2) ∈ T.edgeFinset := by
               have h_eq_e : s(e.out.1, e.out.2) = e := by
-                simp [Sym2.eq_swap]
+                exact Quot.out_eq e
               rw [h_eq_e]
               exact he
             have h2 : s(e.out.1, e.out.2) ∈ T.toSimpleGraph.edgeSet := by
