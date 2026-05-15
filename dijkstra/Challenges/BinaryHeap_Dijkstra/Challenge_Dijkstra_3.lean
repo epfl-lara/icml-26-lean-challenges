@@ -5,6 +5,7 @@ Authors: Sonja Joost, Josefine Lindmar, Sorrachai Yingchareonthawornchai
 -/
 
 import Challenges.BinaryHeap_Dijkstra.Def_DijkstraComposite
+import Challenges.BinaryHeap_Dijkstra.Proof_Dijkstra
 
 open BinaryTree BinaryHeap Finset SimpleGraph
 
@@ -20,4 +21,6 @@ theorem dijkstra_correctness
   [Nonempty V]
   (g : fin_simple_graph V) (s : V)
   (is_connected : SimpleGraph.Connected g.toSimpleGraph) :
-  ∀ v : V, (dijkstra g s v) v = delta g s v := sorry
+  ∀ v : V, (dijkstra g s v) v = delta g s v := by
+  intro v
+  simpa using dijkstra_correctness_aux g s v is_connected v
