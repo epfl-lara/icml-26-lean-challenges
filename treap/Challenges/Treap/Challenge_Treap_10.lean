@@ -19,7 +19,14 @@ variable {Prio : Type} [LinearOrder Prio]
 
 -- Prove the splitT has the same behavior as split
 theorem splitT_correctness (tn : TreapNode Key Prio) (k : Key) :
-    (splitT tn k).ret = TreapNode.split tn k := sorry
+    (splitT tn k).ret = TreapNode.split tn k := by
+  induction tn with
+  | nil =>
+      simp [splitT, TreapNode.split]
+  | node kp l r ih_l ih_r =>
+      by_cases h : kp.key < k
+      · simp [splitT, TreapNode.split, h, ih_r]
+      · simp [splitT, TreapNode.split, h, ih_l]
 
 end TreapLogic
 end Cslib.Algorithms.Lean.TimeM
