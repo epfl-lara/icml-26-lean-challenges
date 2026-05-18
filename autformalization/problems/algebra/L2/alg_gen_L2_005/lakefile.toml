@@ -18,3 +18,8 @@ rev = "v4.28.0"
 
 [[lean_lib]]
 name = "ShadowBench"
+
+[[require]]
+name = "repl"
+git = "https://github.com/leanprover-community/repl"
+rev = "v4.28.0"

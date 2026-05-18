@@ -3,9 +3,11 @@
 - Source: `docs/source.tex`
 - Instructions: `docs/instructions.md`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: scaffold created; replace pending entries during formalization.
+- Status: source-fidelity draft prepared for independent statement/source review; theorem proof intentionally left to the prover queue.
 
 ## Import Plan
+
+Direct Lean imports in `ShadowBench/Source/Main.lean`:
 
 ```lean
 import Mathlib.Data.Real.Basic
@@ -13,38 +15,51 @@ import Mathlib.RingTheory.Ideal.Span
 import Mathlib.RingTheory.Nullstellensatz
 ```
 
+## Suggested Search Modules
+
+- `Mathlib.Algebra.MvPolynomial.Eval` for evaluation and specialization lemmas.
+- `Mathlib.Data.Polynomial.Degree.Definitions` or nearby polynomial-degree files if the prover chooses a degree argument for `x ∉ ⟨x^2⟩` after specialization.
+- `Mathlib.RingTheory.Ideal.Operations` or nearby ideal-image/span lemmas if needed during the nonmembership proof.
+
+## Generated File Layout
+
+- `ShadowBench/Source/Main.lean`: contains the full draft formalization for this one exercise.
+- `ShadowBench/Source.lean`: imports `ShadowBench.Source.Main`.
+- `ShadowBench.lean`: imports `ShadowBench.Source.Main` and `ShadowBench.Source`, so a project-level build covers the generated target module.
+
 ## Required Names
 
 - `exists_mem_vanishingIdeal_zeroLocus_not_mem_J`
 
-## Statement Inventory
+## Source Statement Inventory
 
-For each source theorem, lemma, definition, or named item:
+### line-16
 
-- Planned Lean declaration: _pending_
-- Source locator: `docs/source.tex`
-- Dependencies: _pending_
-- Formal statement review: _pending_
-- Source qualifiers: _pending_
-- Lean coverage: _pending_
-- Scope changes: _pending_
-- Statement verification status: _pending_
-- Source proof / prover notes: _pending_
+- Source locator: `docs/source.tex`, exercise lines 16-18; proof environment lines 20-32.
+- Source statement: Let `J = ⟨x^2 + y^2 - 1, y - 1⟩`. Find `f ∈ I(V(J))` such that `f ∉ J`.
+- Planned Lean declarations: `shadowX`, `shadowY`, `shadowJ`, `exists_mem_vanishingIdeal_zeroLocus_not_mem_J`; the coordinate-ring type abbreviation ShadowBenchRxy is used in these declarations.
+- Dependencies: direct imports in `## Import Plan`; Mathlib declarations `MvPolynomial`, `MvPolynomial.X`, `Ideal.span`, `MvPolynomial.zeroLocus`, and `MvPolynomial.vanishingIdeal`; no prior project-local mathematical facts.
+- Formal statement review: The Lean theorem has the fixed ideal `shadowJ` in `ShadowBenchRxy = MvPolynomial (Fin 2) ℝ`; the definitions `shadowX = X 0` and `shadowY = X 1` bridge the source variables `x,y`; `shadowJ` is exactly the span of the two source generators `shadowX ^ 2 + shadowY ^ 2 - 1` and `shadowY - 1`; the theorem asserts `∃ f : ShadowBenchRxy, f ∈ vanishingIdeal ℝ (zeroLocus ℝ shadowJ) ∧ f ∉ shadowJ`, matching the source request to find such an `f`.
+- Source qualifiers: mathematical object class is an ideal in the real two-variable polynomial ring `ℝ[x,y]`; quantifier order is fixed `J` first, then existence of a polynomial `f`; parameter domain has no free parameters beyond the real base field and variables `x,y`; output codomain is the same polynomial ring `ℝ[x,y]`; equality condition is that `J` is generated exactly by `x^2 + y^2 - 1` and `y - 1`; image/vanishing condition is membership `f ∈ I(V(J))`; nonmembership condition is `f ∉ J`; side conditions are none; the statement has no additional follow-on equivalence beyond existence, while the source proof supplies the witness `f = x`.
+- Lean coverage: `ShadowBenchRxy` records the coordinate ring; `shadowX` and `shadowY` record the representation bridge for the two source variables; `shadowJ` records the exact generated ideal; `exists_mem_vanishingIdeal_zeroLocus_not_mem_J` records the existential after `J` is fixed, with `f : ShadowBenchRxy`, Mathlib affine `zeroLocus` and `vanishingIdeal` over `ℝ`, and the two required conjuncts; the eventual proof should instantiate the existential with `shadowX`.
+- Scope changes: representation bridge only: source notation `ℝ[x,y]` is encoded as `MvPolynomial (Fin 2) ℝ` with `x = X 0` and `y = X 1`; Mathlib `zeroLocus`/`vanishingIdeal` supply the source `V`/`I` notation over `ℝ`; no mathematical weakening or strengthening is intended.
+- Statement verification status: waiting for independent statement/source review.
+- Complete source proof: Take `f = x`. If `(a,b) ∈ V(J)`, then `b - 1 = 0` and `a^2 + b^2 - 1 = 0`. Hence `b = 1` and `a^2 = 0`, so `a = 0`. Thus `V(J) = {(0,1)}`, and since `x(0,1) = 0`, we have `x ∈ I(V(J))`. It remains to show `x ∉ J`. Consider the specialization homomorphism `φ : ℝ[x,y] → ℝ[x]` given by `φ(g)=g(x,1)`. Then `φ(y-1)=0` and `φ(x^2+y^2-1)=x^2`, so `φ(J) ⊆ ⟨x^2⟩`. If `x ∈ J`, then `x = φ(x) ∈ ⟨x^2⟩`, impossible. Hence `x ∉ J`. Therefore `f=x` satisfies `f ∈ I(V(J))` and `f ∉ J`.
+- Source proof / prover notes: Prove the theorem by using witness `shadowX`. For membership in the vanishing ideal, unfold `zeroLocus`, `vanishingIdeal`, and `shadowJ`; a point in the zero locus annihilates both generators, the equation from `shadowY - 1` gives `y = 1`, and the equation from `shadowX^2 + shadowY^2 - 1` gives `x^2 = 0`, hence `x = 0` over `ℝ`. For nonmembership in `shadowJ`, use the specialization homomorphism sending `y` to `1`; the generators map into the principal ideal generated by `x^2`, while `x` does not. A Lean proof may implement this using `aeval`, ring-hom image of `Ideal.span`, and degree, coefficient, or monomial-support arguments in `Polynomial ℝ`.
 
-## Formalization Rules
+## Verification Plan
 
-```text
-open MvPolynomial
+- Draft readiness: `lean_inspect` on `ShadowBench/Source/Main.lean`.
+- Project gate: `lean_verify(mode=project)` after Lean declarations are in place.
+- Current project verification: `lake build` via `lean_verify(mode=project)` passed for the draft, with the expected `sorry` warning on `exists_mem_vanishingIdeal_zeroLocus_not_mem_J`.
+- Expected proof obligations: one theorem skeleton, `exists_mem_vanishingIdeal_zeroLocus_not_mem_J`, intentionally ending in `by sorry` for a later `/prove` workflow after independent statement/source review.
 
-/-
-Formalize in Lean the Exercise (Ch. 4 §1, Ex. 2) from Text.
+## Handoff Checklist
 
-The theorem must be named `exists_mem_vanishingIdeal_zeroLocus_not_mem_J`.
-
-Matched text:
-\begin{exercise}[Ch.\ 4 \S1, Ex.\ 2]
-Let $J=\langle x^2+y^2-1,\ y-1\rangle$. Find $f\in \mathbf I(\mathbf V(J))$
-such that $f\notin J$.
-\end{exercise}
--/
-```
+- [x] Source document and manifest inspected.
+- [x] Local companion instructions and metadata inspected.
+- [x] Local/Mathlib search performed before finalizing names and definitions.
+- [x] Source inventory entry `line-16` mapped to Lean declarations.
+- [x] Direct import plan matches the Lean target file.
+- [ ] Run independent statement/source verification review and apply corrections.
+- [ ] Mark stable theorem/lemma/example `sorry` declarations ready for a user-started prove workflow.
