@@ -1,0 +1,5 @@
+-- Splay Tree challenge slice.
+import Challenges.Splay_Tree.Challenge_Splay_Sequential
+import Challenges.Splay_Tree.Challenge_Splay_Deque
+import Challenges.Splay_Tree.Challenge_Splay_DequeConjecture
+import Challenges.Splay_Tree.Challenge_Splay_TraversalConjecture
