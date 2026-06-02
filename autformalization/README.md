@@ -68,6 +68,8 @@ scripts/epflemma_formalize_and_prove.sh --problem algebra/L2/alg_comp_L2_001 --l
 
 The lower-level `scripts/epflemma_formalize.sh` is still available when you want to set `--phase formalize`, `--phase prove`, `--phase both`, or `--phase check` explicitly.
 
+EPFLemma commands are run with stdin closed, like `epflemma workflow ... </dev/null`, so finished agent-mode sessions do not wait for interactive input.
+
 Phases:
 
 - `formalize`: source-backed declaration drafting from `docs/source.tex`.

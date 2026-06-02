@@ -167,6 +167,7 @@ def run_problem(
         process = subprocess.run(
             command,
             cwd=str(ROOT),
+            stdin=subprocess.DEVNULL,
             stdout=log,
             stderr=subprocess.STDOUT,
             text=True,

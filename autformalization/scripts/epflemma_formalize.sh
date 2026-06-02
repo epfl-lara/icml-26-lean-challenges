@@ -78,6 +78,13 @@ run_cmd() {
   "$@"
 }
 
+run_cmd_no_stdin() {
+  printf '+'
+  printf ' %q' "$@"
+  printf ' </dev/null\n'
+  "$@" </dev/null
+}
+
 shadowbench_skill_args() {
   if [[ -f "$SHADOWBENCH_SKILL" ]]; then
     printf '%s\n' --additional-skill "$SHADOWBENCH_SKILL"
@@ -153,12 +160,12 @@ if [[ "$CHECK_BEFORE" -eq 1 ]]; then
 fi
 
 if [[ "$PHASE" != "check" && "$PROJECT_INIT" -eq 1 ]]; then
-  run_cmd epflemma project init
+  run_cmd_no_stdin epflemma project init
 fi
 
 if [[ "$PHASE" == "formalize" || "$PHASE" == "both" ]]; then
   mapfile -t FORMALIZE_SKILL_ARGS < <(shadowbench_skill_args)
-  run_cmd epflemma workflow --provider "$PROVIDER" formalize docs/source.tex "${FORMALIZE_SKILL_ARGS[@]}"
+  run_cmd_no_stdin epflemma workflow --provider "$PROVIDER" formalize docs/source.tex "${FORMALIZE_SKILL_ARGS[@]}"
 fi
 
 if [[ "$PHASE" == "prove" || "$PHASE" == "both" ]]; then
@@ -169,7 +176,7 @@ if [[ "$PHASE" == "prove" || "$PHASE" == "both" ]]; then
   if [[ -f "$BLUEPRINT_SKILL" ]]; then
     PROVE_ARGS+=(--additional-skill "$BLUEPRINT_SKILL")
   fi
-  run_cmd epflemma "${PROVE_ARGS[@]}"
+  run_cmd_no_stdin epflemma "${PROVE_ARGS[@]}"
 fi
 
 if [[ "$PHASE" == "check" || "$CHECK_AFTER" -eq 1 ]]; then
