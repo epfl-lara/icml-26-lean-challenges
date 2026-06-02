@@ -50,7 +50,8 @@ theorem merge_IsHeap (l r : TreapNode Key Prio)
     intro kp l r hheap p hp
     cases hheap with
     | node _ _ _ left_le_root right_le_root _ _ =>
-        simp only [TreapNode.all_prios, Set.union_singleton, Set.mem_union, Set.mem_insert_iff] at hp
+        simp only [TreapNode.all_prios, Set.union_singleton, Set.mem_union,
+          Set.mem_insert_iff] at hp
         rcases hp with hp_lr | hp_right
         · rcases hp_lr with hp_root | hp_left
           · simp [hp_root]

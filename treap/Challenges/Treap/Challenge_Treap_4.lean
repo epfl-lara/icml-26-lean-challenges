@@ -18,10 +18,8 @@ variable {Prio : Type} [LinearOrder Prio]
 -/
 
 theorem splitUpper_correct (tn : TreapNode Key Prio) (k : Key) :
-    ((IsBST tn) →
-      (IsBST (TreapNode.splitUpper tn k).1 ∧ IsBST (TreapNode.splitUpper tn k).2)) ∧
-    (IsHeap tn →
-      IsHeap (TreapNode.splitUpper tn k).1 ∧ IsHeap (TreapNode.splitUpper tn k).2) := by
+    ((IsBST tn) → (IsBST (TreapNode.splitUpper tn k).1 ∧ IsBST (TreapNode.splitUpper tn k).2)) ∧
+    (IsHeap tn → IsHeap (TreapNode.splitUpper tn k).1 ∧ IsHeap (TreapNode.splitUpper tn k).2) := by
   have all_keys_union_splitUpper :
       ∀ (tn : TreapNode Key Prio) (k : Key),
         (TreapNode.splitUpper tn k).1.all_keys ∪

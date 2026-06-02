@@ -28,17 +28,19 @@ theorem all_keys_union_merge (l r : TreapNode Key Prio) :
   case case4 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
     subst new_l
     subst new_r
-    simp [TreapNode.all_keys] at ih1 ⊢
-    rw [← ih1]
     ext x
-    simp [or_assoc, or_left_comm]
+    simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
+    rw [← ih1]
+    simp only [Set.mem_union]
+    tauto
   case case5 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
     subst new_l
     subst new_r
-    simp [TreapNode.all_keys] at ih1 ⊢
-    rw [← ih1]
     ext x
-    simp [or_assoc, or_left_comm]
+    simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
+    rw [← ih1]
+    simp only [Set.mem_union]
+    tauto
 
 end TreapLogic
 end Cslib.Algorithms.Lean.TimeM

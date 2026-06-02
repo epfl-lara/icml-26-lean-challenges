@@ -5,7 +5,6 @@ Authors: Carlo Collodel, Sorrachai Yingchareonthawornchai
 -/
 
 import Challenges.Treap.Def_Treap
-import Challenges.Treap.Challenge_Treap_1
 
 namespace Cslib.Algorithms.Lean.TimeM
 namespace TreapLogic
@@ -22,6 +21,30 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
     (l_proof : IsBST l) (r_proof : IsBST r)
     (sorted_l_r : ∀ kl ∈ l.all_keys, ∀ kr ∈ r.all_keys, kl < kr) :
     IsBST (TreapNode.merge l r) := by
+  have all_keys_union_merge_local :
+      ∀ l r : TreapNode Key Prio,
+        l.all_keys ∪ r.all_keys = (TreapNode.merge l r).all_keys := by
+    intro l r
+    fun_induction TreapNode.merge l r
+    · simp [TreapNode.all_keys]
+    · simp [TreapNode.all_keys]
+    · simp [TreapNode.all_keys]
+    case case4 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
+      subst new_l
+      subst new_r
+      ext x
+      simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
+      rw [← ih1]
+      simp only [Set.mem_union]
+      tauto
+    case case5 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
+      subst new_l
+      subst new_r
+      ext x
+      simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
+      rw [← ih1]
+      simp only [Set.mem_union]
+      tauto
   fun_induction TreapNode.merge l r
   · exact IsBST.nil
   · simpa [TreapNode.merge] using r_proof
@@ -45,7 +68,7 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
         have hk' :
             k ∈ TreapNode.all_keys r_1 ∪
               TreapNode.all_keys (Tree.node kp_2 l_2 r_2 : TreapNode Key Prio) := by
-          rw [all_keys_union_merge]
+          rw [all_keys_union_merge_local]
           exact hk
         cases hk' with
         | inl hk_r1 => exact right_ge_root k hk_r1
@@ -70,7 +93,7 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
         have hk' :
             k ∈ TreapNode.all_keys (Tree.node kp_1 l_1 r_1 : TreapNode Key Prio) ∪
               TreapNode.all_keys l_2 := by
-          rw [all_keys_union_merge]
+          rw [all_keys_union_merge_local]
           exact hk
         cases hk' with
         | inl hk_l => exact sorted_l_r k hk_l kp_2.key (by simp [TreapNode.all_keys])
