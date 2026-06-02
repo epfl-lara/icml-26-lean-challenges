@@ -1,0 +1,10 @@
+{
+  "_dataset": "Lemmy00/ShadowBench-skeletons-prod",
+  "formalization_rules": "open scoped Manifold ContDiff\n\n/-\nFormalize in Lean the named statement from the theorem in the text.\n\nThe Lean declaration must be named exactly:\n- `tangentBundleProdDiffeomorph`\n\nMatched text (candidate 0, theorem):\n\\begin{theorem}\nProve that if $M$ and $N$ are smooth manifolds, then $T(M \\times N)$ is\ndiffeomorphic to $TM \\times TN$.\n\\end{theorem}\n-/",
+  "idx": "geometry/L2/geo_gen_L2_009",
+  "informal_proof": "\\begin{theorem}[tangentBundleProdDiffeomorph]\nProve that if $M$ and $N$ are smooth manifolds, then $T(M \\times N)$ is diffeomorphic to $TM \\times TN$.\n\\end{theorem}",
+  "skeleton1": "import Mathlib.Geometry.Manifold.ContMDiffMFDeriv\n\nopen scoped Manifold ContDiff\n\ntheorem tangentBundleProdDiffeomorph \n  {M N : Type*} [Manifold ℝ M] [Manifold ℝ N] :\n  ∃ f : TangentBundle M × TangentBundle N ≃ T (M × N), \n    ContDiff ℝ ⊤ (f) ∧ ContDiff ℝ ⊤ (f.symm) := by sorry",
+  "skeleton2": "import Mathlib.Geometry.Manifold.ContMDiffMFDeriv\n\nopen scoped Manifold ContDiff\n\ntheorem tangentBundleProdDiffeomorph \n  {M N : Type*} [Manifold ℝ M] [Manifold ℝ N] :\n  ∃ f : TangentBundle M × TangentBundle N ≃ T (M × N), \n    ContDiff ℝ ⊤ (f) ∧ ContDiff ℝ ⊤ (f.symm) := by sorry\n",
+  "skeleton3": "import Mathlib.Geometry.Manifold.ContMDiffMFDeriv\n\nopen scoped Manifold ContDiff\n\ntheorem tangentBundleProdDiffeomorph \n  {M N : Type*} [Manifold ℝ M] [Manifold ℝ N] :\n  ∃ f : TangentBundle M × TangentBundle N ≃ T (M × N), \n    ContDiff ℝ ⊤ (f) ∧ ContDiff ℝ ⊤ (f.symm) := by sorry\n",
+  "skeleton4": "import Mathlib.Geometry.Manifold.ContMDiffMFDeriv\n\nopen scoped Manifold ContDiff\n\ntheorem tangentBundleProdDiffeomorph \n  {M N : Type*} [Manifold ℝ M] [Manifold ℝ N] :\n  ∃ f : TangentBundle M × TangentBundle N ≃ T (M × N), \n    ContDiff ℝ ⊤ (f) ∧ ContDiff ℝ ⊤ (f.symm) := by sorry\n:= by sorry"
+}

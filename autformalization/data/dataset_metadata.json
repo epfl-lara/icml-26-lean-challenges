@@ -1,0 +1,5 @@
+{
+  "id": "Lemmy00/ShadowBench-skeletons-prod",
+  "private": true,
+  "source": "/tmp/shadowbench_skeletons/test.parquet"
+}

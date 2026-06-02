@@ -1,0 +1,68 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench algebra/L3/alg\_grob\_L3\_001}
+\begin{document}
+\maketitle
+% Problem id: algebra/L3/alg_grob_L3_001
+% Companion instructions: docs/instructions.md
+% Candidate skeletons: docs/skeletons/
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{definition}[IsFinite]
+A morphism of schemes $f : X \to Y$ is called \emph{finite} if it is affine and for every affine open subset 
+$U = \operatorname{Spec}(A) \subset Y$, the preimage $f^{-1}(U)$ is affine, say $f^{-1}(U) = \operatorname{Spec}(B)$, 
+where $B$ is a finite $A$-module.
+\end{definition}
+
+\begin{definition}[IsProjective]
+A morphism of schemes $f : X \to Y$ is called \emph{projective} if there exists an integer $n \ge 0$ and a closed immersion
+\[
+i : X \hookrightarrow \mathbb{P}^n_Y
+\]
+such that $f$ factors as
+\[
+X \xrightarrow{i} \mathbb{P}^n_Y \to Y,
+\]
+where $\mathbb{P}^n_Y$ denotes the projective $n$-space over $Y$.
+\end{definition}
+
+\begin{theorem}[finite_implies_projective]
+Let $f : X \to Y$ be a finite morphism of schemes. Then $f$ is projective.
+\end{theorem}
+\begin{proof}
+The statement is local on $Y$, so we may assume $Y = \operatorname{Spec}(A)$ 
+and $X = \operatorname{Spec}(B)$ with $B$ a finite $A$-algebra.
+
+Since $B$ is finite over $A$, it is finitely generated as an $A$-module. 
+Choose generators $b_1, \dots, b_n \in B$. Then the map
+\[
+A[x_1, \dots, x_n] \to B, \quad x_i \mapsto b_i
+\]
+is a surjective $A$-algebra homomorphism. Hence
+\[
+B \cong A[x_1, \dots, x_n]/I
+\]
+for some ideal $I$.
+
+This gives a closed immersion
+\[
+X = \operatorname{Spec}(B) \hookrightarrow \mathbb{A}^n_Y.
+\]
+
+Composing with the standard open immersion $\mathbb{A}^n_Y \hookrightarrow \mathbb{P}^n_Y$, 
+and using that finite morphisms are proper, it follows that $X$ embeds as a closed 
+subscheme of $\mathbb{P}^n_Y$. Therefore $f$ factors as
+\[
+X \hookrightarrow \mathbb{P}^n_Y \to Y,
+\]
+where the first map is a closed immersion and the second is projective.
+
+Thus $f$ is projective.
+\end{proof}
+\end{document}

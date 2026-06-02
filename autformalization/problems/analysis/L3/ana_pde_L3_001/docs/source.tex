@@ -1,0 +1,57 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench analysis/L3/ana\_pde\_L3\_001}
+\begin{document}
+\maketitle
+% Problem id: analysis/L3/ana_pde_L3_001
+% Companion instructions: docs/instructions.md
+% Candidate skeletons: docs/skeletons/
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{theorem}[satisfies_interior_sphere]
+Let $\Omega\subset \mathbb{R}^n$ be connected and open. Let
+\[
+Lu
+=
+\sum_{i,j=1}^n a^{ij}(x)u_{ij}
++
+\sum_{i=1}^n b^i(x)u_i
++
+c(x)u
+\]
+be uniformly elliptic in $\Omega$, where $a^{ij},b^i,c$ are continuous and
+\[
+c(x)\le 0 \qquad \text{in } \Omega.
+\]
+Suppose
+\[
+u\in C^2(\Omega), \qquad Lu\ge 0 \quad \text{in } \Omega.
+\]
+If $u$ attains a nonnegative maximum at an interior point $x_0\in \Omega$, i.e.
+\[
+u(x_0)=\max_{\Omega}u=:M\ge 0,
+\]
+then
+\[
+u\equiv M
+\qquad \text{in } \Omega.
+\]
+\end{theorem}
+\begin{proof}
+Let $M=\max_{\Omega}u$ and set $v:=M-u$. Then $v\ge 0$, $v(x_0)=0$, and $Lv\le 0$.
+
+Let $A:=\{x\in\Omega:\, v(x)=0\}$. Then $A$ is closed and nonempty.
+
+If $z\in A$ is not interior, pick $y\notin A$ and a ball $B_\rho(y)\subset\Omega$ tangent to $A$ at $z_0\in A$; then $v>0$ in $B_\rho(y)$ and $v(z_0)=0$.
+
+By the Hopf lemma, $\partial_\nu v(z_0)<0$, but $z_0$ is an interior minimum of $v$, so $\nabla v(z_0)=0$ — contradiction.
+
+Hence $A$ is open; since $\Omega$ is connected, $A=\Omega$, so $u\equiv M$.
+\end{proof}
+\end{document}

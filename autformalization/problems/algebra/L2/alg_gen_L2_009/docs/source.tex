@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench algebra/L2/alg\_gen\_L2\_009}
+\begin{document}
+\maketitle
+% Problem id: algebra/L2/alg_gen_L2_009
+% Companion instructions: docs/instructions.md
+% Candidate skeletons: docs/skeletons/
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{theorem}
+Let $k$ be an arbitrary field and let $I,J$ be ideals in $k[x_1,\ldots,x_n]$.
+Then
+\begin{enumerate}
+  \item $\sqrt{IJ} = \sqrt{I \cap J}$.
+
+  \item In $k[x,y]$, let $I=\langle x\rangle$ and $J=\langle x,y\rangle$.
+  Show that $I$ and $J$ are radical ideals, but $IJ$ is not a radical ideal.
+
+  \item In $k[x,y]$, with $I=\langle x\rangle$ and $J=\langle x,y\rangle$ as above,
+  show that $\sqrt{IJ} \neq \sqrt{I}\,\sqrt{J}$.
+\end{enumerate}
+\end{theorem}
+\end{document}

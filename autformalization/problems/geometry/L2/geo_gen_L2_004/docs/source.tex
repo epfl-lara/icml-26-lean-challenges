@@ -1,0 +1,24 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench geometry/L2/geo\_gen\_L2\_004}
+\begin{document}
+\maketitle
+% Problem id: geometry/L2/geo_gen_L2_004
+% Companion instructions: docs/instructions.md
+% Candidate skeletons: docs/skeletons/
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{theorem}[caseys_theorem]\label{thm:casey}
+Let $O$ be a circle of radius $R$. Let $O_1, O_2, O_3, O_4$ be (in that order) four non-intersecting circles that lie inside $O$ and tangent to it. Denote by $t_{ij}$ the length of the exterior common bitangent of the circles $O_i, O_j$. Then:
+\[
+t_{12} \cdot t_{34} + t_{14} \cdot t_{23} = t_{13} \cdot t_{24}.
+\]
+Note that in the degenerate case, where all four circles reduce to points, this is exactly Ptolemy's theorem.
+\end{theorem}
+\end{document}

@@ -1,0 +1,10 @@
+{
+  "_dataset": "Lemmy00/ShadowBench-skeletons-prod",
+  "formalization_rules": "open scoped Manifold ContDiff\nopen Complex\n\n/-\nFormalize in Lean the named statement from the theorem in the text.\n\nThe Lean declaration must be named exactly:\n- `circle_tangent_bundle_trivialization`\n\nMatched text (candidate 0, theorem):\n\\begin{theorem}\n$T\\mathbb{S}^1$ is diffeomorphic to $\\mathbb{S}^1 \\times \\mathbb{R}$.\n\\end{theorem}\n-/",
+  "idx": "geometry/L2/geo_gen_L2_010",
+  "informal_proof": "\\begin{theorem}\n$T\\mathbb{S}^1$ is diffeomorphic to $\\mathbb{S}^1 \\times \\mathbb{R}$.\n\\end{theorem}",
+  "skeleton1": "import Mathlib.Geometry.Manifold.Diffeomorph\nimport Mathlib.Geometry.Manifold.Instances.Sphere\n\nopen scoped Manifold ContDiff\nopen Complex\n\ntheorem circle_tangent_bundle_trivialization : ∃ (f : TangentBundle ℝ (Sphere 1) ≃ᵈ (Sphere 1 × ℝ)), True := by sorry",
+  "skeleton2": "import Mathlib.Geometry.Manifold.Diffeomorph\nimport Mathlib.Geometry.Manifold.Instances.Sphere\n\nopen scoped Manifold ContDiff\nopen Complex\n\ntheorem circle_tangent_bundle_trivialization : ∃ (f : TangentBundle ℝ (Sphere 1) ≃ᵈ (Sphere 1 × ℝ)), True := by sorry\n",
+  "skeleton3": "import Mathlib.Geometry.Manifold.Diffeomorph\nimport Mathlib.Geometry.Manifold.Instances.Sphere\n\nopen scoped Manifold ContDiff\nopen Complex\n\ntheorem circle_tangent_bundle_trivialization : ∃ (f : TangentBundle ℝ (Sphere 1) ≃ᵈ (Sphere 1 × ℝ)), True := by sorry\n",
+  "skeleton4": "import Mathlib.Geometry.Manifold.Diffeomorph\nimport Mathlib.Geometry.Manifold.Instances.Sphere\n\nopen scoped Manifold ContDiff\nopen Complex\n\ntheorem circle_tangent_bundle_trivialization : ∃ (f : TangentBundle ℝ (Sphere 1) ≃ᵈ (Sphere 1 × ℝ)), True := by sorry\n:= by sorry"
+}

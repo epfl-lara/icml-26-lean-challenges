@@ -15,3 +15,7 @@
 __pycache__/
 **/__pycache__/
 *.pyc
+
+# ShadowBench batch workflow output.
+autformalization/runs/
+autformalization/submission/

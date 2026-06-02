@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\title{ShadowBench analysis/L4/ana\_pde\_L4\_001}
+\begin{document}
+\maketitle
+% Problem id: analysis/L4/ana_pde_L4_001
+% Companion instructions: docs/instructions.md
+% Candidate skeletons: docs/skeletons/
+% Lean target: ShadowBench/Source/Main.lean
+
+\begin{lemma}[no_interior_max_of_Lu_pos]
+    Suppose $\Omega$ is a bounded and connected domain in $\mathbb{R}^n$. Let
+\[
+Lu=\sum_{i,j} a^{ij}(x)u_{ij}+\sum_i b^i(x)u_i+c(x)u
+\]
+be uniformly elliptic with continuous coefficients and $c\le 0$ with $a_{ij}$ , $b_i$ and $c$ are continuous and
+hence bounded.
+    Suppose $u \in C^2(\Omega) \cap C(\bar{\Omega})$ satisfies $L u > 0$ in $\Omega$ with $c(x) \le 0$ in $\Omega$. If $u$ has a nonnegative maximum in $\bar{\Omega}$, then $u$ cannot attain this maximum in $\Omega$. 
+\end{lemma}
+
+\begin{proof}
+Suppose $u$ attains its nonnegative maximum of $\bar{\Omega}$ at  $x_0 \in \Omega $. Then
+$D_i u(x_0) = 0$ and the matrix $[D_{ij}(x_0)]$
+is semi-negative definite. By the ellipticity condition, the matrix $a_{ij}(x_0)$ is positive definite. This implies $Lu(x_0) =
+a_{ij}(x_0) D_{ij}u(x_0) \le 0$, which is a contradiction.
+\end{proof}
+
+
+\begin{theorem}[main_theorem]
+Suppose $\Omega$ is a bounded and connected domain in $\mathbb{R}^n$. Let
+\[
+Lu=\sum_{i,j} a^{ij}(x)u_{ij}+\sum_i b^i(x)u_i+c(x)u
+\]
+be uniformly elliptic with continuous coefficients and $c\le 0$ with $a_{ij}$ , $b_i$ and $c$ are continuous and
+hence bounded.
+Suppose $u \in C^2(\Omega) \cap C(\bar{\Omega})$ satisfies $L u > 0$ in $\Omega$ with $c(x) \le 0$. Then $u$
+attains on $\partial \Omega$ its nonnegative maximum in $\bar{\Omega}$. 
+\end{theorem}
+
+Proof.
+
+For any $\varepsilon > 0$, consider $w(x) = u(x) + \varepsilon e^{ax_1}$ with $\alpha$ to be determined. Then we have
+\[L w =L u+  \varepsilon e^{ax_1} (a_{11} \alpha^2 + b_1 \alpha  + c)\]
+Since $b_1$ and $c$ are bounded and $a_{11}(x) \ge \lambda > 0$  for any $x \in \Omega$, by choosing
+$\alpha>0$ large enough we get
+\[a_{11}(x) \alpha^2 + b_1(x)\alpha + c(x) > 0\] for any $x \in \Omega$.
+This implies $Lw > 0$ in $\Omega$. By above lemma, $w$ attains its nonnegative maximum only on $\partial \Omega $, that is,
+\[ \sup_\Omega w \le   \sup_{\partial \Omega} w^+. \]
+Then we obtain
+\[ \sup_{\Omega} u \le  \sup_{\Omega} w \le  \sup_{\partial\Omega} w^+ \le \sup_{\partial \Omega} u^+ + \varepsilon \sup_{x \in \partial \Omega} e^{\alpha x_1}. \]
+We finish the proof by letting $\varepsilon \to 0 $.
+\end{document}
