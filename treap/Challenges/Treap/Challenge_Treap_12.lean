@@ -15,7 +15,14 @@ variable {Prio : Type} [LinearOrder Prio]
 
 -- Prove the splitUpperT has the same behavior as splitUpper
 theorem splitUpperT_correctness (tn : TreapNode Key Prio) (k : Key) :
-    (splitUpperT tn k).ret = TreapNode.splitUpper tn k := sorry
+    (splitUpperT tn k).ret = TreapNode.splitUpper tn k := by
+  induction tn with
+  | nil =>
+      simp [splitUpperT, TreapNode.splitUpper]
+  | node kp l r ih_l ih_r =>
+      by_cases h : kp.key ≤ k
+      · simp [splitUpperT, TreapNode.splitUpper, h, ih_r]
+      · simp [splitUpperT, TreapNode.splitUpper, h, ih_l]
 
 end TreapLogic
 end Cslib.Algorithms.Lean.TimeM

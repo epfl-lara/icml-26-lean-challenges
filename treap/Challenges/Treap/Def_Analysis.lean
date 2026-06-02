@@ -20,8 +20,8 @@ variable {n : ℕ}
 local notation "Ω" => Equiv.Perm (Fin n)
 
 -- Define the Measurable Space
-instance : MeasurableSpace Ω := ⊤
-instance : MeasurableSingletonClass Ω := ⟨by simp⟩
+instance permMeasurableSpace : MeasurableSpace Ω := ⊤
+instance permMeasurableSingletonClass : MeasurableSingletonClass Ω := ⟨by simp⟩
 
 -- Define the Probability Measure (P) manually (this is just a uniform over all permutations)
 

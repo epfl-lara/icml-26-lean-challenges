@@ -15,7 +15,16 @@ variable {Prio : Type} [LinearOrder Prio]
 
 -- Prove the splitT is bounded by 1 + tn.height
 theorem splitT_time (tn : TreapNode Key Prio) (k : Key) :
-    (splitT tn k).time ≤ 1 + tn.height := sorry
+    (splitT tn k).time ≤ 1 + tn.height := by
+  induction tn with
+  | nil =>
+      simp [splitT]
+  | node kp l r ih_l ih_r =>
+      by_cases h : kp.key < k
+      · simp [splitT, h]
+        omega
+      · simp [splitT, h]
+        omega
 
 end TreapLogic
 end Cslib.Algorithms.Lean.TimeM

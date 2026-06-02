@@ -14,12 +14,31 @@ variable {Key : Type} [LinearOrder Key]
 variable {Prio : Type} [LinearOrder Prio]
 
 /-
-  Operations correctness - Ensure every operation which creates a new treap satisfies the treap properties
+  Operations correctness - Ensure every operation which creates a new treap satisfies
+  the treap properties
 -/
 
 -- Merging two treaps results in all keys being the union of both
 theorem all_keys_union_merge (l r : TreapNode Key Prio) :
-    l.all_keys ∪ r.all_keys = (TreapNode.merge l r).all_keys := sorry
+    l.all_keys ∪ r.all_keys = (TreapNode.merge l r).all_keys := by
+  fun_induction TreapNode.merge l r
+  · simp [TreapNode.all_keys]
+  · simp [TreapNode.all_keys]
+  · simp [TreapNode.all_keys]
+  case case4 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
+    subst new_l
+    subst new_r
+    simp [TreapNode.all_keys] at ih1 ⊢
+    rw [← ih1]
+    ext x
+    simp [or_assoc, or_left_comm]
+  case case5 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
+    subst new_l
+    subst new_r
+    simp [TreapNode.all_keys] at ih1 ⊢
+    rw [← ih1]
+    ext x
+    simp [or_assoc, or_left_comm]
 
 end TreapLogic
 end Cslib.Algorithms.Lean.TimeM
