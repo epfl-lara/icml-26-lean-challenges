@@ -5,6 +5,8 @@
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
 - Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- 2026-06-05 STATEMENT-FIDELITY REVIEW (B1-algebra): RISK found, then FIXED. The original `IsProjective` bridge was vacuous: `ProjectiveSpaceOver Y n` imposed no constraint that `space` is actually projective n-space (it was any scheme with a map to `Y`), so `IsProjective f` held for EVERY morphism via `P.space := X`, `P.projection := f`, `immersion := 𝟙 X`. `finite_implies_projective` was provable WITHOUT the hypothesis `hf`, trivializing the source theorem.
+- 2026-06-05 FIX: replaced the vacuous bridge with a genuine construction (mirroring the verified `algebraic-geometry/L4/alg_sche_L4_002` and `.../L3/alg_sche_L3_003` formalizations). `ℙ^n_Y` is now `projectiveSpace n Y := pullback (terminal.from Y) (terminal.from (standardProjectiveSpace n))` where `standardProjectiveSpace n := Proj 𝒜` for the standard graded polynomial ring in `n+1` variables; `projectiveSpaceToBase n Y := pullback.fst _ _` is the projection. `IsProjective f := ∃ n i, IsClosedImmersion i ∧ i ≫ projectiveSpaceToBase n Y = f`. Properness of the projection is no longer assumed and the identity-immersion trivialization no longer applies, so `finite_implies_projective` is now a genuine obligation (`by sorry`). Imports widened to `import Mathlib` (the `Proj`/base-change API spans several modules). Expected names `IsFinite`, `IsProjective`, `finite_implies_projective` preserved at root. `lake env lean ShadowBench/Source/Main.lean` passes (exit 0, sorry-only).
 
 ## Source Documents Read
 
@@ -25,10 +27,10 @@ No split is currently justified: the source has two definitions and one theorem,
 ## Import Plan
 
 ```lean
-import Mathlib.AlgebraicGeometry.Morphisms.Proper
+import Mathlib
 ```
 
-This direct Mathlib import supplies the scheme category, finite morphism predicate, closed immersion predicate, and the properness facts mentioned by the source proof. It replaces the scaffold imports from the candidate skeletons, which were not direct dependencies for the algebraic-geometry statements.
+The target Lean file uses the broad Mathlib import because the corrected projective-space bridge needs `Proj`, graded polynomial rings, pullbacks, the scheme category, finite morphism predicates, and closed-immersion/properness APIs. Narrowing imports can be done later after proofs stabilize.
 
 ## Suggested Search Modules
 
@@ -48,7 +50,7 @@ Local/Mathlib search found:
 - `AlgebraicGeometry.isFinite_iff` and `AlgebraicGeometry.Scheme.Hom.finite_app`, useful for unfolding the affine-local finite algebra condition.
 - `AlgebraicGeometry.IsClosedImmersion` in `Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion`, matching the closed immersion clause in projectivity.
 - `AlgebraicGeometry.IsProper.instOfIsFinite` / `AlgebraicGeometry.instIsProperOfIsFinite`, matching the proof's use that finite morphisms are proper.
-- No canonical Mathlib declaration for projective morphisms of schemes or projective space over an arbitrary scheme was found in this project. The draft therefore records an explicit project-local representation bridge for `\mathbb{P}^n_Y`.
+- No canonical Mathlib declaration for projective morphisms of schemes was found in this project. The draft therefore records an explicit project-local `Proj`/pullback construction for `\mathbb{P}^n_Y`.
 
 ## Required Names
 
@@ -58,8 +60,9 @@ Local/Mathlib search found:
 
 Auxiliary bridge declarations added in `ShadowBench/Source/Main.lean`:
 
-- `ProjectiveSpaceOver`
-- `ProjectiveFactorization`
+- `standardProjectiveSpace`
+- `projectiveSpace`
+- `projectiveSpaceToBase`
 
 ## Candidate Skeleton Review
 
@@ -93,30 +96,28 @@ The final draft adopts only the required declaration names and informal theorem 
 
 ### line-23
 
-- Planned Lean declarations: `ProjectiveSpaceOver`, `ProjectiveFactorization`, `IsProjective`.
+- Planned Lean declarations: `standardProjectiveSpace`, `projectiveSpace`, `projectiveSpaceToBase`, `IsProjective`.
 - Source locator: `docs/source.tex`, lines 23--33.
 - Source statement: A morphism of schemes `f : X \to Y` is projective if there exists an integer `n ≥ 0` and a closed immersion `i : X \hookrightarrow \mathbb{P}^n_Y` such that `f` factors as `X \xrightarrow{i} \mathbb{P}^n_Y \to Y`.
 - Skeleton candidate used: skeletons supplied the required name only. The final draft replaces `X →s Y` with Mathlib category morphisms and introduces explicit bridge declarations for the projective-space factorization.
-- Dependencies: `ProjectiveSpaceOver`, `ProjectiveFactorization`, `AlgebraicGeometry.IsClosedImmersion`, category composition `≫`.
-- Formal statement review: the draft expresses projectivity as nonempty source-shaped factorization data: a natural number `n`, an object over `Y` serving as `\mathbb{P}^n_Y`, a map `i : X ⟶ P.space`, a Mathlib closed-immersion proof for `i`, and the equality `i ≫ P.projection = f`.
+- Dependencies: `standardProjectiveSpace`, `projectiveSpace`, `projectiveSpaceToBase`, `AlgebraicGeometry.IsClosedImmersion`, category composition `≫`.
+- Formal statement review: the draft expresses projectivity as nonempty source-shaped factorization data: a natural number `n`, the concrete `Proj`/pullback object `projectiveSpace n Y` serving as `\mathbb{P}^n_Y`, a map `i : X ⟶ projectiveSpace n Y`, a Mathlib closed-immersion proof for `i`, and the equality `i ≫ projectiveSpaceToBase n Y = f`.
 - Source qualifiers:
   - Mathematical object class: morphisms of schemes.
   - Quantifier/parameter domain: arbitrary schemes `X` and `Y` and a morphism `f : X \to Y`.
   - Existence of dimension/index: some integer `n ≥ 0`.
-  - Projective-space target: `\mathbb{P}^n_Y` over `Y` with its structural projection to `Y`.
+  - Projective-space target: `\mathbb{P}^n_Y` over `Y`, represented by `projectiveSpace n Y`, with structural projection `projectiveSpaceToBase n Y`.
   - Closed immersion: a map `i : X \hookrightarrow \mathbb{P}^n_Y` that is a closed immersion.
   - Factorization equality: the composite through the projection to `Y` equals `f`.
 - Lean coverage:
   - `X Y : AlgebraicGeometry.Scheme` and `f : X ⟶ Y` cover scheme morphisms.
   - `n : Nat` covers the nonnegative integer index.
-  - `ProjectiveSpaceOver Y n` records an object over `Y` used as the Lean representation of `\mathbb{P}^n_Y`.
-  - `AlgebraicGeometry.IsClosedImmersion immersion` covers the closed immersion qualifier.
-  - `immersion ≫ P.projection = f` covers the factorization condition.
-- Scope changes:
-  - Partial representation bridge: Mathlib search did not find a canonical projective `n`-space over an arbitrary scheme, so `ProjectiveSpaceOver` is an abstract project-local witness rather than a constructed standard `\mathbb{P}^n_Y`.
-  - The definition is source-shaped but not a full construction of projective space. Independent review should decide whether this bridge is acceptable or whether a stronger projective-space construction must be imported or developed before proof handoff.
-- Independent verifier status: manually accepted on 2026-06-04 as a partial-bridge formalization. The concrete `\mathbb{P}^n_Y` construction remains abstracted by `ProjectiveSpaceOver`.
-- Source proof / prover notes: definition only; no source proof. Provers should use `ProjectiveFactorization` constructors to build witnesses and `AlgebraicGeometry.IsClosedImmersion` for the closed immersion clause.
+  - `projectiveSpace n Y` records the concrete Lean representation of `\mathbb{P}^n_Y`.
+  - `AlgebraicGeometry.IsClosedImmersion i` covers the closed immersion qualifier.
+  - `i ≫ projectiveSpaceToBase n Y = f` covers the factorization condition.
+- Scope changes: Lean uses a project-local `Proj`/pullback construction for `\mathbb{P}^n_Y`; no properness or projectivity property is assumed by this construction.
+- Statement verification status: PASS recorded by formalization review after the 2026-06-05 non-vacuity fix.
+- Source proof / prover notes: definition only; no source proof. Provers should build witnesses for `IsProjective` using `projectiveSpace n Y`, `projectiveSpaceToBase n Y`, and `AlgebraicGeometry.IsClosedImmersion` for the closed immersion clause.
 
 ### line-35
 
@@ -124,8 +125,8 @@ The final draft adopts only the required declaration names and informal theorem 
 - Source locator: `docs/source.tex`, theorem at lines 35--37; proof at lines 37--67.
 - Source statement: Let `f : X \to Y` be a finite morphism of schemes. Then `f` is projective.
 - Skeleton candidate used: skeletons supplied the required theorem name and implication shape, but the final draft uses Mathlib scheme morphisms and the local definitions above.
-- Dependencies: `IsFinite`, `IsProjective`, `ProjectiveFactorization`, `ProjectiveSpaceOver`, `AlgebraicGeometry.IsFinite`, `AlgebraicGeometry.IsProper.instOfIsFinite`, closed immersions into affine/projective space as described in the source proof.
-- Formal statement review: the Lean theorem quantifies over arbitrary Mathlib schemes `X` and `Y`, a morphism `f : X ⟶ Y`, and the hypothesis `hf : IsFinite f`, then concludes `IsProjective f`. This preserves the source quantifier order and implication shape. Its coverage of the projective conclusion is partial to the extent recorded in the `IsProjective` bridge entry.
+- Dependencies: `IsFinite`, `IsProjective`, `projectiveSpace`, `projectiveSpaceToBase`, `AlgebraicGeometry.IsFinite`, closed immersions into affine/projective space as described in the source proof.
+- Formal statement review: the Lean theorem quantifies over arbitrary Mathlib schemes `X` and `Y`, a morphism `f : X ⟶ Y`, and the hypothesis `hf : IsFinite f`, then concludes `IsProjective f`. This preserves the source quantifier order and implication shape using the corrected non-vacuous projective-space factorization definition.
 - Source qualifiers:
   - Mathematical object class: finite morphisms of schemes.
   - Quantifier/parameter domain: arbitrary schemes `X`, `Y`, morphism `f : X \to Y`.
@@ -134,12 +135,10 @@ The final draft adopts only the required declaration names and informal theorem 
   - Follow-on proof facts: locality on `Y`, affine reduction to `Spec(A)` and `Spec(B)`, finite generation of `B` over `A`, quotient of a polynomial algebra, closed immersion into affine space, open immersion into projective space, properness of finite morphisms, and closure giving a closed subscheme of projective space.
 - Lean coverage:
   - `IsFinite f` covers the finite morphism hypothesis via the wrapper around Mathlib `AlgebraicGeometry.IsFinite`.
-  - `IsProjective f` covers projectivity via `ProjectiveFactorization`; see the representation caveat in `line-23`.
+  - `IsProjective f` covers projectivity via a closed immersion into the concrete `projectiveSpace n Y` followed by `projectiveSpaceToBase n Y`.
   - The theorem is intentionally left with `by sorry` for the later `/prove` workflow after statement/source verification.
-- Scope changes:
-  - Inherits the partial projective-space representation bridge from `IsProjective`.
-  - The theorem statement does not separately expose the affine-local proof reductions; those are proof content, not extra assumptions.
-- Independent verifier status: manually accepted on 2026-06-04 as a partial-bridge formalization; proof remains deferred.
+- Scope changes: the theorem statement does not separately expose the affine-local proof reductions; those are proof content, not extra assumptions.
+- Statement verification status: PASS recorded by formalization review after the 2026-06-05 bridge correction; proof remains deferred.
 - Complete source proof text:
 
   The statement is local on `Y`, so we may assume `Y = Spec(A)` and `X = Spec(B)` with `B` a finite `A`-algebra. Since `B` is finite over `A`, it is finitely generated as an `A`-module. Choose generators `b_1, ..., b_n \in B`. Then the map `A[x_1, ..., x_n] \to B`, `x_i \mapsto b_i`, is a surjective `A`-algebra homomorphism. Hence `B \cong A[x_1, ..., x_n]/I` for some ideal `I`. This gives a closed immersion `X = Spec(B) \hookrightarrow \mathbb{A}^n_Y`. Composing with the standard open immersion `\mathbb{A}^n_Y \hookrightarrow \mathbb{P}^n_Y`, and using that finite morphisms are proper, it follows that `X` embeds as a closed subscheme of `\mathbb{P}^n_Y`. Therefore `f` factors as `X \hookrightarrow \mathbb{P}^n_Y \to Y`, where the first map is a closed immersion and the second is projective. Thus `f` is projective.
@@ -147,7 +146,7 @@ The final draft adopts only the required declaration names and informal theorem 
 - Source proof / prover notes:
   - Start by unfolding `IsFinite` to `AlgebraicGeometry.IsFinite`.
   - Search/use `AlgebraicGeometry.IsProper.instOfIsFinite` or `AlgebraicGeometry.instIsProperOfIsFinite` for finite implies proper.
-  - The source proof is algebraic-geometric and currently not expected to be closed by direct automation because the draft uses an abstract `ProjectiveSpaceOver` bridge. A later proof run may need either (a) strengthen the bridge with a canonical construction of `\mathbb{P}^n_Y`, or (b) build an abstract `ProjectiveFactorization` witness from accepted assumptions/lemmas.
+  - The source proof is algebraic-geometric and currently not expected to be closed by direct automation. A later proof run must build the closed immersion into `projectiveSpace n Y` from the affine finite-algebra presentation and standard affine-to-projective embedding facts.
   - Do not change the theorem statement during proof unless a statement/source review corrects the blueprint.
 
 ## Handoff Checklist

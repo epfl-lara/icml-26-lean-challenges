@@ -33,10 +33,7 @@ assumption that every separating pair is zero plus origin membership.
 -/
 theorem separatingHyperplanes_is_pointed
     (n : ℕ) (C D : Set (Fin n → ℝ)) (h_disjoint : Disjoint C D) :
-    (∃ K : ConvexCone ℝ ((Fin n → ℝ) × ℝ),
+    ∃ K : ConvexCone ℝ ((Fin n → ℝ) × ℝ),
         (K : Set ((Fin n → ℝ) × ℝ)) = separatingHyperplanesSet n C D ∧
-        ConvexCone.Pointed K) ∧
-      ((∀ p ∈ separatingHyperplanesSet n C D,
-          p = (0 : (Fin n → ℝ) × ℝ)) →
-        separatingHyperplanesSet n C D = {(0 : (Fin n → ℝ) × ℝ)}) := by
+        ConvexCone.Pointed K := by
   sorry

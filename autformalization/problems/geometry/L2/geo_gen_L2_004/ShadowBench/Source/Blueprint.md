@@ -4,8 +4,9 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Generated Lean modules: `ShadowBench/Source/Basic.lean`, `ShadowBench/Source/Constructions.lean`, `ShadowBench/Source/Theorems.lean`, and aggregator `ShadowBench/Source/Main.lean`.
+- Generated Lean module: `ShadowBench/Source/Main.lean` (single self-contained file).
 - Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- 2026-06-05 CONSOLIDATION: all declarations were merged into a single `ShadowBench/Source/Main.lean` and the previous split files (`Basic.lean`, `Constructions.lean`, `Theorems.lean`) were removed. Rationale: the Codabench submission exports only `Main.lean` as `formal_proof`, so every required declaration (`EuclideanGeometry.external_tangent_length`, `EuclideanGeometry.circlePoint`, `EuclideanGeometry.caseys_theorem`) plus all supporting bridge defs (`sqDist`, `pointDistance`, `ptolemyEquality`, `orientation`, `strictlyCyclicallyOrdered`, `radialContactPoint`, `caseyInOrder`, `liesInsideAndTangentTo`, `nonintersectingCircles`, `fourCirclesNonintersecting`) and the degenerate-Ptolemy bridge theorem must live in `Main.lean`. The three Mathlib `import` lines from `Basic.lean` are preserved at the top of `Main.lean`. Verified: `lake env lean Main.lean` exit 0 (sorry-only), `lake build` succeeds, and all three required names resolve via `import ShadowBench; #check`.
 
 ## Source Artifacts Inspected
 
@@ -27,10 +28,10 @@
 
 ## Source Inventory Entries
 
-- Source inventory entry `thm:casey`: theorem `caseys_theorem`, source `docs/source.tex:17-23`, Lean declaration `EuclideanGeometry.caseys_theorem` in `ShadowBench/Source/Theorems.lean`.
-- Source inventory entry `external_tangent_length`: source-backed definition of `tᵢⱼ`, source `docs/source.tex:18-21`, Lean declaration `EuclideanGeometry.external_tangent_length` in `ShadowBench/Source/Basic.lean`.
-- Source inventory entry `circlePoint`: source-backed circle point-set bridge, source `docs/source.tex:17-19`, Lean declaration `EuclideanGeometry.circlePoint` in `ShadowBench/Source/Basic.lean`.
-- Source inventory entry `thm:casey/degenerate-ptolemy-note`: source follow-on note, source `docs/source.tex:22`, Lean declarations `EuclideanGeometry.pointDistance` and `EuclideanGeometry.ptolemyEquality` in `ShadowBench/Source/Basic.lean`, and `EuclideanGeometry.caseys_theorem_degenerate_ptolemy_bridge` in `ShadowBench/Source/Theorems.lean`.
+- Source inventory entry `thm:casey`: theorem `caseys_theorem`, source `docs/source.tex:17-23`, Lean declaration `EuclideanGeometry.caseys_theorem` in `ShadowBench/Source/Main.lean`.
+- Source inventory entry `external_tangent_length`: source-backed definition of `tᵢⱼ`, source `docs/source.tex:18-21`, Lean declaration `EuclideanGeometry.external_tangent_length` in `ShadowBench/Source/Main.lean`.
+- Source inventory entry `circlePoint`: source-backed circle point-set bridge, source `docs/source.tex:17-19`, Lean declaration `EuclideanGeometry.circlePoint` in `ShadowBench/Source/Main.lean`.
+- Source inventory entry `thm:casey/degenerate-ptolemy-note`: source follow-on note, source `docs/source.tex:22`, Lean declarations `EuclideanGeometry.pointDistance` and `EuclideanGeometry.ptolemyEquality` in `ShadowBench/Source/Main.lean`, and `EuclideanGeometry.caseys_theorem_degenerate_ptolemy_bridge` in `ShadowBench/Source/Main.lean`.
 
 ## Source Statement Inventory
 
@@ -54,15 +55,12 @@
 
 ## Import Plan
 
-Direct imports used by the generated Lean files:
+Direct imports used by the single generated Lean file `ShadowBench/Source/Main.lean`:
 
 ```lean
 import Mathlib.Analysis.InnerProductSpace.Defs
 import Mathlib.LinearAlgebra.Dimension.Finrank
 import Mathlib.Data.Real.Sqrt
-import ShadowBench.Source.Basic
-import ShadowBench.Source.Constructions
-import ShadowBench.Source.Theorems
 ```
 
 ## Suggested Search Modules
@@ -78,10 +76,7 @@ These are prover search hints only, not direct imports in the planner draft:
 
 Final organization decision: split into focused modules. The draft now has more than twelve generated declarations and naturally separates analytic definitions, Casey configuration predicates, and source theorem statements.
 
-- `ShadowBench/Source/Basic.lean`: analytic point model, circle point-set bridge, squared distance, exterior tangent length, point-distance/Ptolemy equality bridge, and orientation/cyclic-order primitives.
-- `ShadowBench/Source/Constructions.lean`: radial contact point, Casey order predicate, internal tangency predicate, pairwise nonintersection predicate, and four-circle nonintersection predicate.
-- `ShadowBench/Source/Theorems.lean`: source-backed theorem skeleton `EuclideanGeometry.caseys_theorem` and companion bridge `EuclideanGeometry.caseys_theorem_degenerate_ptolemy_bridge`, with source/prover doc comments preserved.
-- `ShadowBench/Source/Main.lean`: aggregator importing `ShadowBench.Source.Theorems`.
+- `ShadowBench/Source/Main.lean`: the single self-contained file holding the analytic point model, circle point-set bridge, squared distance, exterior tangent length, point-distance/Ptolemy equality bridge, orientation/cyclic-order primitives, the radial contact point, Casey order predicate, internal tangency predicate, pairwise nonintersection predicates, the source theorem `EuclideanGeometry.caseys_theorem`, and the companion bridge `EuclideanGeometry.caseys_theorem_degenerate_ptolemy_bridge`, with source/prover doc comments preserved.
 - `ShadowBench/Source.lean`: imports `ShadowBench.Source.Main`.
 - `ShadowBench.lean`: imports `ShadowBench.Source`, so the generated target module remains covered by the root project module and plain `lake build` checks the generated formalization.
 

@@ -4,7 +4,27 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- Status: 2026-06-05 statement-fidelity review FIXED. The earlier draft trivialized the theorem (see below) and has been corrected to use a genuine relative-projective-space construction; the proof body is now `by sorry` (the deep properness fact is no longer assumed).
+
+## 2026-06-05 Statement-Fidelity Review (FIXED)
+
+The previous draft defined `IsRelativeProjectiveSpaceProjection n π := IsProper π` and built
+`IsProjective f` around it, so the projection's properness — the entire substantive content of the
+source theorem (that `ℙ^n_S → S` is proper) — was assumed as a hypothesis. As a result
+`projective_isProper` was fully provable from "closed immersions are proper" plus composition
+stability, and the committed proof closed with NO `sorry`. This is the trivialization pattern the
+review flags as high risk.
+
+Fix: replaced the bridge with the genuine construction (mirroring `alg_sche_L4_002`):
+- `standardProjectiveSpace n := Proj 𝒜` for the standard `ℤ`-graded polynomial ring in `n+1` vars;
+- `projectiveSpace n S` = base change of that absolute model along the terminal morphisms (`ℙ^n_S`);
+- `IsProjective f := ∃ n i, IsClosedImmersion i ∧ i ≫ projectiveSpaceToBase n S = f`.
+
+Now the conclusion `IsProper f` genuinely requires proving properness of `projectiveSpaceToBase`
+(the universally-closed / Proj content), so the proof body is `by sorry`. Lean check passes
+(exit 0, only `uses 'sorry'` warning). Expected name `projective_isProper` still resolves
+(now at the root namespace, so the previous `export` line was removed as redundant/erroneous).
+
 
 ## Source Inventory Entries
 
@@ -47,21 +67,27 @@ These are search hints for the later prover, not direct imports required by the 
 
 ## Local Definition / Bridge Inventory
 
-### `AlgebraicGeometry.IsRelativeProjectiveSpaceProjection`
+### `AlgebraicGeometry.standardProjectiveSpace`
 
-- Source role: represents the standard fact used in the proof that the projection `π : ℙ^n_S ⟶ S` from relative projective space is proper.
-- Lean declaration kind: implemented definition, no construction gap.
-- Lean content: a bridge predicate on a candidate projection `π : P ⟶ S`, indexed by `n : ℕ`, defined as `IsProper π`.
-- Reason for bridge: the Mathlib version available in this project has `Proj` and properness results for projective spectra, but the search did not find a concrete relative projective-space object `ℙ^n_S` or a built-in projective morphism property for arbitrary scheme morphisms.
-- Fidelity note: this records the proof-relevant theorem about the relative projective-space projection, but it does not construct or identify the ambient scheme `P` with a concrete `ℙ^n_S`.
+- Source role: supplies the absolute projective-space model used to define `ℙ^n_S`.
+- Lean declaration kind: implemented definition.
+- Lean content: `Proj` of the standard graded polynomial ring over `ℤ` with `n + 1` homogeneous coordinates.
+- Fidelity note: this is a concrete `Proj`-based bridge for projective space, not a predicate assuming properness.
+
+### `AlgebraicGeometry.projectiveSpace`
+
+- Source role: represents the relative projective space `ℙ^n_S`.
+- Lean declaration kind: implemented definition.
+- Lean content: base change of `standardProjectiveSpace n` along terminal morphisms, with projection `projectiveSpaceToBase n S := pullback.fst _ _`.
+- Fidelity note: the construction preserves the source's projective-space object and leaves properness of the projection as proof content.
 
 ### `AlgebraicGeometry.IsProjective`
 
 - Source role: formalizes the source phrase “`f : X → S` is a projective morphism”.
 - Lean declaration kind: implemented definition, no construction gap.
-- Lean content: `f` is projective when there exist `n : ℕ`, an ambient scheme `P`, a morphism `i : X ⟶ P`, and a projection `π : P ⟶ S` such that `i` is a closed immersion, `π` is certified by `IsRelativeProjectiveSpaceProjection n π`, and `i ≫ π = f`.
-- Source qualifiers covered: existence of an integer `n ≥ 0` (as `n : ℕ`), closed immersion `i`, factorization through a projection to `S`, and properness of the projection as the standard projective-space fact used by the proof.
-- Scope changes: the Lean bridge does not include a concrete relative projective-space construction `P = ℙ^n_S`; coverage is partial on the representation of the ambient projective space. The proof-relevant factorization data and properness certificate are retained.
+- Lean content: `f` is projective when there exist `n : ℕ` and a morphism `i : X ⟶ projectiveSpace n S` such that `i` is a closed immersion and `i ≫ projectiveSpaceToBase n S = f`.
+- Source qualifiers covered: existence of an integer `n ≥ 0` (as `n : ℕ`), closed immersion `i`, concrete relative projective-space target, and the factorization equality through the projection to `S`.
+- Scope changes: Lean uses the project-local `Proj`/pullback construction `projectiveSpace n S` for `ℙ^n_S`; no properness certificate is bundled into the definition.
 
 ## Source Statement Inventory
 
@@ -83,7 +109,8 @@ theorem projective_isProper {X S : Scheme} (f : X ⟶ S)
 - Skeleton candidate used: Skeletons 1-3 informed the required name and implication shape, but their `Type*`/`[Scheme]` encoding was rejected. Skeleton 4 was rejected as malformed.
 - Dependencies:
   - `AlgebraicGeometry.IsProjective`
-  - `AlgebraicGeometry.IsRelativeProjectiveSpaceProjection`
+  - `AlgebraicGeometry.projectiveSpace`
+  - `AlgebraicGeometry.projectiveSpaceToBase`
   - `AlgebraicGeometry.IsClosedImmersion`
   - `AlgebraicGeometry.IsProper`
   - category composition `≫`
@@ -96,11 +123,11 @@ theorem projective_isProper {X S : Scheme} (f : X ⟶ S)
   - Mathematical object class: schemes `X` and `S`.
   - Morphism domain/codomain: `f : X ⟶ S`.
   - Hypothesis: `f` is projective via a finite-dimensional relative-projective-space factorization.
-  - Factorization data: some `n : ℕ`, closed immersion `i : X ⟶ P`, projection `π : P ⟶ S`, and equality `i ≫ π = f`.
+  - Factorization data: some `n : ℕ`, closed immersion `i : X ⟶ projectiveSpace n S`, and equality `i ≫ projectiveSpaceToBase n S = f`.
   - Standard facts invoked by the proof: the projection from projective space is proper; closed immersions are proper; proper morphisms are stable under composition.
   - Conclusion: `IsProper f`.
-- Lean coverage: partial but explicit. The theorem covers the scheme morphism, projective-style factorization hypothesis, and properness conclusion. The concrete representation of the ambient object as `ℙ^n_S` is abstracted by `IsRelativeProjectiveSpaceProjection`.
-- Scope changes: concrete relative projective space `ℙ^n_S` and its affine open cover by `D_+(x_i)` are not constructed in this draft because no project-local or Mathlib declaration for relative projective space over an arbitrary scheme was found. The bridge records the properness of the projection, which is precisely the projection fact used in the source proof.
+- Lean coverage: the theorem covers the scheme morphism, concrete projective-space factorization hypothesis through `projectiveSpace n S`, and properness conclusion. Properness of the projective-space projection is not assumed and remains the substantive proof obligation.
+- Scope changes: Lean uses a project-local `Proj`/pullback construction for `ℙ^n_S`; the affine open cover by `D_+(x_i)` is proof content recorded in the source proof notes rather than a separate theorem statement.
 - Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
 - Complete source proof text:
 
@@ -117,10 +144,10 @@ Finally, proper morphisms are stable under composition. Therefore, since f = pi 
 ```
 
 - Prover notes:
-  - Destructure `hf` into `n`, `P`, `i`, `π`, `hπ`, `hi`, and the factorization equality.
-  - `hπ` unfolds through `IsRelativeProjectiveSpaceProjection` to `IsProper π`.
-  - Use the existing instances/search results that closed immersions are finite and finite morphisms are proper, and that proper morphisms are stable under composition.
-  - Rewrite the goal by the factorization equality `i ≫ π = f`, then prove properness of `i ≫ π` from `IsProper i` and `IsProper π`.
+  - Destructure `hf` into `n`, `i`, the closed-immersion proof, and the factorization equality.
+  - Prove or import properness of `projectiveSpaceToBase n S`.
+  - Use the existing instances/search results that closed immersions are finite/proper and that proper morphisms are stable under composition.
+  - Rewrite the goal by the factorization equality, then prove properness of `i ≫ projectiveSpaceToBase n S` from properness of `i` and of the projective-space projection.
 
 ## Search Log
 
@@ -137,7 +164,7 @@ Finally, proper morphisms are stable under composition. Therefore, since f = pi 
 - [x] Root module `ShadowBench/Source.lean` imports `ShadowBench.Source.Main`.
 - [x] Lean declaration drafted with source proof/prover notes in the Lean doc comment.
 - [x] Manual statement/source audit reviewed the bridge definitions, partial-coverage note, and theorem statement on 2026-06-04.
-- [x] Theorem proof completed using properness of closed immersions and composition stability.
+- [ ] Theorem proof obligation remains as `by sorry`; the deep projective-space-projection properness fact is not assumed by the statement.
 
 ## Suggested Next Command After Review
 

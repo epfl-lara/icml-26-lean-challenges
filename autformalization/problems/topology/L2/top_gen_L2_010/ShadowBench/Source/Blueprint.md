@@ -5,6 +5,7 @@
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
 - Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- 2026-06-05 STATEMENT-FIDELITY REVIEW: FIXED a declaration-name mismatch. The first expected name is `Trivialization.pullback_linear`, but the instance was declared as `Bundle.Trivialization.pullback_linear` (extra `Bundle.` prefix from the `open Bundle` context being written explicitly). Mathlib provides neither `Trivialization.pullback_linear` nor `VectorBundle.pullback`, so both must be declared locally; the over-qualified name meant the grader's lookup of the bare expected name `Trivialization.pullback_linear` would fail. Renamed the instance to `Trivialization.pullback_linear` (and updated the stale comment reference). Verified via `import ShadowBench; #check @Trivialization.pullback_linear` and `#check @VectorBundle.pullback` — both now resolve. `lake build` passes (sorry-only).
 
 ## Generated File Layout
 
@@ -20,17 +21,17 @@ import Mathlib.Analysis.Normed.Operator.Prod
 
 ## Suggested Search Modules
 
-- `Mathlib.Topology.VectorBundle.Constructions`: contains the upstream Mathlib proof pattern for pullbacks of vector bundles under the names `Bundle.Trivialization.pullback_linear` and `VectorBundle.pullback`. This is a search/reference module, not a direct import in the draft, because the draft uses the required names locally.
+- `Mathlib.Topology.VectorBundle.Constructions`: contains the upstream Mathlib proof pattern for pullbacks of vector bundles. This is a search/reference module, not a direct import in the draft, because the draft uses the required names locally.
 - `Mathlib.Topology.FiberBundle.Constructions`: imported directly; provides `Bundle.Pullback`, notation `f *ᵖ E`, `Pullback.TotalSpace.topologicalSpace`, `Pullback.continuous_proj`, `Pullback.continuous_lift`, `Bundle.Trivialization.pullback`, and `FiberBundle.pullback`.
 
 ## Required Names
 
-- `Trivialization.pullback_linear` (full Lean name after `open Bundle`: `Bundle.Trivialization.pullback_linear`)
+- `Trivialization.pullback_linear`
 - `VectorBundle.pullback`
 
 ## Search and Skeleton Review
 
-- Local/Mathlib search found `Bundle.Pullback`, `Bundle.Trivialization.pullback`, `Pullback.continuous_proj`, `Pullback.continuous_lift`, `FiberBundle.pullback`, `Bundle.Trivialization.pullback_linear`, and `VectorBundle.pullback` as the relevant Mathlib API.
+- Local/Mathlib search found `Bundle.Pullback`, `Bundle.Trivialization.pullback`, `Pullback.continuous_proj`, `Pullback.continuous_lift`, `FiberBundle.pullback`, and related vector-bundle pullback API. The required names `Trivialization.pullback_linear` and `VectorBundle.pullback` are supplied locally in `Main.lean`.
 - `Skeleton1.lean`, `Skeleton2.lean`, and `Skeleton3.lean` model the pullback total space as a raw sigma over preimages of a projection `π : E → B` and leave definition stubs. They were rejected for the final statement because Mathlib's vector bundle API represents bundles as dependent families `E : B → Type*` with total space `Bundle.TotalSpace F E` and pullback notation `f *ᵖ E`.
 - `Skeleton4.lean` uses the dependent-family representation and the notation `f *ᵖ E`, so it shaped the final statement. The final draft adjusts Skeleton4 by making `Trivialization.pullback_linear` the fiberwise-linearity instance of the pulled-back trivialization, matching Mathlib's API and avoiding a definition-with-`sorry` construction gap.
 
@@ -39,7 +40,7 @@ import Mathlib.Analysis.Normed.Operator.Prod
 ### line-17
 
 - Title: Definition `Trivialization.pullback_linear`.
-- Planned Lean declarations: `Bundle.Trivialization.pullback_linear`
+- Planned Lean declarations: `Trivialization.pullback_linear`
 - Declaration kind: instance, visible as `Trivialization.pullback_linear` after `open Bundle`.
 - Auxiliary local declarations: `Bundle.Pullback.addCommMonoid` and `Bundle.Pullback.module`, recording that pullback fibers inherit the original fiber algebra.
 - Source locator: `docs/source.tex`, lines 17-23.
@@ -61,7 +62,7 @@ import Mathlib.Analysis.Normed.Operator.Prod
   - coarsest topology: imported `Pullback.TotalSpace.topologicalSpace` / `pullbackTopology` from `Mathlib.Topology.FiberBundle.Constructions`;
   - continuity of projection and lift: imported `Pullback.continuous_proj` and `Pullback.continuous_lift`;
   - local trivialization pullback: imported `Bundle.Trivialization.pullback`;
-  - titled local linearity item: drafted `Bundle.Trivialization.pullback_linear`.
+  - titled local linearity item: drafted `Trivialization.pullback_linear`.
 - Scope changes: Lean uses Mathlib's dependent-family bundle representation rather than an arbitrary total-space map `π : E_total → B`; the bridge is recorded above. Lean uses bundled continuous maps `f : C(B', B)` instead of a raw function plus a separate proof `hf : Continuous f`. Mathlib's `VectorBundle` API requires `NontriviallyNormedField 𝕜`, a standard strengthening of the source's “normed field” assumption. The source paragraph is titled `Trivialization.pullback_linear` while its body defines the pullback bundle; the named local declaration covers the pulled-back-trivialization linearity item, and the actual pullback object/topology/projection/lift are covered by the imported companion Mathlib declarations listed under Lean coverage.
 - Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
 - Source proof / prover notes: There is no separate proof in the source definition. For the local-trivialization declaration, the pulled-back trivialization sends `(x, v)` to `(x, e(v))` with `v` in the fiber over `f x`; the fiberwise linear map is exactly the old linear map for `e` at `f x`, so the implementation should reduce to `e.linear 𝕜`.
@@ -74,7 +75,7 @@ import Mathlib.Analysis.Normed.Operator.Prod
 - Source locator: `docs/source.tex`, theorem lines 25-27 and proof lines 27-58.
 - Source statement: Given a vector bundle `E` over a base space `B` with fiber `F` and a continuous map `f : B' → B`, the pullback bundle `f^*E` over `B'` inherits the structure of a vector bundle.
 - Skeleton candidate used: `Skeleton4.lean`, adjusted from an `instance` skeleton to a theorem skeleton so the nontrivial source theorem remains a prover-queue item after statement/source review.
-- Dependencies: `Bundle.Pullback`; `Pullback.TotalSpace.topologicalSpace`; `FiberBundle.pullback`; `Bundle.Trivialization.pullback`; `Bundle.Trivialization.pullback_linear`; `VectorBundle`; `trivialization_linear`; `continuousOn_coordChange`; `Trivialization.coordChangeL`; `Continuous.comp` / `ContinuousOn.comp` for transition maps; bundled continuous maps `C(B', B)`.
+- Dependencies: `Bundle.Pullback`; `Pullback.TotalSpace.topologicalSpace`; `FiberBundle.pullback`; `Bundle.Trivialization.pullback`; local `Trivialization.pullback_linear`; `VectorBundle`; `trivialization_linear`; `continuousOn_coordChange`; `Trivialization.coordChangeL`; `Continuous.comp` / `ContinuousOn.comp` for transition maps; bundled continuous maps `C(B', B)`.
 - Formal statement review: The Lean theorem assumes `E : B → Type*` is already a Mathlib vector bundle with model fiber `F` over a nontrivially normed field `𝕜`, and it concludes `VectorBundle 𝕜 F ((f : B' → B) *ᵖ E)` for a continuous map `f : C(B', B)`. This is the source claim in Mathlib's dependent-family representation: the pullback family has fibers definitionally `E (f x)` and the pullback total space/topology is the one from `Mathlib.Topology.FiberBundle.Constructions`.
 - Source qualifiers:
   - mathematical object class: topological vector bundle with local linear trivializations;
@@ -88,7 +89,7 @@ import Mathlib.Analysis.Normed.Operator.Prod
   - pullback family/fiber equality: conclusion uses `((f : B' → B) *ᵖ E)`;
   - inherited fiber algebra: local instances `Bundle.Pullback.addCommMonoid` and `Bundle.Pullback.module` for `AddCommMonoid` and `Module` on `(f *ᵖ E) x`;
   - local trivialization coverage: `FiberBundle.pullback` supplies the pullback fiber-bundle atlas by pulling back atlas trivializations;
-  - pulled-back trivialization linearity: `Bundle.Trivialization.pullback_linear`;
+  - pulled-back trivialization linearity: `Trivialization.pullback_linear`;
   - transition-map equality/continuity: covered by the imported `Bundle.Trivialization.pullback` API and its simp/computation lemmas for pullback coordinate changes; the prover should reduce `(e.pullback f).coordChangeL 𝕜 (e'.pullback f) b` to `e.coordChangeL 𝕜 e' (f b)` and compose `continuousOn_coordChange 𝕜 e e'` with `f.continuous`.
 - Scope changes: Lean uses a bundled continuous map `f : C(B', B)` instead of separate `(f : B' → B) (hf : Continuous f)`. Lean uses Mathlib's dependent-family vector-bundle representation rather than a separate projection map `π : E_total → B`. Lean requires `NontriviallyNormedField 𝕜` because this is part of Mathlib's `VectorBundle` class assumptions.
 - Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
@@ -125,7 +126,7 @@ import Mathlib.Analysis.Normed.Operator.Prod
   \end{align*}
   Since $f$ is continuous, transition maps of $f^*E$ are continuous and define a linear automorphism of $F$ for each $x \in B'$. Therefore, $f^*E$ inherits the natural structure of a vector bundle.
   ```
-- Prover notes: Follow the Mathlib proof shape for `VectorBundle.pullback`: atlas members of the pullback fiber bundle are of the form `e.pullback f`; use `Bundle.Trivialization.pullback_linear` for `trivialization_linear'`; for `continuousOn_coordChange'`, destruct the two atlas-members as pullbacks `e.pullback f` and `e'.pullback f`, compose `continuousOn_coordChange 𝕜 e e'` with `f.continuous.continuousOn`, and use the coordinate-change simplification `(e.pullback f).coordChangeL 𝕜 (e'.pullback f) b = e.coordChangeL 𝕜 e' (f b)`.
+- Prover notes: Follow the Mathlib proof shape for `VectorBundle.pullback`: atlas members of the pullback fiber bundle are of the form `e.pullback f`; use `Trivialization.pullback_linear` for `trivialization_linear'`; for `continuousOn_coordChange'`, destruct the two atlas-members as pullbacks `e.pullback f` and `e'.pullback f`, compose `continuousOn_coordChange 𝕜 e e'` with `f.continuous.continuousOn`, and use the coordinate-change simplification `(e.pullback f).coordChangeL 𝕜 (e'.pullback f) b = e.coordChangeL 𝕜 e' (f b)`.
 
 ## Handoff Checklist
 

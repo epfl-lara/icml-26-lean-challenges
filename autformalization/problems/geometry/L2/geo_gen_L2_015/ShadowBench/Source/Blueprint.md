@@ -5,6 +5,7 @@
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
 - Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- 2026-06-05 STATEMENT-FIDELITY REVIEW (D2-geometry): RISK found, then FIXED. The previous statement carried a second conjunct `(∀ p ∈ S, p = 0) → S = {0}` intended to encode the source parenthetical "the set is `{0}` if there is no separating hyperplane". That conjunct is a content-free tautology (its hypothesis `∀ p ∈ S, p = 0` together with `0 ∈ S` already forces `S = {0}`) and does NOT encode non-separability. The source *proof* establishes only that the set is a pointed convex cone containing the origin, and the theorem name is `..._is_pointed`. FIX: the statement was reduced to the genuine, proven claim — `∃ K : ConvexCone ℝ ((Fin n → ℝ) × ℝ), (K : Set _) = separatingHyperplanesSet n C D ∧ ConvexCone.Pointed K`. A faithful encoding of "no hyperplane separates `C` and `D`" would require a real non-separability hypothesis (not proven in the source) and was deliberately omitted as an unproven aside. `lake env lean` passes (exit 0, sorry-only). Note: judgment call about the canonical reference shape; if the hidden reference includes a genuine non-separability clause, revisit.
 
 ## Document and Support Files Read
 

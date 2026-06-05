@@ -5,6 +5,7 @@
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
 - Current stage: manual Codex audit completed on 2026-06-04 after the old batch log missed a final literal `PASS`. `ShadowBench/Source/Main.lean` verifies; the axis-aligned rectangle convention is accepted as the intended source interpretation, and theorem proof is intentionally left to the prover workflow.
+- 2026-06-05 statement-fidelity review (FIXED): the disc was previously encoded as `Metric.ball center radius` in `ℝ × ℝ`. Mathlib's `Metric.ball`/`dist` on `ℝ × ℝ` use the sup (L∞) metric, so that set is an axis-aligned open SQUARE — itself an open rectangle — which makes the theorem FALSE (the "disc" equals a single open rectangle). The conclusion was changed to the genuine Euclidean disc written explicitly as `{p | (p.1 - center.1)^2 + (p.2 - center.2)^2 < radius^2}`, matching `Skeleton4`. Lean check still passes (one `sorry`).
 
 ## Generated File Layout
 
@@ -26,7 +27,7 @@ The target Lean file uses this import block exactly.
 
 These are search/prover hints only, not additional direct imports for the draft:
 
-- `Mathlib.Topology.MetricSpace.Pseudo.Defs` for `Metric.ball` facts.
+- `Mathlib.Analysis.InnerProductSpace.EuclideanDist` for Euclidean-space infrastructure; the disc itself is encoded by an explicit quadratic inequality to avoid the product sup metric.
 - `Mathlib.Order.Interval.Set.Defs` for `Set.Ioo`.
 - `Mathlib.Data.Set.Pairwise.Basic` for `Pairwise`/pairwise disjoint set-family conventions.
 - Connectedness/path-connectedness facts for balls and products of intervals may be useful during the later proof phase.
@@ -53,9 +54,9 @@ These are search/prover hints only, not additional direct imports for the draft:
 - Source statement: "An open disc in $\mathbb{R}^2$ is not the disjoint union of open rectangles."
 - Complete source proof text: no proof body is present in the source document.
 - Planned Lean declarations: `IsOpenRectangle`, `open_disc_not_disjoint_union_rectangles`.
-- Formal statement review: The Lean theorem formalizes an open disc as `Metric.ball center radius` in `ℝ × ℝ` with `0 < radius`. It formalizes an open rectangle by the companion predicate `IsOpenRectangle`, namely an axis-aligned Cartesian product `Set.Ioo a b ×ˢ Set.Ioo c d` with strict endpoint inequalities. It formalizes "disjoint union" as an arbitrary indexed family `rectangles : ι → Set (ℝ × ℝ)` whose members satisfy `Pairwise (fun i j => Disjoint (rectangles i) (rectangles j))`, and it denies equality between the disc and the indexed union `⋃ i, rectangles i`.
+- Formal statement review: The Lean theorem formalizes an open disc as the explicit EUCLIDEAN disc `{p | (p.1 - center.1)^2 + (p.2 - center.2)^2 < radius^2}` in `ℝ × ℝ` with `0 < radius` (NOT `Metric.ball`, which is the sup-metric square on `ℝ × ℝ`). It formalizes an open rectangle by the companion predicate `IsOpenRectangle`, namely an axis-aligned Cartesian product `Set.Ioo a b ×ˢ Set.Ioo c d` with strict endpoint inequalities. It formalizes "disjoint union" as an arbitrary indexed family `rectangles : ι → Set (ℝ × ℝ)` whose members satisfy `Pairwise (fun i j => Disjoint (rectangles i) (rectangles j))`, and it denies equality between the disc and the indexed union `⋃ i, rectangles i`.
 - Source qualifiers: mathematical object class is an open disc in `ℝ^2`; quantification is universal over the center and positive radius; rectangle class is standard axis-aligned open rectangles; parameter domain/codomain is `ℝ × ℝ`; equality condition is the claimed union equality; side conditions are positive radius and nondegenerate rectangle intervals; follow-on claim is nonexistence of any such disjoint decomposition.
-- Lean coverage: `center : ℝ × ℝ`, `radius : ℝ`, and `hradius : 0 < radius` cover the open disc; `IsOpenRectangle (rectangles i)` covers each open rectangle; `hdisjoint` covers disjointness; `Metric.ball center radius ≠ ⋃ i, rectangles i` covers the negated disjoint-union equality for arbitrary finite, countable, or uncountable index types.
+- Lean coverage: `center : ℝ × ℝ`, `radius : ℝ`, and `hradius : 0 < radius` cover the open disc through the explicit Euclidean set `{p | (p.1 - center.1)^2 + (p.2 - center.2)^2 < radius^2}`; `IsOpenRectangle (rectangles i)` covers each open rectangle; `hdisjoint` covers disjointness; the theorem denies equality between that Euclidean disc and `⋃ i, rectangles i` for arbitrary finite, countable, or uncountable index types.
 - Scope changes: no intentional weakening. The only representation choice is the standard analysis convention that an open rectangle in `ℝ^2` is an axis-aligned product of open intervals. If a reviewer reads "rectangle" as allowing rotated rectangles, the current statement should be marked as axis-aligned coverage; the source and all candidate skeletons support the axis-aligned interpretation.
 - Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
 - Source proof / prover notes: no source proof is supplied. A natural proof should use connectedness/path-connectedness of the open disc. If a pairwise-disjoint family of nonempty open rectangles had union equal to the disc, the family would give a disjoint open cover of a connected set, so at most one rectangle could occur. The singleton case requires showing that a positive-radius disc is not an axis-aligned open rectangle, for example by comparing vertical cross-sections or using strict convexity/curved-boundary behavior.
@@ -103,7 +104,7 @@ These are search/prover hints only, not additional direct imports for the draft:
   - `IsOpenRectangle`: source-specific bridge for "open rectangle" as a nondegenerate axis-aligned product of open real intervals.
   - `open_disc_not_disjoint_union_rectangles`: source theorem for arbitrary centers, positive radii, index types, rectangle families, and pairwise-disjoint hypotheses.
 - Skeleton candidate used: `docs/skeletons/Skeleton4.lean` shaped the statement because it uses an arbitrary indexed family `I → Set (ℝ × ℝ)` and a pairwise-disjoint hypothesis. `Skeleton1.lean`, `Skeleton2.lean`, and `Skeleton3.lean` are duplicates whose endpoint-quadruple-set encoding is less faithful to the source phrase "disjoint union of open rectangles".
-- Dependencies: `Metric.ball`, `Set.Ioo`, `Set.prod` notation `×ˢ`, indexed union `⋃ i, rectangles i`, `Disjoint`, `Pairwise`, and real product space notation.
+- Dependencies: explicit Euclidean quadratic inequality in `ℝ × ℝ`, `Set.Ioo`, `Set.prod` notation `×ˢ`, indexed union `⋃ i, rectangles i`, `Disjoint`, `Pairwise`, and real product space notation.
 
 #### Source qualifiers
 
@@ -111,7 +112,7 @@ These are search/prover hints only, not additional direct imports for the draft:
 - Quantifier order: choose a center `center : ℝ × ℝ`, a radius `radius : ℝ`, assume `0 < radius`, then consider any index type `ι`, any family `rectangles : ι → Set (ℝ × ℝ)`, and hypotheses saying the members are open rectangles and pairwise disjoint.
 - Parameter domain: points lie in `ℝ × ℝ`, representing `ℝ^2`.
 - Output codomain: the theorem is a proposition denying an equality of subsets of `ℝ × ℝ`.
-- Equality/image condition: the formal conclusion is `Metric.ball center radius ≠ ⋃ i, rectangles i`.
+- Equality/image condition: the formal conclusion is `{p : ℝ × ℝ | (p.1 - center.1)^2 + (p.2 - center.2)^2 < radius^2} ≠ ⋃ i, rectangles i`.
 - Side conditions: every rectangle has strict interval bounds `a < b` and `c < d`, and the disc has positive radius.
 - Follow-on claims: no corollaries are present in the source.
 
@@ -119,10 +120,10 @@ These are search/prover hints only, not additional direct imports for the draft:
 
 - `center : ℝ × ℝ` covers the center of an arbitrary open disc in `ℝ^2`.
 - `radius : ℝ` and `hradius : 0 < radius` cover a positive radius.
-- `Metric.ball center radius` covers the open disc.
+- The explicit quadratic inequality covers the Euclidean open disc.
 - `IsOpenRectangle (rectangles i)` covers each open rectangle as an axis-aligned product of open intervals.
 - `Pairwise (fun i j => Disjoint (rectangles i) (rectangles j))` covers pairwise disjointness of the family.
-- `Metric.ball center radius ≠ ⋃ i, rectangles i` covers the statement that the disc is not such a disjoint union.
+- The explicit Euclidean-disc inequality not equal to `⋃ i, rectangles i` covers the statement that the disc is not such a disjoint union.
 
 #### Scope changes and representation choices
 
@@ -142,7 +143,7 @@ No proof text is present in `docs/source.tex`.
 
 #### Source proof / prover notes
 
-Use connectedness or path-connectedness of `Metric.ball center radius`. Each `IsOpenRectangle` member is nonempty and open. A pairwise-disjoint indexed union equal to the connected disc can contain at most one nonempty member. In the remaining one-rectangle case, prove that a metric ball in `ℝ × ℝ` with positive radius is not a product of two open intervals, e.g. by comparing vertical cross-sections near the center and near the edge, or by using convex/strict-boundary behavior.
+Use connectedness or path-connectedness of the explicit Euclidean disc. Each `IsOpenRectangle` member is nonempty and open. A pairwise-disjoint indexed union equal to the connected disc can contain at most one nonempty member. In the remaining one-rectangle case, prove that a positive-radius Euclidean disc is not a product of two open intervals, e.g. by comparing vertical cross-sections near the center and near the edge, or by using convex/strict-boundary behavior.
 
 ## Generated Declarations
 

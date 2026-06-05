@@ -161,7 +161,7 @@ The drafted Lean statement preserves the displayed kernel, the `c → ∞` limit
 
 #### Statement verification status
 
-Awaiting independent statement/source verification. The drafting agent has not marked this entry approved and has not started the proof queue.
+PASS. 2026-06-05 statement-fidelity review confirmed the Lean kernel `(π c)^(finrank ℝ V/2) · exp(-π² c ‖v-w‖²)`, hypotheses `Integrable f` and `ContinuousAt f v`, and the `atTop → 𝓝 (f v)` conclusion match the source; `volume` is the recorded measure bridge. Lean check passes (sorry-only).
 
 #### Prover notes
 

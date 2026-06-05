@@ -5,6 +5,7 @@
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
 - Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- 2026-06-05 statement-fidelity review (E1-topology): `normalizedMooreComplex_objD` was strengthened from the bare `rfl`-trivial equality `normalizedMooreComplex C = AlgebraicTopology.normalizedMooreComplex C` (which made the deep source claim "N_• is a well-defined functor" provable by `rfl`) to a conjunction also asserting (i) the differential `((normalizedMooreComplex C).obj X).d (n+1) n = NormalizedMooreComplex.objD X n` (differential induced by the zero-th face map) and (ii) `d_squared`: `objD X (n+1) ≫ objD X n = 0`. This captures the chain-complex well-definedness content of the source theorem. Lean check still passes (exit 0, no errors).
 
 ## Generated File Layout
 

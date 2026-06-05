@@ -36,5 +36,11 @@ the source-named construction with Mathlib's certified functor. Unfold
 should be definitional.
 -/
 theorem normalizedMooreComplex_objD (C : Type u) [Category.{v} C] [Abelian C] :
-    normalizedMooreComplex C = AlgebraicTopology.normalizedMooreComplex C := by
+    normalizedMooreComplex C = AlgebraicTopology.normalizedMooreComplex C ∧
+    (∀ (X : SimplicialObject C) (n : ℕ),
+      ((normalizedMooreComplex C).obj X).d (n + 1) n =
+        AlgebraicTopology.NormalizedMooreComplex.objD X n) ∧
+    (∀ (X : SimplicialObject C) (n : ℕ),
+      AlgebraicTopology.NormalizedMooreComplex.objD X (n + 1) ≫
+        AlgebraicTopology.NormalizedMooreComplex.objD X n = 0) := by
   sorry

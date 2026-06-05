@@ -31,7 +31,7 @@ Prover notes: for a local trivialization `e`, the pulled-back trivialization
 `e.pullback f` acts on each fiber by the same linear map as `e` at `f x`, so
 fiberwise linearity is inherited directly from `e.linear`.
 -/
-instance Bundle.Trivialization.pullback_linear (e : Trivialization F (π F E))
+instance Trivialization.pullback_linear (e : Trivialization F (π F E))
     [e.IsLinear 𝕜] (f : C(B', B)) : (e.pullback f).IsLinear 𝕜 where
   linear _ h := e.linear 𝕜 h
 
@@ -45,7 +45,7 @@ fiber restrictions remain linear isomorphisms; and pullback transition maps are
 `g_{UV} ∘ f`, hence continuous because both `g_{UV}` and `f` are continuous.
 
 Prover notes: use `FiberBundle.pullback` for the pullback atlas. Atlas members
-are `e.pullback f`; linearity follows from `Bundle.Trivialization.pullback_linear`.
+are `e.pullback f`; linearity follows from `Trivialization.pullback_linear`.
 For coordinate changes, reduce `(e.pullback f).coordChangeL 𝕜 (e'.pullback f) b`
 to `e.coordChangeL 𝕜 e' (f b)` and compose the original `continuousOn_coordChange`
 with `f.continuous`.
