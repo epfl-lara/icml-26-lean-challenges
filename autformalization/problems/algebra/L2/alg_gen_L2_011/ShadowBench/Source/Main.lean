@@ -1,11 +1,30 @@
 import Mathlib.RingTheory.Nullstellensatz
 
-/-
-ShadowBench problem: algebra/L2/alg_gen_L2_011
-Source: docs/source.tex
-Instructions: docs/instructions.md
-Candidate skeletons: docs/skeletons/
-Blueprint: ShadowBench/Source/Blueprint.md
+/-!
+ShadowBench problem `algebra/L2/alg_gen_L2_011`.
 
-Replace this scaffold with the required declarations and proofs.
+This file formalizes the source theorem from `docs/source.tex` using Mathlib's
+`MvPolynomial.zeroLocus` for affine zero loci of ideals in multivariate
+polynomial rings.
 -/
+
+/--
+Source theorem `zeroLocus_mul` (`docs/source.tex`, lines 17--25): for ideals
+`I` and `J` in `k[x_1, ..., x_n]`, the zero locus of `I * J` is the union of the
+zero loci of `I` and `J`.
+
+Source proof: a point of `V(I * J)` makes every product `g(a) * h(a)` vanish. If
+all `g ∈ I` vanish, the point lies in `V(I)`; otherwise choose one nonvanishing
+`g` and use the field no-zero-divisor property to force every `h ∈ J` to vanish.
+Conversely, a point in `V(I)` or `V(J)` makes all product generators, hence all
+of `I * J`, vanish.
+
+Prover notes: use pointwise set extensionality and unfold `MvPolynomial.zeroLocus`,
+or convert vanishing at a point to containment in the singleton vanishing ideal
+`MvPolynomial.vanishingIdeal k {x}` and use its primeness to split `I * J`.
+-/
+theorem zeroLocus_mul {k : Type*} [Field k] (n : ℕ)
+    (I J : Ideal (MvPolynomial (Fin n) k)) :
+    MvPolynomial.zeroLocus k (I * J) =
+      MvPolynomial.zeroLocus k I ∪ MvPolynomial.zeroLocus k J := by
+  sorry

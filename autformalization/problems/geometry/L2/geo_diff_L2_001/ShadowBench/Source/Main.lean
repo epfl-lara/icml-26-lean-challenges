@@ -3,12 +3,47 @@ import Mathlib.Geometry.Manifold.MFDeriv.Tangent
 open scoped Manifold Topology
 open Set
 
-/-
-ShadowBench problem: geometry/L2/geo_diff_L2_001
-Source: docs/source.tex
-Instructions: docs/instructions.md
-Candidate skeletons: docs/skeletons/
-Blueprint: ShadowBench/Source/Blueprint.md
-
-Replace this scaffold with the required declarations and proofs.
+/--
+`Γ` is an integral curve of the vector field `v` on the time set `s`: at every
+`t ∈ s`, the manifold derivative within `s` sends `1 : ℝ` to `v (Γ t)`.
+This is the representation bridge for the source phrase “integral curve on `U`”.
 -/
+def IsMIntegralCurveOn
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+    {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+    (Γ : ℝ → M) (v : (x : M) → TangentSpace I x) (s : Set ℝ) : Prop :=
+  ∀ t ∈ s, HasMFDerivAt[s] Γ t ((1 : ℝ →L[ℝ] ℝ).smulRight <| v (Γ t))
+
+/--
+`Γ` is an integral curve of the vector field `v` at `t₀`: in a neighborhood of
+`t₀`, the manifold derivative sends `1 : ℝ` to `v (Γ t)`.
+This is the representation bridge for the source phrase “integral curve at `t₀`”.
+-/
+def IsMIntegralCurveAt
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+    {M : Type*} [TopologicalSpace M] [ChartedSpace H M]
+    (Γ : ℝ → M) (v : (x : M) → TangentSpace I x) (t₀ : ℝ) : Prop :=
+  ∀ᶠ t in 𝓝 t₀, HasMFDerivAt% Γ t ((1 : ℝ →L[ℝ] ℝ).smulRight <| v (Γ t))
+
+/--
+Source proof: The source gives no proof. The statement unfolds the definition of
+`IsMIntegralCurveAt` as an eventual property at `t₀`; an open neighborhood carrying
+that eventual property gives the right-hand side, and conversely `IsOpen U` with
+`t₀ ∈ U` means `U ∈ 𝓝 t₀`, so the integral-curve-on-`U` hypothesis supplies the
+eventual derivative condition.
+
+Prover notes: unfold `IsMIntegralCurveAt` and `IsMIntegralCurveOn`; use
+`Filter.eventually_iff_exists_mem`, `mem_nhds_iff`, and `IsOpen.mem_nhds`, plus the
+standard conversions between `HasMFDerivAt` and `HasMFDerivWithinAt` on a
+neighborhood.
+-/
+theorem isMIntegralCurveAt_iff'
+    {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+    {H : Type*} [TopologicalSpace H] {I : ModelWithCorners ℝ E H}
+    {M : Type*} [TopologicalSpace M] [ChartedSpace H M] [IsManifold I 1 M]
+    {v : (x : M) → TangentSpace I x} {Γ : ℝ → M} {t₀ : ℝ} :
+    IsMIntegralCurveAt Γ v t₀ ↔
+      ∃ U : Set ℝ, IsOpen U ∧ t₀ ∈ U ∧ IsMIntegralCurveOn Γ v U := by
+  sorry

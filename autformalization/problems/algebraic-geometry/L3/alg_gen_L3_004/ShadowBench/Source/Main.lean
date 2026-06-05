@@ -7,12 +7,39 @@ import Mathlib.RingTheory.Etale.QuasiFinite
 
 open CategoryTheory Limits
 
-/-
-ShadowBench problem: algebraic-geometry/L3/alg_gen_L3_004
-Source: docs/source.tex
-Instructions: docs/instructions.md
-Candidate skeletons: docs/skeletons/
-Blueprint: ShadowBench/Source/Blueprint.md
+namespace AlgebraicGeometry
 
-Replace this scaffold with the required declarations and proofs.
+universe u
+
+/--
+Source theorem `docs/source.tex`, line 17: for a finite-type separated morphism `f : X ⟶ Y`,
+let `f.normalization` be the relative normalization of `Y` in `X`, with canonical factorization
+`X ⟶ f.normalization ⟶ Y`. There is an open subscheme `U` of the normalization such that the
+restricted morphism from its preimage is an isomorphism and that preimage is exactly the
+quasi-finite locus of `f`.
+
+Source proof: the quasi-finite locus `U₀ ⊆ X` is open. Around each quasi-finite point `x`, after
+an elementary étale neighbourhood of `f x`, split `X` into an open-and-closed finite part containing
+`x` and its complement; the normalization then splits as the finite part together with the
+normalization of the complement, giving a local open `V` on which the restriction is an isomorphism.
+These local opens descend along the étale cover and are glued over all quasi-finite points.
+
+Prover notes: this is the Zariski main theorem statement in Mathlib's
+`Mathlib.AlgebraicGeometry.ZariskisMainTheorem`; the proof should use the local lemma
+`Scheme.Hom.exists_mem_and_isIso_morphismRestrict_toNormalization` and then glue the resulting
+neighbourhoods.
 -/
+lemma Scheme.Hom.exists_isIso_morphismRestrict_toNormalization
+    {X Y : Scheme.{u}} (f : X ⟶ Y)
+    [LocallyOfFiniteType f] [IsSeparated f] [QuasiCompact f] :
+    ∃ U : f.normalization.Opens, IsIso (f.toNormalization ∣_ U) ∧
+      (f.toNormalization ⁻¹ᵁ U).1 = { x | f.QuasiFiniteAt x } := by
+  sorry
+
+end AlgebraicGeometry
+
+namespace Scheme.Hom
+
+export AlgebraicGeometry.Scheme.Hom (exists_isIso_morphismRestrict_toNormalization)
+
+end Scheme.Hom

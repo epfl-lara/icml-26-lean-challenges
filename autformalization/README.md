@@ -66,12 +66,15 @@ scripts/epflemma_prove_only.sh --problem algebra/L2/alg_comp_L2_001 --check-afte
 scripts/epflemma_formalize_and_prove.sh --problem algebra/L2/alg_comp_L2_001 --lake-update --check-after
 ```
 
-The lower-level `scripts/epflemma_formalize.sh` is still available when you want to set `--phase formalize`, `--phase prove`, `--phase both`, or `--phase check` explicitly.
+The lower-level `scripts/epflemma_formalize.sh` is still available when you want to set `--phase init`, `--phase formalize`, `--phase prove`, `--phase both`, or `--phase check` explicitly.
 
-EPFLemma commands are run with stdin closed, like `epflemma workflow ... </dev/null`, so finished agent-mode sessions do not wait for interactive input.
+EPFLemma workflow commands are fed a final `/exit` line, like `printf '/exit\n' | epflemma workflow ...`, so finished agent-mode sessions leave the prompt cleanly instead of hitting EOF cleanup paths. Project init still runs with stdin closed.
+
+By default, `scripts/epflemma_formalize.sh` runs `epflemma project init` only when `.epflemma/project.yaml` is missing. Use `--force-project-init` to rebuild EPFLemma project metadata, or `--no-project-init` when you already ran the batch init phase.
 
 Phases:
 
+- `init`: run `epflemma project init` for the selected problem project.
 - `formalize`: source-backed declaration drafting from `docs/source.tex`.
 - `prove`: proof completion for `ShadowBench/Source/Main.lean`.
 - `both`: formalize then prove.
@@ -85,8 +88,15 @@ Preview selected problems:
 
 ```bash
 python3 scripts/epflemma_batch.py list --level L2 --limit 10
+scripts/epflemma_batch_init.sh --level L2 --limit 3 --dry-run
 python3 scripts/epflemma_batch.py run --level L2 --limit 3 --phase formalize --dry-run
 scripts/epflemma_batch_formalize.sh --level L2 --limit 3 --dry-run
+```
+
+Initialize EPFLemma metadata for selected projects once:
+
+```bash
+scripts/epflemma_batch_init.sh --level L2 --skip-success
 ```
 
 Formalize all L2 problems, one at a time:
@@ -114,8 +124,22 @@ python3 scripts/epflemma_batch.py status --level L2
 python3 scripts/epflemma_batch.py status --level L2 --verbose
 ```
 
+Batch statuses:
+
+- `success`: the process exited cleanly, or a nonzero EPFLemma cleanup exit was accepted because the final log contains a source-review `PASS` or `Formalizer ended: document source/statement review passed`.
+- `needs-review`: Lean/project verification passed, but the final log does not contain the source-review PASS signal. These are good candidates for manual source-fidelity review before proving.
+- `failed`: no accepted final verification signal was found, or the log records a hard failure such as disk exhaustion.
+- `not-run`: no status entry exists for that phase.
+
+After an interrupted or disk-full run, reclassify logs before resuming:
+
+```bash
+python3 scripts/epflemma_batch.py reconcile --run-id formalize-all-20260602T233915Z --write
+```
+
 The batch wrappers are aliases for `epflemma_batch.py run`:
 
+- `scripts/epflemma_batch_init.sh`
 - `scripts/epflemma_batch_formalize.sh`
 - `scripts/epflemma_batch_prove.sh`
 - `scripts/epflemma_batch_formalize_and_prove.sh`

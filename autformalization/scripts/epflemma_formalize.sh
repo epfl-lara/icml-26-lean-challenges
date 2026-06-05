@@ -6,7 +6,7 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROBLEM_DIR=""
 PHASE="both"
 PROVIDER="codex"
-PROJECT_INIT=1
+PROJECT_INIT="auto"
 LAKE_UPDATE=0
 CHECK_BEFORE=0
 CHECK_AFTER=0
@@ -22,12 +22,13 @@ Run EPFLemma on one ShadowBench problem project.
 Options:
   --problem IDX_OR_DIR       Problem id such as algebra/L2/alg_comp_L2_001, or a directory.
   --problem-dir DIR          Explicit problem project directory.
-  --phase PHASE              formalize, prove, both, or check. Default: both.
+  --phase PHASE              init, formalize, prove, both, or check. Default: both.
   --provider PROVIDER        EPFLemma provider. Default: codex.
   --lake-update              Run lake update before EPFLemma.
   --check-before             Run lake env lean before EPFLemma.
   --check-after              Run lake env lean after EPFLemma.
-  --no-project-init          Skip epflemma project init.
+  --force-project-init       Run epflemma project init even if .epflemma/project.yaml exists.
+  --no-project-init          Skip epflemma project init for workflow phases.
   -h, --help                 Show this help.
 
 If no problem is provided, the current directory must be a problem project.
@@ -85,6 +86,33 @@ run_cmd_no_stdin() {
   "$@" </dev/null
 }
 
+run_cmd_with_exit_command() {
+  printf "+ printf '/exit\\n' |"
+  printf ' %q' "$@"
+  printf '\n'
+  printf '/exit\n' | "$@"
+}
+
+run_project_init() {
+  case "$PROJECT_INIT" in
+    always)
+      run_cmd_no_stdin epflemma project init
+      ;;
+    auto)
+      if [[ -f ".epflemma/project.yaml" ]]; then
+        echo "+ epflemma project init (skipped: .epflemma/project.yaml exists)"
+      else
+        run_cmd_no_stdin epflemma project init
+      fi
+      ;;
+    never)
+      ;;
+    *)
+      die "internal error: unknown project init mode: $PROJECT_INIT"
+      ;;
+  esac
+}
+
 shadowbench_skill_args() {
   if [[ -f "$SHADOWBENCH_SKILL" ]]; then
     printf '%s\n' --additional-skill "$SHADOWBENCH_SKILL"
@@ -126,7 +154,11 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --no-project-init)
-      PROJECT_INIT=0
+      PROJECT_INIT="never"
+      shift
+      ;;
+    --force-project-init)
+      PROJECT_INIT="always"
       shift
       ;;
     -h|--help)
@@ -140,8 +172,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$PHASE" in
-  formalize|prove|both|check) ;;
-  *) die "--phase must be one of: formalize, prove, both, check" ;;
+  init|formalize|prove|both|check) ;;
+  *) die "--phase must be one of: init, formalize, prove, both, check" ;;
 esac
 
 if [[ -z "$PROBLEM_DIR" ]]; then
@@ -159,13 +191,16 @@ if [[ "$CHECK_BEFORE" -eq 1 ]]; then
   run_cmd lake env lean ShadowBench/Source/Main.lean
 fi
 
-if [[ "$PHASE" != "check" && "$PROJECT_INIT" -eq 1 ]]; then
-  run_cmd_no_stdin epflemma project init
+if [[ "$PHASE" == "init" ]]; then
+  PROJECT_INIT="always"
+  run_project_init
+elif [[ "$PHASE" != "check" ]]; then
+  run_project_init
 fi
 
 if [[ "$PHASE" == "formalize" || "$PHASE" == "both" ]]; then
   mapfile -t FORMALIZE_SKILL_ARGS < <(shadowbench_skill_args)
-  run_cmd_no_stdin epflemma workflow --provider "$PROVIDER" formalize docs/source.tex "${FORMALIZE_SKILL_ARGS[@]}"
+  run_cmd_with_exit_command epflemma workflow --provider "$PROVIDER" formalize docs/source.tex "${FORMALIZE_SKILL_ARGS[@]}"
 fi
 
 if [[ "$PHASE" == "prove" || "$PHASE" == "both" ]]; then
@@ -176,7 +211,7 @@ if [[ "$PHASE" == "prove" || "$PHASE" == "both" ]]; then
   if [[ -f "$BLUEPRINT_SKILL" ]]; then
     PROVE_ARGS+=(--additional-skill "$BLUEPRINT_SKILL")
   fi
-  run_cmd_no_stdin epflemma "${PROVE_ARGS[@]}"
+  run_cmd_with_exit_command epflemma "${PROVE_ARGS[@]}"
 fi
 
 if [[ "$PHASE" == "check" || "$CHECK_AFTER" -eq 1 ]]; then

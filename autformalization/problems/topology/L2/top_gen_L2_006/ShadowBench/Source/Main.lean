@@ -7,12 +7,25 @@ import Mathlib.Topology.UnitInterval
 
 open Topology unitInterval
 
-/-
-ShadowBench problem: topology/L2/top_gen_L2_006
-Source: docs/source.tex
-Instructions: docs/instructions.md
-Candidate skeletons: docs/skeletons/
-Blueprint: ShadowBench/Source/Blueprint.md
-
-Replace this scaffold with the required declarations and proofs.
+/--
+Source theorem `monodromy_theorem` from `docs/source.tex`, lines 18-40.
+Source proof: define `G(s,t) = Γ t s`; Theorem B gives continuity of `G` from the
+continuous lifted slices, the constant initial side, and the projected homotopy. The
+projected endpoint path `t ↦ p (Γ t 1)` is constant because `γ` is a homotopy rel.
+endpoints. Separatedness/uniqueness of lifts for `p` then forces the endpoint lift
+`t ↦ Γ t 1` to be constant, giving `Γ t 1 = Γ 0 1`.
+Prover notes: the Lean draft makes the source proof's implicit separated/unique-lift
+assumption explicit as `hp : IsCoveringMap p`. Search `Path.Homotopy.target` and
+covering-map lifting uniqueness lemmas such as `IsCoveringMap.liftHomotopy` or
+`IsCoveringMap.existsUnique_continuousMap_lifts`.
 -/
+theorem monodromy_theorem {X E : Type*} [TopologicalSpace X] [TopologicalSpace E]
+    (p : E → X) (hp : IsCoveringMap p)
+    {x y : X}
+    (γ₀ γ₁ : Path x y)
+    (γ : Path.Homotopy γ₀ γ₁)
+    (Γ : I → C(I, E))
+    (hΓ : ∀ t s, p (Γ t s) = γ (t, s))
+    (hΓ₀ : ∀ t, Γ t 0 = Γ 0 0) :
+    ∀ t, Γ t 1 = Γ 0 1 := by
+  sorry

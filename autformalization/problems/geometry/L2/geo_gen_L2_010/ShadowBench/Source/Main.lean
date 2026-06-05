@@ -4,12 +4,20 @@ import Mathlib.Geometry.Manifold.Instances.Sphere
 open scoped Manifold ContDiff
 open Complex
 
-/-
-ShadowBench problem: geometry/L2/geo_gen_L2_010
-Source: docs/source.tex
-Instructions: docs/instructions.md
-Candidate skeletons: docs/skeletons/
-Blueprint: ShadowBench/Source/Blueprint.md
+/-- The source document's `𝕊¹`, represented by Mathlib's complex unit circle. -/
+abbrev SourceCircle : Type := Circle
 
-Replace this scaffold with the required declarations and proofs.
+/--
+Source theorem (`docs/source.tex`, lines 17--19): `$T\mathbb{S}^1$ is diffeomorphic
+to $\mathbb{S}^1 \times \mathbb{R}$`.
+
+Source proof: no proof is supplied in the source document.
+Proof sketch / Prover notes: construct the standard global frame on the unit circle.
+Informally, at each point of the circle every tangent vector is a unique real multiple
+of the tangent direction obtained by rotating the point by `π/2`; this identifies the
+tangent bundle with the base circle times the scalar coefficient, with smooth inverse.
 -/
+theorem circle_tangent_bundle_trivialization :
+    Nonempty (TangentBundle (𝓡 1) SourceCircle ≃ₘ⟮(𝓡 1).tangent, (𝓡 1).prod 𝓘(ℝ, ℝ)⟯
+      (SourceCircle × ℝ)) := by
+  sorry

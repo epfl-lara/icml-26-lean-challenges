@@ -5,8 +5,21 @@ import Mathlib.Analysis.Normed.Ring.Basic
 ShadowBench problem: analysis/L2/ana_comp_L2_002
 Source: docs/source.tex
 Instructions: docs/instructions.md
-Candidate skeletons: docs/skeletons/
 Blueprint: ShadowBench/Source/Blueprint.md
-
-Replace this scaffold with the required declarations and proofs.
 -/
+
+/--
+Source proof: write `z = x + i*y`, use the complex cosine formula
+`cos (x + i*y) = cos x * cosh y - i * sin x * sinh y`, then compute the
+complex modulus as the square root of the sum of squares of the real and
+imaginary parts.
+Proof sketch: the squared norm becomes
+`cos^2 x * cosh^2 y + sin^2 x * sinh^2 y`; use `cosh^2 y = 1 + sinh^2 y`
+and `cos^2 x + sin^2 x = 1` to simplify to `sinh^2 y + cos^2 x`.
+Prover notes: start by rewriting with `hz`; relevant search hits include
+`Complex.cos_add_mul_I`, complex norm/squared-norm identities, `Real.cosh_sq`,
+and `Real.sin_sq_add_cos_sq`.
+-/
+theorem norm_cos_eq (z : ℂ) (x y : ℝ) (hz : z = x + Complex.I * y) :
+    ‖Complex.cos z‖ = Real.sqrt (Real.sinh y ^ 2 + Real.cos x ^ 2) := by
+  sorry

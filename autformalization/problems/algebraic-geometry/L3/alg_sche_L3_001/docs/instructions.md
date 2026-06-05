@@ -30,7 +30,7 @@ import Mathlib.CategoryTheory.Adjunction.Reflective
 
 ## Expected Declaration Names
 
-- [none detected]
+- `toΓSpec`
 
 ## Formalization Rules
 
