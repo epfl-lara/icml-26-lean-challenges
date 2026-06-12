@@ -23,4 +23,7 @@ theorem MonomialOrder.mem_monomialIdeal_iff_divisible {σ k : Type*} [Field k]
     MvPolynomial.monomial β (1 : k) ∈ MvPolynomial.monomialIdeal A ↔
       ∃ α ∈ A,
         MvPolynomial.monomial α (1 : k) ∣ MvPolynomial.monomial β (1 : k) := by
-  sorry
+  classical
+  unfold MvPolynomial.monomialIdeal
+  rw [MvPolynomial.mem_ideal_span_monomial_image_iff_dvd]
+  simp [MvPolynomial.support_monomial]

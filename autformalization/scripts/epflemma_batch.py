@@ -27,6 +27,16 @@ FINAL_VERIFIED_RE = re.compile(
 )
 SOURCE_REVIEW_PASSED = "Formalizer ended: document source/statement review passed"
 DISK_FULL = "No space left on device"
+RATE_LIMIT_MARKERS = (
+    "RateLimitError",
+    "usage_limit_reached",
+    "usage limit has been reached",
+)
+RATE_LIMIT_RESET_RE = re.compile(r"resets_in_seconds['\"]?:\s*(\d+)")
+SORRY_WARNING_MARKERS = (
+    "warning: declaration uses `sorry`",
+    "warning: declaration uses 'sorry'",
+)
 
 
 def utc_now() -> str:
@@ -133,6 +143,8 @@ def classify_log(log_path: Path, returncode: int | None, phase: str, *, strict_e
         "source_review_passed": False,
         "verified_by_lean": False,
         "disk_full": False,
+        "rate_limited": False,
+        "has_sorry_warning": False,
         "needs_review": False,
     }
     if phase not in WORKFLOW_PHASES:
@@ -143,11 +155,23 @@ def classify_log(log_path: Path, returncode: int | None, phase: str, *, strict_e
     text = log_path.read_text(encoding="utf-8", errors="replace")
     tail = log_tail(text)
     evidence["disk_full"] = DISK_FULL in text
+    evidence["rate_limited"] = any(marker in text for marker in RATE_LIMIT_MARKERS)
+    evidence["has_sorry_warning"] = any(marker in text for marker in SORRY_WARNING_MARKERS)
+    if evidence["rate_limited"]:
+        reset_values = [int(match.group(1)) for match in RATE_LIMIT_RESET_RE.finditer(text)]
+        if reset_values:
+            evidence["rate_limit_resets_in_seconds"] = max(reset_values)
     evidence["final_pass"] = bool(FINAL_PASS_RE.search(tail))
     evidence["source_review_passed"] = SOURCE_REVIEW_PASSED in tail or SOURCE_REVIEW_PASSED in text
     evidence["verified_by_lean"] = bool(FINAL_VERIFIED_RE.search(tail))
 
     if evidence["disk_full"]:
+        return "failed", evidence
+
+    if evidence["rate_limited"]:
+        return "blocked", evidence
+
+    if phase == "prove" and evidence["has_sorry_warning"]:
         return "failed", evidence
 
     review_approved = bool(evidence["final_pass"] or evidence["source_review_passed"])
@@ -319,17 +343,22 @@ def cmd_run(args: argparse.Namespace) -> int:
     state = load_state()
     failures = 0
     attention = 0
+    blocked = 0
     for problem in problems:
         result = run_problem(problem, args, run_dir=run_dir, state=state)
         if result.get("status") == "failed":
             failures += 1
             if args.fail_fast:
                 break
+        elif result.get("status") == "blocked":
+            blocked += 1
+            print("Stopping run because the last workflow is blocked; resume with --skip-success after the blocker clears.", flush=True)
+            break
         elif result.get("status") == "needs-review":
             attention += 1
     print(f"Run directory: {run_dir}")
-    print(f"Selected: {len(problems)}; failures: {failures}; needs-review: {attention}")
-    return 1 if failures else 0
+    print(f"Selected: {len(problems)}; failures: {failures}; needs-review: {attention}; blocked: {blocked}")
+    return 1 if failures else (2 if blocked else 0)
 
 
 def cmd_reconcile(args: argparse.Namespace) -> int:

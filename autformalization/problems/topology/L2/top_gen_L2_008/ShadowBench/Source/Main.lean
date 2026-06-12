@@ -29,4 +29,24 @@ correspondence, and compare with Mathlib's proof of the theorem with this same n
 theorem simply_connected_iff_paths_homotopic (X : Type*) [TopologicalSpace X] :
     paths_homotopic X ↔
       PathConnectedSpace X ∧ ∀ x y : X, Subsingleton (Path.Homotopic.Quotient x y) := by
-  sorry
+  have huniq :
+      paths_homotopic X ↔
+        Nonempty X ∧ ∀ x y : X, Nonempty (Unique (Path.Homotopic.Quotient x y)) := by
+    simp only [paths_homotopic, equiv_punit_iff_unique,
+      FundamentalGroupoid.nonempty_iff X, and_congr_right_iff, Nonempty.forall]
+    intros
+    exact ⟨fun h _ _ => h _ _, fun h _ _ => h _ _⟩
+  constructor
+  · intro h
+    have hu := huniq.mp h
+    constructor
+    · exact { nonempty := hu.1
+              joined := fun x y => ⟨(hu.2 x y).some.default.out⟩ }
+    · intro x y
+      exact @Unique.instSubsingleton _ (Nonempty.some (hu.2 x y))
+  · intro h
+    rcases h with ⟨hpc, hsub⟩
+    letI : PathConnectedSpace X := hpc
+    exact huniq.mpr ⟨hpc.nonempty, fun x y => by
+      letI : Subsingleton (Path.Homotopic.Quotient x y) := hsub x y
+      exact ⟨uniqueOfSubsingleton ⟦PathConnectedSpace.somePath x y⟧⟩⟩

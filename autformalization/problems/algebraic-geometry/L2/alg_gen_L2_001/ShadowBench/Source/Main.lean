@@ -31,7 +31,7 @@ theorem isNoetherianRing_of_away_claim
     (hS : Ideal.span (α := R) S = ⊤)
     (hN : ∀ s : S, IsNoetherianRing (Away (M := R) s)) :
     IsNoetherianRing R := by
-  sorry
+  exact AlgebraicGeometry.isNoetherianRing_of_away S hS hN
 
 /--
 Source `docs/source.tex`, line-21 (`isLocallyNoetherian_of_affine_cover`).
@@ -49,4 +49,4 @@ theorem isLocallyNoetherian_of_affine_cover
     (hS : (⨆ i, S i : X.Opens) = ⊤)
     (hS' : ∀ i, IsNoetherianRing Γ(X, S i)) :
     _root_.isNoetherianRing_of_away X := by
-  sorry
+  exact AlgebraicGeometry.isLocallyNoetherian_of_affine_cover hS hS'

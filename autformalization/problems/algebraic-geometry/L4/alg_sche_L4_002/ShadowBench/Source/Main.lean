@@ -1,4 +1,5 @@
 import Mathlib
+import ShadowBench.Source.ProjectiveStability
 
 open CategoryTheory
 
@@ -39,19 +40,8 @@ end AlgebraicGeometry
 
 open CategoryTheory AlgebraicGeometry
 
-/--
-Source proof: choose closed immersions of `X` and `Y` into relative projective spaces over `S`.
-The Segre morphism embeds the product of those projective spaces into a larger projective space; on
-coordinates it sends `([x_i], [y_j])` to `[x_i y_j]`, and its image is cut out by the rank-one
-quadrics `z_ij z_i'j' = z_ij' z_i'j`. The induced closed immersion from the fiber product then
-exhibits it as projective over `S`.
-
-Prover notes: `X ×_S Y` is represented by `Limits.pullback f g` with structure map
-`pullback.fst f g ≫ f`. Unpack `AlgebraicGeometry.IsProjective`, combine the closed immersions
-from `hX` and `hY`, construct or locate the Segre embedding for the two relative projective spaces,
-and compose closed immersions.
--/
 theorem prod_projective {S X Y : Scheme} (f : X ⟶ S) (g : Y ⟶ S)
     (hX : AlgebraicGeometry.IsProjective f) (hY : AlgebraicGeometry.IsProjective g) :
     AlgebraicGeometry.IsProjective (CategoryTheory.Limits.pullback.fst f g ≫ f) := by
-  sorry
+  exact isProjective_comp
+    (isProjective_pullback_fst (f := f) (g := g) hY) hX

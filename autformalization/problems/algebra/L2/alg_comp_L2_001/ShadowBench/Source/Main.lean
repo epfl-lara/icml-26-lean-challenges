@@ -46,4 +46,22 @@ theorem minimal_monomial_mem_generators {σ R : Type*} [CommSemiring R] [Nontriv
     (m : MonomialOrder σ) {μ : σ →₀ ℕ}
     (hμS : μ ∈ S) (hμ_min : ∀ β ∈ S, μ ≼[m] β) :
     μ ∈ A := by
-  sorry
+  subst S
+  rcases hμS with ⟨f, hfI, hμf⟩
+  rw [hI, ShadowBench.Source.monomialIdealFromExponents] at hfI
+  rcases (MvPolynomial.mem_ideal_span_monomial_image.mp hfI μ hμf) with ⟨α, hαA, hα_le_μ⟩
+  have hαS : α ∈ ShadowBench.Source.idealExponentSet I := by
+    refine ⟨MvPolynomial.monomial α (1 : R), ?_, ?_⟩
+    · rw [hI, ShadowBench.Source.monomialIdealFromExponents]
+      exact Ideal.subset_span ⟨α, hαA, rfl⟩
+    · classical
+      rw [MvPolynomial.support_monomial]
+      simp
+  have hα_le_m : α ≼[m] μ := by
+    rcases le_iff_exists_add.mp hα_le_μ with ⟨γ, hγ⟩
+    rw [hγ, map_add]
+    exact m.le_add_right α γ
+  have hμ_le_α : μ ≼[m] α := hμ_min α hαS
+  have h_eq_toSyn : m.toSyn μ = m.toSyn α := le_antisymm hμ_le_α hα_le_m
+  have h_eq : μ = α := m.toSyn.injective h_eq_toSyn
+  simpa [h_eq] using hαA

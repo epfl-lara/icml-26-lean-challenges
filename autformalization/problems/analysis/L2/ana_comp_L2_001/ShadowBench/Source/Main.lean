@@ -33,4 +33,6 @@ theorem integral_boundary_rect_of_hasFDerivAt_real_off_countable {E : Type*}
       Complex.I • (∫ y : ℝ in z.im..w.im, f (z.re + y * Complex.I)) =
       ∫ x : ℝ in z.re..w.re, ∫ y : ℝ in z.im..w.im,
         Complex.I • f' (x + y * Complex.I) 1 - f' (x + y * Complex.I) Complex.I := by
-  sorry
+  rcases hdiff with ⟨S, hS_count, hS_diff⟩
+  exact Complex.integral_boundary_rect_of_hasFDerivAt_real_off_countable f f' z w S hS_count
+    hcont hS_diff hint

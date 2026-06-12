@@ -35,7 +35,18 @@ theorem quasiSeparated_iff_preimage_isQuasiSeparated_of_openCover
     {X Y : Scheme.{u}} (f : X ⟶ Y) {ι : Type*} (U : ι → Y.Opens)
     (hUcover : IsOpenCover U) (hUqs : ∀ i, IsQuasiSeparated (U i : Set Y)) :
     QuasiSeparated f ↔ ∀ i, IsQuasiSeparated (f ⁻¹ᵁ U i : Set X) := by
-  sorry
+  constructor
+  · intro hf i
+    letI : QuasiSeparated f := hf
+    exact f.isQuasiSeparated_preimage (hUqs i)
+  · intro hpre
+    exact IsZariskiLocalAtTarget.of_iSup_eq_top
+      (P := @QuasiSeparated) (f := f) U hUcover fun i => by
+      haveI : QuasiSeparatedSpace (U i) :=
+        (isQuasiSeparated_iff_quasiSeparatedSpace (U i : Set Y) (U i).2).mp (hUqs i)
+      haveI : QuasiSeparatedSpace (f ⁻¹ᵁ U i) :=
+        (isQuasiSeparated_iff_quasiSeparatedSpace (f ⁻¹ᵁ U i : Set X) (f ⁻¹ᵁ U i).2).mp (hpre i)
+      exact (quasiSeparated_iff_quasiSeparatedSpace (f ∣_ U i)).mpr inferInstance
 
 end AlgebraicGeometry
 

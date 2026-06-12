@@ -18,7 +18,8 @@ hypothesis `h` changes membership in `I₁` into membership in `I₂`.
 theorem zeroLocus_subset_of_ideal_le
     {I₁ I₂ : Ideal (MvPolynomial σ k)} (h : I₁ ≤ I₂) :
     MvPolynomial.zeroLocus K I₂ ⊆ MvPolynomial.zeroLocus K I₁ := by
-  sorry
+  intro x hx
+  exact fun f hf => hx f (h hf)
 
 /--
 Source `docs/source.tex`, theorem `line-17`, second claim.
@@ -31,7 +32,8 @@ Prover notes: unfold `MvPolynomial.vanishingIdeal`; for `x ∈ V₁`, use `h x` 
 theorem vanishingIdeal_le_of_subset
     {V₁ V₂ : Set (σ → K)} (h : V₁ ⊆ V₂) :
     MvPolynomial.vanishingIdeal k V₂ ≤ MvPolynomial.vanishingIdeal k V₁ := by
-  sorry
+  intro f hf x hx
+  exact hf x (h hx)
 
 /--
 Source `docs/source.tex`, theorem `line-17`, final claim.
@@ -47,4 +49,9 @@ power-zero lemma.
 theorem zeroLocus_radical_eq_zeroLocus
     (I : Ideal (MvPolynomial σ k)) :
     MvPolynomial.zeroLocus K I.radical = MvPolynomial.zeroLocus K I := by
-  sorry
+  ext x
+  constructor
+  · intro hx
+    exact zeroLocus_subset_of_ideal_le (Ideal.le_radical) hx
+  · intro hx f hf
+    exact (MvPolynomial.radical_le_vanishingIdeal_zeroLocus (K := K) I hf) x hx

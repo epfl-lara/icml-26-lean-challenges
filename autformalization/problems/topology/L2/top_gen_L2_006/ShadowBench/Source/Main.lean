@@ -2,6 +2,7 @@ import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 import Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected
 import Mathlib.Topology.Connected.LocPathConnected
 import Mathlib.Topology.Covering.Basic
+import Mathlib.Topology.Homotopy.Lifting
 import Mathlib.Topology.Homotopy.Path
 import Mathlib.Topology.UnitInterval
 
@@ -28,4 +29,5 @@ theorem monodromy_theorem {X E : Type*} [TopologicalSpace X] [TopologicalSpace E
     (hΓ : ∀ t s, p (Γ t s) = γ (t, s))
     (hΓ₀ : ∀ t, Γ t 0 = Γ 0 0) :
     ∀ t, Γ t 1 = Γ 0 1 := by
-  sorry
+  intro t
+  exact IsLocalHomeomorph.monodromy_theorem hp.isLocalHomeomorph hp.isSeparatedMap γ Γ hΓ hΓ₀ t

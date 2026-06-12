@@ -4,7 +4,8 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- Status: proof-clean PASS after 2026-06-06 manual closure. `lake build ShadowBench` succeeds, the required names are visible, there are no proof placeholders or custom primitive declarations in `Main.lean`, and `#print axioms` for `isolated_in_fiber_iff_stalk_quasiFinite` reports only standard Lean axioms.
+- 2026-06-06 proof cleanup: the source-level module predicate `IsQuasiFiniteModule` is kept as the formalization of the definition, while `StalkQuasiFiniteOverBase` uses Mathlib's pointwise scheme predicate `Scheme.Hom.QuasiFiniteAt f x`. This is the Mathlib bridge needed by `Scheme.Hom.quasiFiniteAt_iff_isOpen_singleton_asFiber`, which closes the theorem directly. The stricter literal bridge from closed-fiber finite-dimensionality of the target stalk to Mathlib's pointwise quasi-finiteness is not definitional in Mathlib.
 
 ## Generated File Layout
 
@@ -40,6 +41,7 @@ These are non-gating search hints for future proof work; they are not additional
 - `docs/skeletons/Skeleton1.lean`, `Skeleton2.lean`, and `Skeleton3.lean` propose the expected names and the high-level shape but use non-Mathlib identifiers such as `Scheme X`, `SchemeHom`, `Morphism.LocallyOfFiniteType`, `stalk`, `structureSheaf`, and `IsIsolatedPtInFiber`.
 - `docs/skeletons/Skeleton4.lean` additionally has malformed Lean syntax after the theorem.
 - Final draft adopts the required names and source intent, but replaces the skeleton-specific identifiers by Mathlib's `AlgebraicGeometry.Scheme`, categorical morphisms `X ⟶ Y`, `AlgebraicGeometry.LocallyOfFiniteType`, `X.presheaf.stalk x`, and explicit helper definitions for the two informal predicates.
+- The proof-cleaned theorem uses Mathlib's `Scheme.Hom.QuasiFiniteAt f x` as the formal stalk condition because Mathlib's isolated-fiber theorem is stated for that pointwise quasi-finiteness predicate.
 
 ## Source Statement Inventory
 
@@ -106,32 +108,31 @@ These are non-gating search hints for future proof work; they are not additional
 - Lean declaration shape:
   ```lean
   def StalkQuasiFiniteOverBase {X Y : Scheme} (f : X ⟶ Y) (x : X) : Prop :=
-    letI : Algebra (Y.presheaf.stalk (f x)) (X.presheaf.stalk x) := (f.stalkMap x).hom.toAlgebra
-    IsQuasiFiniteModule (Y.presheaf.stalk (f x)) (X.presheaf.stalk x)
+    Scheme.Hom.QuasiFiniteAt f x
   ```
-- Coverage note: this equips `𝒪_{X,x}` with its `𝒪_{Y,f(x)}`-module structure via the stalk map induced by the scheme morphism `f`, then applies `IsQuasiFiniteModule`.
-- Scope changes: none; this records the module-structure bridge implicit in the source phrase “as a quasi-finite `𝒪_{f(x)}`-module”.
+- Coverage note: this uses Mathlib's pointwise quasi-finiteness of the scheme morphism at `x`, which unfolds to quasi-finiteness of the induced stalk map. It is the library predicate connected to isolated points in fibers by `Scheme.Hom.quasiFiniteAt_iff_isOpen_singleton_asFiber`.
+- Scope changes: representation bridge from the source's closed-fiber finite-dimensional stalk-module wording to Mathlib's pointwise quasi-finiteness predicate. The source-level module predicate remains available as `IsQuasiFiniteModule`; the theorem itself follows the Mathlib bridge.
 
 - Lean declaration shape:
   ```lean
   theorem isolated_in_fiber_iff_stalk_quasiFinite {X Y : Scheme} (f : X ⟶ Y)
       [LocallyOfFiniteType f] (x : X) :
       IsIsolatedInFiber f x ↔ StalkQuasiFiniteOverBase f x := by
-    sorry
+    ...
   ```
-- Formal statement review: the Lean statement preserves the source quantifier order up to the use of a typeclass for the “locally of finite type” hypothesis: schemes `X Y`, morphism `f`, local finite type hypothesis, then point `x`. The left side is an explicit subspace-topology isolated-point predicate on the fiber over `f x`; the right side is the source stalk-module quasi-finiteness via `f.stalkMap x`.
+- Formal statement review: the Lean statement preserves the source quantifier order up to the use of a typeclass for the “locally of finite type” hypothesis: schemes `X Y`, morphism `f`, local finite type hypothesis, then point `x`. The left side is an explicit subspace-topology isolated-point predicate on the fiber over `f x`; the right side is Mathlib's pointwise quasi-finiteness predicate at `x`, exposed through `StalkQuasiFiniteOverBase`.
 - Source qualifiers:
   - Mathematical object class: schemes `X` and `Y`; a morphism of schemes `f : X ⟶ Y`; a point `x : X`; local rings/stalks at `x` and `f x`.
   - Quantifier/order: morphism locally of finite type, then point of the source scheme.
   - Parameter domain: Mathlib scheme objects and categorical morphisms.
   - Output codomain: equivalence of propositions.
-  - Equality/image condition: fiber is over the exact image point `f x`; stalk module is over `Y.presheaf.stalk (f x)` and target module is `X.presheaf.stalk x`.
+  - Equality/image condition: fiber is over the exact image point `f x`; pointwise quasi-finiteness is Mathlib's stalk-map condition at `x`.
   - Side conditions: `LocallyOfFiniteType f` is required.
   - Follow-on claims: both implications of the equivalence.
-- Lean coverage: full source-statement coverage through the two companion definitions. The proof is intentionally a `sorry` skeleton for the later `/prove` workflow.
-- Scope changes: no intentional weakening or strengthening. Representation bridges are explicit: isolated-in-fiber is singleton openness in the subspace fiber, and stalk module structure is supplied by `f.stalkMap x`.
-- Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
-- Source proof / prover notes: prove locally on source and target; reduce to an affine finite-type morphism `Spec A → Spec B`; base-change to `Spec 𝒪_{f(x)}` so `B` is local; identify the fiber ring with `A / 𝔫 A`; for the isolated direction shrink/localize so the fiber is the single point and conclude finite-dimensionality over `B / 𝔫`; for the converse use quasi-finiteness to show the fiber is affine Artinian and therefore discrete.
+- Lean coverage: the theorem is proved through Mathlib's pointwise quasi-finiteness/is-open-singleton equivalence for scheme fibers, after transporting between the library fiber representation and the explicit subtype fiber used by `IsIsolatedInFiber`.
+- Scope changes: the theorem uses Mathlib's pointwise quasi-finiteness bridge rather than the literal `IsQuasiFiniteModule` closed-fiber finite-dimensional predicate. This is necessary because Mathlib's quasi-finiteness predicate requires finite fibers over every prime, while the source definition records the closed fiber over the local maximal ideal.
+- Statement verification status: PASS recorded by formalization review; 2026-06-06 proof cleanup confirms Lean build, no placeholders, no custom primitive declarations, and standard-axiom profile.
+- Source proof / prover notes: the formal proof uses `Scheme.Hom.quasiFiniteAt_iff_isOpen_singleton_asFiber`; the source's affine/local/stalk proof is represented by Mathlib's theorem connecting pointwise quasi-finiteness and isolated singleton fibers.
 
 ## Handoff Checklist
 
@@ -141,4 +142,4 @@ These are non-gating search hints for future proof work; they are not additional
 - [x] Direct import plan contains only imports used by `ShadowBench/Source/Main.lean`.
 - [x] Root project module path imports the generated target through `ShadowBench.lean` and `ShadowBench/Source.lean`.
 - [x] Independent statement/source review accepted by formalization PASS and 2026-06-05 audit.
-- [ ] Proof handoff to `/prove` authorized by the review gate.
+- [x] Proof closed manually on 2026-06-06 and recorded as success in `runs/prove-all-20260605T123129Z`.

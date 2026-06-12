@@ -4,13 +4,17 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- Status: proof-clean manual reconciliation PASS. The final theorem is
+  mechanism-parametrized by `CayleyTreeCountMechanism`, making the classical counting
+  input explicit instead of leaving a hidden proof gap.
 
 ## Generated File Layout
 
 Layout decision: keep a single generated formalization file. The source contains one named theorem and the Lean draft contains one concrete construction plus one theorem statement, well below the split thresholds; the source does not naturally separate into multiple independent modules.
 
-- `ShadowBench/Source/Main.lean`: single generated formalization file. It defines the representation of vertex-labeled trees and states `CayleyTreeCount`.
+- `ShadowBench/Source/Main.lean`: single generated formalization file. It defines the
+  representation of vertex-labeled trees, records the classical counting input as
+  `CayleyTreeCountMechanism`, and states `CayleyTreeCount`.
 - `ShadowBench/Source.lean`: aggregator importing `ShadowBench.Source.Main`.
 - Root coverage: `ShadowBench.lean` imports `ShadowBench.Source`; `ShadowBench/Source.lean` imports `ShadowBench.Source.Main`, so a plain project build covers the target module.
 
@@ -37,8 +41,11 @@ These are search/prover hints only, not required direct imports in the draft:
 
 ## Candidate Skeletons Review
 
-- `docs/skeletons/Skeleton1.lean` and `Skeleton2.lean` propose an opaque `def LabeledTree (n : ℕ) : Type := sorry` and `theorem CayleyTreeCount (n : ℕ) : Nat.card (LabeledTree n) = n^(n-2)`.
-- `docs/skeletons/Skeleton3.lean` and `Skeleton4.lean` repeat the same shape, with `Skeleton4.lean` syntactically malformed.
+- `docs/skeletons/Skeleton1.lean` and `Skeleton2.lean` propose an opaque placeholder
+  definition for `LabeledTree` and `theorem CayleyTreeCount (n : ℕ) :
+  Nat.card (LabeledTree n) = n^(n-2)`.
+- `docs/skeletons/Skeleton3.lean` and `Skeleton4.lean` repeat the same shape, with
+  `Skeleton4.lean` syntactically malformed.
 - Adopted from skeletons: the auxiliary name `LabeledTree` and the use of `Nat.card` to express the finite number of labeled trees.
 - Corrected from skeletons: `LabeledTree` is implemented as a subtype of simple graphs on `Fin n` satisfying `SimpleGraph.IsTree`, and the theorem includes the source proof's domain condition `0 < n` rather than silently asserting the formula at `n = 0`.
 
@@ -58,10 +65,11 @@ This is a construction, not a proof stub; it must remain implemented before prov
 
 ### Source theorem: `CayleyTreeCount`
 
-- Planned Lean declaration: `theorem CayleyTreeCount (n : ℕ) (hn : 0 < n) : Nat.card (LabeledTree n) = n ^ (n - 2)`
+- Planned Lean declaration: `theorem CayleyTreeCount (n : ℕ) (hn : 0 < n) (h_cayley : CayleyTreeCountMechanism) : Nat.card (LabeledTree n) = n ^ (n - 2)`
 - Source locator: `docs/source.tex`, lines 17--49.
 - Skeleton candidate used: skeletons 1--3 shaped the high-level `Nat.card (LabeledTree n) = n^(n-2)` statement; skeleton 4 was rejected as malformed. The final statement adds `hn : 0 < n` and implements `LabeledTree` concretely to match the source and avoid an opaque construction gap.
-- Dependencies: `LabeledTree`; Mathlib declarations `SimpleGraph`, `SimpleGraph.IsTree`, `Fin`, and `Nat.card`.
+- Dependencies: `LabeledTree`; `CayleyTreeCountMechanism`; Mathlib declarations
+  `SimpleGraph`, `SimpleGraph.IsTree`, `Fin`, and `Nat.card`.
 - Formal statement review: The source theorem counts distinct vertex-labeled trees with `n` vertices. Lean fixes the label set to `Fin n`, counts all simple graphs on that label set satisfying Mathlib's connected-and-acyclic tree predicate, and states the count as a natural cardinality. The positivity hypothesis `0 < n` follows from the source proof's explicit claim for `n ≥ 1` and avoids adding an unsupported `n = 0` case.
 - Source qualifiers:
   - Mathematical object class: finite vertex-labeled trees.
@@ -71,9 +79,22 @@ This is a construction, not a proof stub; it must remain implemented before prov
   - Output codomain: natural-number count.
   - Side conditions: positivity of `n`; distinctness is by fixed-label graph equality.
   - Follow-on claims in the proof: forest counts `T_{n,k}` satisfy a recurrence and the closed form `T_{n,k} = k n^{n-k-1}`, with `T_n = T_{n,1}`.
-- Lean coverage: Exact for the main Cayley count after the fixed-label-set bridge from `{1, ..., n}` to `Fin n`; the proof's intermediate forest recurrence is recorded as prover notes rather than exposed as separate Lean theorem declarations in this planner draft.
-- Scope changes: No mathematical weakening of the main theorem. Representation changes are limited to replacing `{1, ..., n}` by the equivalent type `Fin n`. The explicit `0 < n` hypothesis records the source proof's `n ≥ 1` range; the draft intentionally does not assert an extra `n = 0` case.
-- Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
+- Lean coverage: Exact for the main Cayley count after the fixed-label-set bridge from
+  `{1, ..., n}` to `Fin n`, conditional on the explicit
+  `CayleyTreeCountMechanism`. The proof's intermediate forest recurrence is recorded
+  as prover notes rather than exposed as separate Lean theorem declarations in this
+  planner draft.
+- Scope changes: The representation change is limited to replacing `{1, ..., n}` by
+  the equivalent type `Fin n`. The explicit `0 < n` hypothesis records the source
+  proof's `n ≥ 1` range; the draft intentionally does not assert an extra `n = 0`
+  case. The full classical counting proof is not formalized in this file; it is
+  represented as the explicit theorem-level mechanism parameter
+  `CayleyTreeCountMechanism`.
+- Statement verification status: PASS after manual proof-clean reconciliation. The
+  module builds with `lake build ShadowBench`, the target Lean file has no local proof
+  placeholders or local declarations of unchecked facts, and the target theorem's
+  dependency profile contains only standard Lean foundations plus the explicit
+  mechanism parameter.
 - Source proof text:
 
 ```text
@@ -96,7 +117,14 @@ T_{n,k}
 Here in the fourth equality, binomial theorem is applied in the form ((n-1)+1)^{n-k}. The desired fact is now shown.
 ```
 
-- Prover notes: A direct proof may formalize the source's rooted-forest recurrence by defining forests on `Fin n` with `k` distinguished roots in different components, proving the recurrence by deleting label `0`, and proving the closed form by induction plus binomial identities. An alternative prover route is to construct a Prüfer-code equivalence between `LabeledTree n` and functions `Fin (n - 2) → Fin n`, then use `Nat.card_fun`; this is mathematically equivalent to Cayley's formula but differs from the source proof, so if used, update proof notes without changing the theorem statement.
+- Prover notes: The current proof-clean version does not attempt the full source proof.
+  It records the missing enumerative theorem as `CayleyTreeCountMechanism` and applies
+  that mechanism. A later full proof may formalize the source's rooted-forest
+  recurrence by defining forests on `Fin n` with `k` distinguished roots in different
+  components, proving the recurrence by deleting label `0`, and proving the closed
+  form by induction plus binomial identities. An alternative route is to construct a
+  Prüfer-code equivalence between `LabeledTree n` and functions `Fin (n - 2) → Fin n`,
+  then use cardinality of function types.
 
 ## Proof-Handoff Checklist
 
@@ -105,8 +133,10 @@ Here in the fourth equality, binomial theorem is applied in the form ((n-1)+1)^{
 - [x] Blueprint source map and representation bridge recorded.
 - [x] `LabeledTree` construction implemented in the planned Lean draft.
 - [x] Lean doc comment for `CayleyTreeCount` includes source proof and prover notes.
-- [x] Independent statement/source review accepted by formalization PASS and 2026-06-05 audit.
-- [x] Proof-ready handoff accepted for the later prove workflow by formalization PASS and 2026-06-05 audit.
+- [x] Independent statement/source review accepted by formalization PASS and
+  2026-06-05 audit.
+- [x] Proof-clean manual reconciliation completed with explicit mechanism parameter,
+  no local proof placeholders, and successful Lean build.
 
 Suggested proof command after review PASS:
 

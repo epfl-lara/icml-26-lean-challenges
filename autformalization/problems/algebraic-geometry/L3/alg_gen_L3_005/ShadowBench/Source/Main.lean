@@ -59,7 +59,85 @@ by the standard opens `D_+(x_i)` and the valuative criterion are the source proo
 -/
 theorem is_projective_proper (S : Scheme.{u}) (n : ℕ) :
     IsProper (ProjectiveSpace.π n S) := by
-  sorry
+  let A := MvPolynomial.homogeneousSubmodule (Fin (n + 1)) (ULift.{u} ℤ)
+  letI : GradedAlgebra A := MvPolynomial.gradedAlgebra
+  have hA0fg : (A 0).FG := by
+    change (MvPolynomial.homogeneousSubmodule (Fin (n + 1)) (ULift.{u} ℤ) 0).FG
+    rw [MvPolynomial.homogeneousSubmodule_zero, Submodule.one_eq_span]
+    exact Submodule.fg_span_singleton (R := ULift.{u} ℤ)
+      (x := (1 : MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ)))
+  have hA0finite : Module.Finite (ULift.{u} ℤ) (A 0) := Module.Finite.iff_fg.mpr hA0fg
+  have hC (r : ULift.{u} ℤ) : MvPolynomial.C r ∈ A 0 := by
+    change MvPolynomial.C r ∈ MvPolynomial.homogeneousSubmodule (Fin (n + 1)) (ULift.{u} ℤ) 0
+    rw [MvPolynomial.homogeneousSubmodule_zero, Submodule.one_eq_span]
+    exact (Submodule.mem_span_singleton).mpr ⟨r, by
+      calc
+        r • (1 : MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ)) =
+            (algebraMap (ULift.{u} ℤ) (MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ)) r) * 1 :=
+          Algebra.smul_def r (1 : MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ))
+        _ = MvPolynomial.C r := by simp⟩
+  have hfiniteType : Algebra.FiniteType (A 0) (MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ)) := by
+    let f : MvPolynomial (Fin (n + 1)) (A 0) →ₐ[A 0]
+        MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ) :=
+      MvPolynomial.aeval (fun i : Fin (n + 1) => MvPolynomial.X i)
+    have hf : Function.Surjective f := by
+      intro p
+      induction p using MvPolynomial.induction_on with
+      | C r =>
+          refine ⟨MvPolynomial.C (⟨MvPolynomial.C r, hC r⟩ : A 0), ?_⟩
+          dsimp [f]
+          rw [MvPolynomial.aeval_C]
+          rfl
+      | add p q hp hq =>
+          rcases hp with ⟨p', hp'⟩
+          rcases hq with ⟨q', hq'⟩
+          refine ⟨p' + q', ?_⟩
+          calc
+            f (p' + q') = f p' + f q' := map_add f p' q'
+            _ = p + q := by rw [hp', hq']
+      | mul_X p i hp =>
+          rcases hp with ⟨p', hp'⟩
+          refine ⟨p' * MvPolynomial.X i, ?_⟩
+          calc
+            f (p' * MvPolynomial.X i) = f p' * f (MvPolynomial.X i) :=
+              map_mul f p' (MvPolynomial.X i)
+            _ = p * MvPolynomial.X i := by
+              rw [hp']
+              dsimp [f]
+              rw [MvPolynomial.aeval_X]
+    exact Algebra.FiniteType.of_surjective f hf
+  have hSpecA0 : IsProper (terminal.from (Spec (CommRingCat.of (A 0)))) := by
+    haveI : Module.Finite (ULift.{u} ℤ) (A 0) := hA0finite
+    let g : Spec (CommRingCat.of (A 0)) ⟶ Spec (CommRingCat.of (ULift.{u} ℤ)) :=
+      Spec.map (CommRingCat.ofHom (algebraMap (ULift.{u} ℤ) (A 0)))
+    have hgfin : IsFinite g := by
+      dsimp [g]
+      rw [IsFinite.SpecMap_iff]
+      exact (RingHom.finite_algebraMap (A := ULift.{u} ℤ) (B := A 0)).mpr hA0finite
+    have hg : IsProper g := by
+      dsimp [g] at hgfin ⊢
+      infer_instance
+    let e : (⊤_ Scheme.{u}) ≅ Spec (CommRingCat.of (ULift.{u} ℤ)) :=
+      (terminalIsTerminal : IsTerminal (⊤_ Scheme.{u})).uniqueUpToIso specULiftZIsTerminal
+    have hcomp : IsProper (terminal.from (Spec (CommRingCat.of (A 0))) ≫ e.hom) := by
+      have heq : terminal.from (Spec (CommRingCat.of (A 0))) ≫ e.hom = g := by
+        apply specULiftZIsTerminal.hom_ext
+      rw [heq]
+      exact hg
+    exact (MorphismProperty.cancel_right_of_respectsIso (@IsProper)
+      (terminal.from (Spec (CommRingCat.of (A 0)))) e.hom).mp hcomp
+  have hProj : IsProper (Proj.toSpecZero A) := by
+    haveI : Algebra.FiniteType (A 0) (MvPolynomial (Fin (n + 1)) (ULift.{u} ℤ)) := hfiniteType
+    infer_instance
+  have hModel : IsProper (terminal.from (ProjectiveSpaceModel.{u} n)) := by
+    haveI : IsProper (Proj.toSpecZero A) := hProj
+    haveI : IsProper (terminal.from (Spec (CommRingCat.of (A 0)))) := hSpecA0
+    change IsProper (terminal.from (Proj A))
+    rw [← terminal.comp_from (Proj.toSpecZero A)]
+    infer_instance
+  haveI : IsProper (terminal.from (ProjectiveSpaceModel.{u} n)) := hModel
+  change IsProper (pullback.fst (terminal.from S) (terminal.from (ProjectiveSpaceModel.{u} n)))
+  infer_instance
 
 /--
 Source proof (docs/source.tex, lines 53--60): if `f` is projective, choose a factorization
@@ -73,7 +151,11 @@ Prover notes: unfold `IsProjective` to get witnesses `n`, `i`, `IsClosedImmersio
 -/
 theorem projective_isProper {X S : Scheme.{u}} {f : X ⟶ S} (hf : IsProjective f) :
     IsProper f := by
-  sorry
+  rcases hf with ⟨n, i, hi, hfac⟩
+  rw [← hfac]
+  haveI : IsClosedImmersion i := hi
+  haveI : IsProper (ProjectiveSpace.π n S) := is_projective_proper S n
+  infer_instance
 
 end
 

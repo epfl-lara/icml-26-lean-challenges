@@ -22,6 +22,8 @@ theorem toGammaSpec (X : Scheme.{u}) :
     ∃ φ : X ⟶ Spec Γ(X, ⊤),
       φ = X.toSpecΓ ∧
         ∀ x : X, φ x = Spec.map (X.presheaf.Γgerm x) (IsLocalRing.closedPoint _) := by
-  sorry
+  refine ⟨X.toSpecΓ, rfl, ?_⟩
+  intro x
+  exact Scheme.toSpecΓ_apply X x
 
 alias toΓSpec := toGammaSpec

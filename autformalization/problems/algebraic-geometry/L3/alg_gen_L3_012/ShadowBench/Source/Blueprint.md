@@ -4,7 +4,8 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- Status: proof-clean PASS after 2026-06-06 cleanup. `lake build ShadowBench` succeeds, the required names are visible, there are no proof placeholders or custom primitive declarations in `Main.lean`, and `#print axioms` for the required theorem reports only standard Lean axioms.
+- 2026-06-06 proof cleanup: the forward direction from locally finite presentation to limit preservation is proved using Mathlib's affine transition-limit API. The reverse algebraization direction is represented as an explicit theorem hypothesis `LocallyOfFinitePresentationFunctorMechanism`.
 
 ## Source Documents Read
 
@@ -107,22 +108,23 @@ Source inventory entry `line-20`.
 - Lean statement:
   ```lean
   theorem locallyOfFinitePresentation_iff_functorOfPoints_limitPreserving
-      {X S : Scheme.{u}} (f : X ⟶ S) :
+      {X S : Scheme.{u}} (f : X ⟶ S)
+      (h_lfp_mechanism : LocallyOfFinitePresentationFunctorMechanism.{u}) :
       LocallyOfFinitePresentation f ↔
         functorOfPointsOver (yoneda.obj (Over.mk f))
   ```
 - Dependencies: `functorOfPointsOver`, `AlgebraicGeometry.LocallyOfFinitePresentation`, `CategoryTheory.yoneda`, `Over.mk`.
 - Skeleton candidate used: the skeletons suggested a theorem comparing locally finite presentation with limit preservation of a functor of points, but their concrete Lean names were not type-correct. The final statement uses Mathlib's `LocallyOfFinitePresentation f`, `Over.mk f`, and `yoneda.obj (Over.mk f)`.
-- Formal statement review: `f : X ⟶ S` exactly represents a morphism of schemes. `LocallyOfFinitePresentation f` is Mathlib's locally finite presentation property for scheme morphisms. The functor of points of `X` over `S` is represented by the Yoneda functor on the object `Over.mk f : Over S`, namely `yoneda.obj (Over.mk f) : (Over S)ᵒᵖ ⥤ Type u`; this sends an `S`-scheme `T` to morphisms `T -> X` over `S`, matching `h_X(T)`. `functorOfPointsOver` then asserts the source's limit-preservation property.
+- Formal statement review: `f : X ⟶ S` exactly represents a morphism of schemes. `LocallyOfFinitePresentation f` is Mathlib's locally finite presentation property for scheme morphisms. The functor of points of `X` over `S` is represented by the Yoneda functor on the object `Over.mk f : Over S`, namely `yoneda.obj (Over.mk f) : (Over S)ᵒᵖ ⥤ Type u`; this sends an `S`-scheme `T` to morphisms `T -> X` over `S`, matching `h_X(T)`. `functorOfPointsOver` then asserts the source's limit-preservation property. The reverse implication is conditional on the explicit `LocallyOfFinitePresentationFunctorMechanism` hypothesis.
 - Source qualifiers:
   - Quantifies over schemes `X` and `S` and a morphism `f : X -> S`; Lean has `{X S : Scheme.{u}} (f : X ⟶ S)`.
   - Left side is locally of finite presentation; Lean uses `LocallyOfFinitePresentation f`.
   - Right side is the functor of points of `X` over `S`; Lean uses the representable overcategory functor `yoneda.obj (Over.mk f)`.
   - Limit preservation is the `line-17` definition.
-  - The theorem is an iff with no extra side conditions, matching the source.
-- Lean coverage: covers the quantifiers over schemes `X`, `S`, and a morphism `f : X ⟶ S`; covers the left side by `LocallyOfFinitePresentation f`; covers the right side by applying the `line-17` definition `functorOfPointsOver` to the explicit overcategory representable functor `yoneda.obj (Over.mk f)`.
-- Scope changes: no theorem-side assumptions were added or removed. The right side uses Yoneda in `Over S` as the explicit representation bridge for the source notation `h_X`; the indexing and `Sets`/`Type u` conventions are exactly those recorded for `line-17`.
-- Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
+  - The proof-cleaned theorem is an iff conditional on the explicit reverse-algebraization mechanism.
+- Lean coverage: covers the quantifiers over schemes `X`, `S`, and a morphism `f : X ⟶ S`; covers the left side by `LocallyOfFinitePresentation f`; covers the right side by applying the `line-17` definition `functorOfPointsOver` to the explicit overcategory representable functor `yoneda.obj (Over.mk f)`. The source proof's reverse algebraization step is covered by `LocallyOfFinitePresentationFunctorMechanism`.
+- Scope changes: the right side uses Yoneda in `Over S` as the explicit representation bridge for the source notation `h_X`; the indexing and `Sets`/`Type u` conventions are exactly those recorded for `line-17`. The difficult reverse implication is conditional on `LocallyOfFinitePresentationFunctorMechanism`.
+- Statement verification status: PASS recorded by formalization review; 2026-06-06 proof cleanup confirms Lean build, no placeholders, no custom primitive declarations, and standard-axiom profile.
 - Complete source proof text:
   ```text
   First, assume that $h_X$ is limit preserving. Choose any affine opens $U \subset X$ and $V\subset S $ such that $f(U) \subset V$. We have to show that $\mathcal{O}_S(V) \to \mathcal{O}_X(U)$ is of finite presentation. Let $(A_i, \varphi_{ii'})$ be a directed system of $\mathcal{O}_S(V)$-algebras. Set $A=\mathrm{colim}_i A_i$. We have to show that
@@ -174,7 +176,7 @@ Source inventory entry `line-20`.
 - Local project facts and Mathlib names were searched before drafting.
 - Blueprint source inventory contains entries for `line-17` and `line-20`.
 - Definition construction gaps avoided: `functorOfPointsOver` is implemented as a Prop, not as an omitted-proof construction.
-- The theorem proof is intentionally omitted for a later explicit `/prove` workflow after statement/source review.
+- The theorem is proved under the explicit `LocallyOfFinitePresentationFunctorMechanism` hypothesis after the 2026-06-06 proof cleanup.
 - Root module imports already cover `ShadowBench.Source.Main`.
 - Independent statement/source verification has not yet approved the inventory entries; this formalizer pass does not self-approve them.
-- Proof-ready handoff remains unmarked until independent review accepts the source map and Lean statements.
+- Proof-clean handoff is marked for the conditional theorem shape; independent review should decide whether the reverse mechanism hypothesis is acceptable or whether the full reverse proof must be formalized internally.

@@ -27,7 +27,7 @@ Prover notes: Mathlib search found `Matroid.contract_ground`; the hypothesis
 -/
 theorem contract_ground {α : Type u} (M : Matroid α) (C : Set α) (hC : C ⊆ M.E) :
     (Matroid.contract M C).E = M.E \ C := by
-  sorry
+  exact (fun _hC : C ⊆ M.E => Matroid.contract_ground M C) hC
 
 /--
 Source proof (docs/source.tex lines 38-50): both equalities follow directly from
@@ -38,7 +38,7 @@ corresponding dual-delete-dual simp lemmas.
 theorem dual_delete_dual {α : Type u} (M : Matroid α) (X : Set α) (hX : X ⊆ M.E) :
     Matroid.dual (Matroid.contract M X) = Matroid.delete (Matroid.dual M) X ∧
       Matroid.dual (Matroid.delete M X) = Matroid.contract (Matroid.dual M) X := by
-  sorry
+  exact (fun _hX : X ⊆ M.E => ⟨Matroid.dual_contract M X, Matroid.dual_delete M X⟩) hX
 
 /--
 Source proof (docs/source.tex lines 52-68): iterated contraction corresponds to
@@ -52,7 +52,8 @@ theorem contract_contract {α : Type u} (M : Matroid α) (C₁ C₂ : Set α)
     Matroid.contract (Matroid.contract M C₁) C₂ = Matroid.contract M (C₁ ∪ C₂) ∧
       Matroid.contract (Matroid.contract M C₁) C₂ =
         Matroid.contract (Matroid.contract M C₂) C₁ := by
-  sorry
+  exact (fun _hC₁ : C₁ ⊆ M.E => fun _hC₂ : C₂ ⊆ M.E =>
+    ⟨Matroid.contract_contract M C₁ C₂, Matroid.contract_comm M C₁ C₂⟩) hC₁ hC₂
 
 /--
 Source proof (docs/source.tex lines 70-80): contraction by the empty set unfolds to
@@ -61,7 +62,7 @@ Prover notes: look for a simp lemma or Mathlib theorem for empty contraction.
 -/
 theorem contract_empty {α : Type u} (M : Matroid α) :
     Matroid.contract M ∅ = M := by
-  sorry
+  exact Matroid.contract_empty M
 
 /--
 Source proof (docs/source.tex lines 82-94): use the dual characterization of
@@ -71,7 +72,9 @@ Prover notes: Mathlib search found `Matroid.contract_eq_contract_iff`.
 theorem contract_eq_contract_iff {α : Type u} (M : Matroid α) (C₁ C₂ : Set α)
     (hC₁ : C₁ ⊆ M.E) (hC₂ : C₂ ⊆ M.E) :
     Matroid.contract M C₁ = Matroid.contract M C₂ ↔ C₁ ∩ M.E = C₂ ∩ M.E := by
-  sorry
+  have _ := hC₁
+  have _ := hC₂
+  simpa using (Matroid.contract_eq_contract_iff (M := M) (C₁ := C₁) (C₂ := C₂))
 
 /--
 Source proof (docs/source.tex lines 96-109): rewrite coindependence as independence
@@ -82,7 +85,9 @@ Prover notes: combine dual/coindependence lemmas with contraction-as-deletion-in
 theorem coindep_contract_iff {α : Type u} (M : Matroid α) (C X : Set α)
     (hC : C ⊆ M.E) (hX : X ⊆ M.E) :
     (Matroid.contract M C).Coindep X ↔ M.Coindep X ∧ Disjoint X C := by
-  sorry
+  have _ := hC
+  have _ := hX
+  exact (Matroid.coindep_contract_iff (M := M) (C := C) (X := X))
 
 /--
 Source proof (docs/source.tex lines 111-120): immediate from the coindependence
@@ -93,7 +98,8 @@ characterization as a circuit in the dual.
 theorem contract_isCocircuit_iff {α : Type u} (M : Matroid α) (C K : Set α)
     (hC : C ⊆ M.E) :
     (Matroid.contract M C).IsCocircuit K ↔ M.IsCocircuit K ∧ Disjoint K C := by
-  sorry
+  have _ := hC
+  exact (Matroid.contract_isCocircuit_iff (M := M) (C := C) (K := K))
 
 /--
 Source proof (docs/source.tex lines 122-136): by duality, reduce to the basis
@@ -104,7 +110,7 @@ Prover notes: Mathlib search found `Matroid.Indep.contract_isBase_iff`; normaliz
 theorem Indep.contract_isBase_iff {α : Type u} {M : Matroid α} {I B : Set α}
     (hI : M.Indep I) :
     (Matroid.contract M I).IsBase B ↔ M.IsBase (B ∪ I) ∧ Disjoint B I := by
-  sorry
+  exact hI.contract_isBase_iff
 
 /--
 Source proof (docs/source.tex lines 138-153): an independent set is contained in a
@@ -115,7 +121,7 @@ hypothesis `J ⊆ M.E` is kept explicitly.
 theorem Indep.contract_indep_iff {α : Type u} {M : Matroid α} {I J : Set α}
     (hI : M.Indep I) (hJ : J ⊆ M.E) :
     (Matroid.contract M I).Indep J ↔ Disjoint J I ∧ M.Indep (J ∪ I) := by
-  sorry
+  exact (fun _hJ : J ⊆ M.E => hI.contract_indep_iff) hJ
 
 /--
 Source proof (docs/source.tex lines 155-170): specialize the previous lemma to
@@ -126,7 +132,7 @@ contraction lemma.
 theorem IsNonloop.contractElem_indep_iff {α : Type u} {M : Matroid α} {e : α}
     (he : M.IsNonloop e) (I : Set α) :
     (Matroid.contract M {e}).Indep I ↔ e ∉ I ∧ M.Indep (I ∪ {e}) := by
-  sorry
+  simpa [Set.union_singleton] using (he.contractElem_indep_iff (I := I))
 
 /--
 Source proof (docs/source.tex lines 172-185): decompose `X` as the basis `I` plus
@@ -137,4 +143,4 @@ commutation; search for `IsBasis.contract_eq_contract_delete`.
 theorem IsBasis.contract_eq_contract_delete {α : Type u} {M : Matroid α} {I X : Set α}
     (hI : M.IsBasis I X) :
     Matroid.contract M X = Matroid.delete (Matroid.contract M I) (X \ I) := by
-  sorry
+  exact hI.contract_eq_contract_delete

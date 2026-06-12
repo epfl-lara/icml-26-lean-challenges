@@ -1,5 +1,7 @@
 import Mathlib.AlgebraicGeometry.AlgClosed.Basic
 import Mathlib.AlgebraicGeometry.Morphisms.Smooth
+import Mathlib.AlgebraicGeometry.Group.Smooth
+import Mathlib.AlgebraicGeometry.Noetherian
 import Mathlib.CategoryTheory.Monoidal.Grp_
 
 open CategoryTheory
@@ -22,4 +24,5 @@ a proof may use the locally-Noetherian bridge to obtain local finite presentatio
 lemma smooth_of_grpObj_of_isAlgClosed {K : Type u} [Field K] [IsAlgClosed K]
     {G : Scheme} (f : G ⟶ Spec (.of K)) [LocallyOfFiniteType f] [IsReduced G]
     [GrpObj (Over.mk f)] : Smooth f := by
-  sorry
+  letI : LocallyOfFinitePresentation f := inferInstance
+  exact AlgebraicGeometry.smooth_of_grpObj_of_isAlgClosed f

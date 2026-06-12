@@ -21,4 +21,8 @@ with `s.toFinset`, and use Mathlib's bipartite degree-sum theorem
 theorem isBipartiteWith_sum_degrees_eq_card_edges {V : Type*} [Fintype V]
     (G : SimpleGraph V) [DecidableRel G.Adj] (s t : Set V)
     [DecidablePred (fun v => v ∈ s)] (h : IsBipartiteWith G s t) :
-    ∑ v ∈ s.toFinset, G.degree v = G.edgeFinset.card := by sorry
+    ∑ v ∈ s.toFinset, G.degree v = G.edgeFinset.card := by
+  classical
+  simpa [IsBipartiteWith] using
+    (SimpleGraph.isBipartiteWith_sum_degrees_eq_card_edges (G := G)
+      (s := s.toFinset) (t := t.toFinset) (by simpa [IsBipartiteWith] using h))

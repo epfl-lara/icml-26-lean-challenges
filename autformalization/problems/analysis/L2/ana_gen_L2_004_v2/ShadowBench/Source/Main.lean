@@ -49,4 +49,49 @@ theorem exists_seq_finite_rank_strongly_convergent_to
     ∃ TSeq : ℕ → H →L[𝕜] H,
       (∀ n : ℕ, HasFiniteRankOperator (TSeq n)) ∧
         StrongOperatorTendsto TSeq T := by
-  sorry
+  classical
+  letI : Nonempty H := ⟨0⟩
+  let u : ℕ → H := TopologicalSpace.denseSeq H
+  let U : ℕ → Submodule 𝕜 H := fun n =>
+    Submodule.span 𝕜 (((Finset.range n).image u : Finset H) : Set H)
+  haveI hUfin : ∀ n : ℕ, FiniteDimensional 𝕜 (U n) := fun n => by
+    dsimp [U]
+    infer_instance
+  haveI hUcomplete : ∀ n : ℕ, CompleteSpace (U n) := fun n => by
+    exact completeSpace_coe_iff_isComplete.mpr ((U n).complete_of_finiteDimensional)
+  have hUmono : Monotone U := by
+    intro m n hmn
+    dsimp [U]
+    refine Submodule.span_mono ?_
+    intro x hx
+    rw [Finset.coe_image] at hx ⊢
+    rcases hx with ⟨k, hk, rfl⟩
+    exact ⟨k, Finset.mem_range.mpr (lt_of_lt_of_le (Finset.mem_range.mp hk) hmn), rfl⟩
+  have hspan_le : Submodule.span 𝕜 (Set.range u) ≤ ⨆ n : ℕ, U n := by
+    refine Submodule.span_le.mpr ?_
+    intro x hx
+    rcases hx with ⟨k, rfl⟩
+    exact (le_iSup U (k + 1)) (Submodule.subset_span (by
+      rw [Finset.coe_image]
+      exact ⟨k, Finset.mem_range.mpr (Nat.lt_succ_self k), rfl⟩))
+  have hu_dense : DenseRange u := by
+    simp [u, TopologicalSpace.denseRange_denseSeq]
+  have hspan_dense : ⊤ ≤ (Submodule.span 𝕜 (Set.range u)).topologicalClosure := by
+    intro x hx
+    exact Submodule.closure_subset_topologicalClosure_span (R := 𝕜) (s := Set.range u) (by
+      simp [DenseRange.closure_range hu_dense])
+  have hU_dense : ⊤ ≤ (⨆ n : ℕ, U n).topologicalClosure :=
+    hspan_dense.trans (Submodule.topologicalClosure_mono hspan_le)
+  refine ⟨fun n => T.comp (U n).starProjection, ?_, ?_⟩
+  · intro n
+    unfold HasFiniteRankOperator
+    haveI : FiniteDimensional 𝕜 ((U n).map T.toLinearMap) := by infer_instance
+    refine Submodule.finiteDimensional_of_le (S₂ := (U n).map T.toLinearMap) ?_
+    rintro y ⟨x, rfl⟩
+    change T ((U n).starProjection x) ∈ (U n).map T.toLinearMap
+    exact ⟨(U n).starProjection x, (U n).starProjection_apply_mem x, rfl⟩
+  · intro x
+    have hx : Tendsto (fun n : ℕ => (U n).starProjection x) atTop (𝓝 x) :=
+      Submodule.starProjection_tendsto_self U hUmono x hU_dense
+    simpa [StrongOperatorTendsto, ContinuousLinearMap.comp_apply] using
+      (T.continuous.tendsto x).comp hx

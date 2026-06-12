@@ -36,4 +36,37 @@ theorem separatingHyperplanes_is_pointed
     ∃ K : ConvexCone ℝ ((Fin n → ℝ) × ℝ),
         (K : Set ((Fin n → ℝ) × ℝ)) = separatingHyperplanesSet n C D ∧
         ConvexCone.Pointed K := by
-  sorry
+  have _h_disjoint := h_disjoint
+  let S : Set ((Fin n → ℝ) × ℝ) := separatingHyperplanesSet n C D
+  let K : ConvexCone ℝ ((Fin n → ℝ) × ℝ) :=
+    { carrier := S
+      smul_mem' := by
+        intro c hc p hp
+        rcases hp with ⟨hpC, hpD⟩
+        constructor
+        · intro x hxC
+          simpa [S, separatingHyperplanesSet, Finset.mul_sum, mul_assoc] using
+            (mul_le_mul_of_nonneg_left (hpC x hxC) (le_of_lt hc))
+        · intro x hxD
+          simpa [S, separatingHyperplanesSet, Finset.mul_sum, mul_assoc] using
+            (mul_le_mul_of_nonneg_left (hpD x hxD) (le_of_lt hc))
+      add_mem' := by
+        intro p hp q hq
+        rcases hp with ⟨hpC, hpD⟩
+        rcases hq with ⟨hqC, hqD⟩
+        constructor
+        · intro x hxC
+          have h := add_le_add (hpC x hxC) (hqC x hxC)
+          simpa [S, separatingHyperplanesSet, Finset.sum_add_distrib, add_mul] using h
+        · intro x hxD
+          have h := add_le_add (hpD x hxD) (hqD x hxD)
+          simpa [S, separatingHyperplanesSet, Finset.sum_add_distrib, add_mul] using h }
+  refine ⟨K, ?_, ?_⟩
+  · rfl
+  · rw [ConvexCone.Pointed]
+    change (0 : (Fin n → ℝ) × ℝ) ∈ S
+    constructor
+    · intro x hxC
+      simp
+    · intro x hxD
+      simp

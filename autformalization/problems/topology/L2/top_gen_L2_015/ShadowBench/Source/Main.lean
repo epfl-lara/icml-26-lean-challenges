@@ -43,4 +43,8 @@ theorem normalizedMooreComplex_objD (C : Type u) [Category.{v} C] [Abelian C] :
     (∀ (X : SimplicialObject C) (n : ℕ),
       AlgebraicTopology.NormalizedMooreComplex.objD X (n + 1) ≫
         AlgebraicTopology.NormalizedMooreComplex.objD X n = 0) := by
-  sorry
+  refine ⟨rfl, ?_, ?_⟩
+  · intro X n
+    exact AlgebraicTopology.normalizedMooreComplex_objD (C := C) X n
+  · intro X n
+    exact AlgebraicTopology.NormalizedMooreComplex.d_squared X n

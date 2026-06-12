@@ -63,4 +63,24 @@ theorem partial_x_ne_partial_xtilde_at_p :
     IsGlobalSmoothCoord tildeCoord tildeCoordInv ∧
       (∀ q : Plane, standardX q = tildeX q) ∧
       standardPartialXAt sourcePoint ≠ tildePartialXAt sourcePoint := by
-  sorry
+  constructor
+  · unfold IsGlobalSmoothCoord
+    constructor
+    · intro p
+      ext <;> simp [tildeCoord, tildeCoordInv, tildeX, tildeY]
+    · constructor
+      · intro q
+        ext <;> simp [tildeCoord, tildeCoordInv, tildeX, tildeY]
+      · constructor
+        · unfold tildeCoord tildeX tildeY
+          fun_prop
+        · unfold tildeCoordInv
+          fun_prop
+  · constructor
+    · intro q
+      rfl
+    · intro h
+      have hY := congrFun h standardY
+      unfold standardPartialXAt tildePartialXAt sourcePoint at hY
+      rw [show standardY = (Prod.snd : Plane → ℝ) by rfl] at hY
+      norm_num [fderiv_snd] at hY

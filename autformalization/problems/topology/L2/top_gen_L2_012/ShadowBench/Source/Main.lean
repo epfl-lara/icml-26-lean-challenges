@@ -50,6 +50,20 @@ constant-map preimage cases `p₀ ∈ U` and `p₀ ∉ U`.
 theorem skyscraperPresheaf_isSheaf {X : TopCat.{u}} (p₀ : X)
     {C : Type v} [Category.{w} C] [HasTerminal C] (A : C) :
     (skyscraperPresheaf_eq_pushforward p₀ A).IsSheaf := by
-  sorry
+  classical
+  have h_eq :
+      skyscraperPresheaf_eq_pushforward p₀ A =
+        (ofHom (ContinuousMap.const (TopCat.of PUnit) p₀)) _*
+          skyscraperPresheaf_eq_pushforward (X := TopCat.of PUnit) PUnit.unit A := by
+    convert_to @skyscraperPresheaf_eq_pushforward X p₀ C _ _ A = _
+    · congr
+  exact
+    (Presheaf.isSheaf_iso_iff (eqToIso h_eq)).mpr <|
+      (Sheaf.pushforward_sheaf_of_sheaf _
+        (Presheaf.isSheaf_on_punit_of_isTerminal _ (by
+          dsimp [skyscraperPresheaf_eq_pushforward]
+          rw [if_neg]
+          · exact terminalIsTerminal
+          · exact Set.notMem_empty PUnit.unit.{u + 1})))
 
 end

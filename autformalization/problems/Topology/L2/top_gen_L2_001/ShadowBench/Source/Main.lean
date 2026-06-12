@@ -26,7 +26,8 @@ and apply `Order.krullDim_le_of_strictMono`.
 -/
 theorem IsInducing.topologicalKrullDim_le {f : Y → X} (hf : IsInducing f) :
     topologicalKrullDim Y ≤ topologicalKrullDim X := by
-  sorry
+  simpa [topologicalKrullDim] using
+    Order.krullDim_le_of_strictMono _ (map_strictMono_of_isInducing hf)
 
 /--
 Source theorem (docs/source.tex lines 36--42): topological Krull dimension is invariant under
@@ -39,7 +40,8 @@ inequalities; conclude by antisymmetry.  Prover notes: apply
 -/
 theorem IsHomeomorph.topologicalKrullDim_eq (f : X → Y) (h : IsHomeomorph f) :
     topologicalKrullDim X = topologicalKrullDim Y := by
-  sorry
+  refine le_antisymm (IsInducing.topologicalKrullDim_le h.isInducing) ?_
+  exact IsInducing.topologicalKrullDim_le h.homeomorph.symm.isInducing
 
 /--
 Source theorem (docs/source.tex lines 45--51): for any subspace `Y ⊆ X`, `dim(Y) ≤ dim(X)`.
@@ -50,4 +52,4 @@ instantiate `IsInducing.topologicalKrullDim_le` with the subtype inclusion and u
 -/
 theorem topologicalKrullDim_subspace_le (X : Type*) [TopologicalSpace X] (Y : Set X) :
     topologicalKrullDim Y ≤ topologicalKrullDim X := by
-  sorry
+  exact IsInducing.topologicalKrullDim_le (IsInducing.subtypeVal : IsInducing ((↑) : Y → X))

@@ -17,7 +17,8 @@ and duality. Prover notes: rewrite the wrapper to Mathlib contraction and use
 `Matroid.contract_ground`. -/
 theorem contract_ground {α : Type*} (M : Matroid α) (C : Set α) (hC : C ⊆ M.E) :
     (contract M C).E = M.E \ C := by
-  sorry
+  have _hC := hC
+  exact Matroid.contract_ground M C
 
 /-- Source `line-38` (`dual_contract`): duality swaps contraction and deletion.
 Source proof: both identities follow from `M / X := (M^* \ X)^*` and involutivity of duality.
@@ -25,7 +26,10 @@ Prover notes: use `Matroid.dual_contract` for the first conjunct and `Matroid.du
 the second, after unfolding `contract`. -/
 theorem dual_contract {α : Type*} (M : Matroid α) (X : Set α) (hX : X ⊆ M.E) :
     (contract M X)✶ = M✶ ＼ X ∧ (M ＼ X)✶ = contract M✶ X := by
-  sorry
+  have _hX := hX
+  constructor
+  · exact Matroid.dual_contract M X
+  · exact Matroid.dual_delete M X
 
 /-- Source `line-52` (`Coindep.coindep_contract_of_disjoint`): iterated contraction combines
 by union, and hence contractions commute.
@@ -36,14 +40,18 @@ theorem Coindep.coindep_contract_of_disjoint {α : Type*} (M : Matroid α) (C₁
     (hC₁ : C₁ ⊆ M.E) (hC₂ : C₂ ⊆ M.E) :
     contract (contract M C₁) C₂ = contract M (C₁ ∪ C₂) ∧
       contract (contract M C₁) C₂ = contract (contract M C₂) C₁ := by
-  sorry
+  have _hC₁ := hC₁
+  have _hC₂ := hC₂
+  constructor
+  · exact Matroid.contract_contract M C₁ C₂
+  · exact Matroid.contract_comm M C₁ C₂
 
 /-- Source `line-70` (`contract_empty`): contracting the empty set leaves the matroid unchanged.
 Source proof: unfold contraction and use that deleting `∅` has no effect, then dual involutivity.
 Prover notes: Mathlib has `Matroid.contract_empty`. -/
 theorem contract_empty {α : Type*} (M : Matroid α) :
     contract M ∅ = M := by
-  sorry
+  simp [contract]
 
 /-- Source `line-82` (`contract_eq_contract_iff`): two contractions are equal exactly when the
 contracted sets have the same intersection with the ground set.
@@ -52,7 +60,9 @@ Prover notes: use `Matroid.contract_eq_contract_iff` after unfolding `contract`.
 theorem contract_eq_contract_iff {α : Type*} (M : Matroid α) (C₁ C₂ : Set α)
     (hC₁ : C₁ ⊆ M.E) (hC₂ : C₂ ⊆ M.E) :
     contract M C₁ = contract M C₂ ↔ C₁ ∩ M.E = C₂ ∩ M.E := by
-  sorry
+  have _hC₁ := hC₁
+  have _hC₂ := hC₂
+  simpa [contract] using Matroid.contract_eq_contract_iff
 
 /-- Source `line-96` (`coindep_contract_iff`): a set is coindependent after contracting `C`
 iff it was coindependent before and is disjoint from `C`.
@@ -62,7 +72,10 @@ characterization. Prover notes: Mathlib states this with `Disjoint`; convert to
 theorem coindep_contract_iff {α : Type*} (M : Matroid α) (C X : Set α)
     (hC : C ⊆ M.E) (hX : X ⊆ M.E) :
     (contract M C).Coindep X ↔ M.Coindep X ∧ X ∩ C = ∅ := by
-  sorry
+  have _hC := hC
+  have _hX := hX
+  simpa [contract, Set.disjoint_iff_inter_eq_empty] using
+    (Matroid.coindep_contract_iff (M := M) (C := C) (X := X))
 
 /-- Source `line-111` (`contract_isCocircuit_iff`): cocircuits of a contraction are exactly the
 old cocircuits disjoint from the contracted set.
@@ -72,7 +85,8 @@ empty intersection. -/
 theorem contract_isCocircuit_iff {α : Type*} (M : Matroid α) (C K : Set α)
     (hC : C ⊆ M.E) :
     (contract M C).IsCocircuit K ↔ M.IsCocircuit K ∧ K ∩ C = ∅ := by
-  sorry
+  have _hC := hC
+  simp [contract, Set.disjoint_iff_inter_eq_empty]
 
 /-- Source `line-122` (`Indep.contract_isBase_iff`): if `I` is independent, then bases of
 `M / I` are exactly the sets `B` for which `B ∪ I` is a basis of `M` and `B ∩ I = ∅`.
@@ -81,7 +95,7 @@ use `Matroid.Indep.contract_isBase_iff`, converting `Disjoint B I` to `B ∩ I =
 theorem Indep.contract_isBase_iff {α : Type*} (M : Matroid α) (I B : Set α)
     (hI : M.Indep I) :
     (contract M I).IsBase B ↔ M.IsBase (B ∪ I) ∧ B ∩ I = ∅ := by
-  sorry
+  simpa [contract, Set.disjoint_iff_inter_eq_empty] using (hI.contract_isBase_iff (B := B))
 
 /-- Source `line-138` (`Indep.contract_indep_iff`): for independent `I`, independence in
 `M / I` is equivalent to being disjoint from `I` and having `J ∪ I` independent in `M`.
@@ -90,7 +104,8 @@ lemma. Prover notes: Mathlib has `Matroid.Indep.contract_indep_iff`, stated with
 theorem Indep.contract_indep_iff {α : Type*} (M : Matroid α) (I J : Set α)
     (hI : M.Indep I) (hJ : J ⊆ M.E) :
     (contract M I).Indep J ↔ J ∩ I = ∅ ∧ M.Indep (J ∪ I) := by
-  sorry
+  have _hJ := hJ
+  simpa [contract, Set.disjoint_iff_inter_eq_empty] using (hI.contract_indep_iff (J := J))
 
 /-- Source `line-155` (`IsNonloop.contractElem_indep_iff`): contracting a non-loop element `e`
 makes `I` independent exactly when `e ∉ I` and adjoining `e` to `I` was independent in `M`.
@@ -100,7 +115,7 @@ non-loop singleton is independent. Prover notes: Mathlib uses `insert e I`; conv
 theorem IsNonloop.contractElem_indep_iff {α : Type*} (M : Matroid α) (e : α) (I : Set α)
     (he : M.IsNonloop e) :
     (contract M {e}).Indep I ↔ e ∉ I ∧ M.Indep (I ∪ {e}) := by
-  sorry
+  simpa [contract] using (he.contractElem_indep_iff (I := I))
 
 /-- Source `line-172` (`IsBasis.contract_eq_contract_delete`): contracting a set is equivalent
 to contracting a basis for it and deleting the remaining elements.
@@ -110,4 +125,5 @@ unfolding the wrapper `contract`. -/
 theorem IsBasis.contract_eq_contract_delete {α : Type*} (M : Matroid α) (X I : Set α)
     (hX : X ⊆ M.E) (hI : M.IsBasis I X) :
     contract M X = (contract M I) ＼ (X \ I) := by
-  sorry
+  have _hX := hX
+  simpa [contract] using hI.contract_eq_contract_delete

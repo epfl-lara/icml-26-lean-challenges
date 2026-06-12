@@ -26,4 +26,6 @@ theorem isInteriorPoint_of_bijective_mfderiv
     (F : M → N) (hF : ContMDiff (𝓡 m) (𝓡∂ n) ⊤ F)
     (p : M) (hp : Function.Bijective (mfderiv (𝓡 m) (𝓡∂ n) F p)) :
     F p ∈ (𝓡∂ n).interior N := by
-  sorry
+  simpa [ModelWithCorners.interior] using
+    (hF.mdifferentiableAt (by simp)).isInteriorPoint_of_surjective_mfderiv
+      hp.surjective (BoundarylessManifold.isInteriorPoint : (𝓡 m).IsInteriorPoint p)

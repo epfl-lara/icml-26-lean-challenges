@@ -27,4 +27,5 @@ theorem locally_surjective_iff_surjective_on_stalks {X : TopCat} {F G : X.Preshe
     (T : F ⟶ G) :
     IsLocallySurjective T ↔
       ∀ x : X, Function.Surjective ((TopCat.Presheaf.stalkFunctor (Type u) x).map T) := by
-  sorry
+  exact (TopCat.Presheaf.isLocallySurjective_iff T).symm.trans
+    (TopCat.Presheaf.locally_surjective_iff_surjective_on_stalks T)

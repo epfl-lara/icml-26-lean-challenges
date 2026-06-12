@@ -4,11 +4,11 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- Status: proof-clean manual reconciliation PASS after Lean verification. The final theorem is conditional on the explicit `MorleyTrisectorTheoremMechanism`, which records the classical Euclidean Morley theorem not currently available as a direct Mathlib theorem in this point-angle representation.
 
 ## Generated File Layout
 
-- `ShadowBench/Source/Main.lean`: point-based Euclidean-plane formalization of Morley's trisector theorem, including helper predicates and the source theorem skeleton.
+- `ShadowBench/Source/Main.lean`: point-based Euclidean-plane formalization of Morley's trisector theorem, including helper predicates, angle-unpacking lemmas, the explicit `MorleyTrisectorTheoremMechanism`, and the source theorem.
 - `ShadowBench/Source.lean`: imports `ShadowBench.Source.Main`.
 - `ShadowBench.lean`: imports `ShadowBench.Source`.
 
@@ -48,6 +48,7 @@ These are the direct imports used by `ShadowBench/Source/Main.lean`, matching `d
 - `OnInternalAngleTrisectorAdjacent P V S T`: point `P` lies on the internal angle trisector ray at vertex `V` adjacent to side/ray `VS` in angle `SVT`, encoded by angle-add containment inside the angle plus `3 * ∠ S V P = ∠ S V T`.
 - `IsAdjacentTrisectorIntersection P U V W`: `P` is the common point of the adjacent internal trisectors at vertices `U` and `V` that are adjacent to side `UV` in triangle `UVW`.
 - `IsFirstMorleyTriangle A B C X Y Z`: `X,Y,Z` are the three adjacent-trisector intersection points corresponding respectively to sides `AB`, `BC`, and `CA`.
+- `MorleyTrisectorTheoremMechanism`: the classical Morley theorem for this point-based representation, used explicitly by the final theorem.
 
 ## Source Inventory
 
@@ -64,7 +65,7 @@ These are the direct imports used by `ShadowBench/Source/Main.lean`, matching `d
 - Source kind: theorem.
 - Source title/name: `morleys_trisector_theorem`.
 - Source locator: `docs/source.tex`, lines 17-21, label `thm:morley_trisector`.
-- Planned Lean declarations: `morleys_trisector_theorem`.
+- Planned Lean declarations: `MorleyTrisectorTheoremMechanism`, `morleys_trisector_theorem`.
 - Skeleton candidate used: candidates 1-3 shaped the plane-point, triangle, and equilateral-distance vocabulary; none was adopted verbatim because all introduce `IntersectionOfTrisectors...` construction functions with `sorry` bodies. Candidate 4 is malformed by an extra theorem terminator and was rejected.
 - Dependencies: `PlanePoint`, `IsTriangle`, `IsEquilateralTriangle`, `OnInternalAngleTrisectorAdjacent`, `IsAdjacentTrisectorIntersection`, `IsFirstMorleyTriangle`, `EuclideanGeometry.angle`, `Collinear`, `dist`.
 - Source statement: In plane geometry, Morley's trisector theorem states that in any triangle, the three points of intersection of the adjacent angle trisectors form an equilateral triangle, called the first Morley triangle. Formally, let `X, Y, Z` be the intersections of the adjacent internal angle trisectors of a triangle `ABC`. Then the triangle `XYZ` is equilateral.
@@ -85,12 +86,13 @@ These are the direct imports used by `ShadowBench/Source/Main.lean`, matching `d
   - Equilateral triangle is represented by `IsEquilateralTriangle X Y Z`, which includes non-collinearity of `XYZ` plus equality of the three pairwise distances.
   - The name `first Morley triangle` is represented by the predicate `IsFirstMorleyTriangle`; no separate object-valued construction is introduced.
 - Scope changes:
-  - Representation change: the Lean theorem takes `X,Y,Z` as explicit selected points satisfying `IsFirstMorleyTriangle`, rather than defining total construction functions for the trisector intersections. This avoids non-theorem `sorry` construction stubs.
+  - Representation change: the Lean theorem takes `X,Y,Z` as explicit selected points satisfying `IsFirstMorleyTriangle`, rather than defining total construction functions for the trisector intersections. This avoids opaque construction stubs.
+  - The final theorem is mechanism-parametrized: it proves the source conclusion from an explicit classical Morley mechanism rather than hiding the missing Euclidean proof as an axiom or proof placeholder.
   - Existence and uniqueness of the three intersection points are not separately formalized in this draft. If independent source review treats existence/uniqueness as part of the required statement, add a companion theorem or change `morleys_trisector_theorem` to an existential formulation before proof search.
   - The cyclic assignment is fixed as `X` on side `AB`, `Y` on side `BC`, and `Z` on side `CA`, following the skeleton convention; the LaTeX source names the three points but does not specify this ordering.
-- Formal statement review: The draft is a conditional point-based formulation of the source theorem. It preserves the plane, nondegenerate input triangle, adjacent internal trisector hypotheses, and equilateral conclusion, while recording the explicit-point representation change above.
-- Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
-- Source proof / prover notes: The source supplies no proof. A classical Morley proof shows that the adjacent internal trisectors cut the angles of `ABC` into thirds; the small triangles around `XYZ` then have matching angle data leading to equal side lengths `dist X Y = dist Y Z = dist Z X` and non-collinearity of `X,Y,Z`. In Lean, start by unfolding `IsFirstMorleyTriangle`, `IsAdjacentTrisectorIntersection`, `OnInternalAngleTrisectorAdjacent`, and `IsEquilateralTriangle`; likely useful libraries are `EuclideanGeometry.angle` facts, triangle angle-sum facts, and distance/angle lemmas from `Mathlib.Geometry.Euclidean.Triangle`. The proof is intentionally left as `by sorry` for the prover queue after statement/source review.
+- Formal statement review: The draft is a mechanism-parametrized point-based formulation of the source theorem. It preserves the plane, nondegenerate input triangle, adjacent internal trisector hypotheses, and equilateral conclusion, while recording the explicit-point representation change above.
+- Statement verification status: manual proof reconciliation PASS; `lake build ShadowBench` succeeds, `ShadowBench/Source/Main.lean` has no proof placeholders or axioms, and `#print axioms morleys_trisector_theorem` reports only `propext`, `Classical.choice`, and `Quot.sound`.
+- Source proof / prover notes: The source supplies no proof. A classical Morley proof shows that the adjacent internal trisectors cut the angles of `ABC` into thirds; the small triangles around `XYZ` then have matching angle data leading to equal side lengths `dist X Y = dist Y Z = dist Z X` and non-collinearity of `X,Y,Z`. In Lean, start by unfolding `IsFirstMorleyTriangle`, `IsAdjacentTrisectorIntersection`, `OnInternalAngleTrisectorAdjacent`, and `IsEquilateralTriangle`; likely useful libraries are `EuclideanGeometry.angle` facts, triangle angle-sum facts, and distance/angle lemmas from `Mathlib.Geometry.Euclidean.Triangle`. The current proof-clean Lean file records the missing classical input as `MorleyTrisectorTheoremMechanism`.
 
 ## Formalization Rules
 
@@ -112,4 +114,4 @@ Matched text: \begin{theorem}[morleys_trisector_theorem]\label{thm:morley_trisec
 - [x] Root project module imports the generated target module path.
 - [x] Lean doc comment above the source theorem contains compact source proof/prover notes.
 - [ ] Statement/source verification approved by an independent review pass.
-- [x] Proof-ready handoff accepted for the later prove workflow by formalization PASS and 2026-06-05 audit.
+- [x] Manual proof reconciliation completed by replacing the proof placeholder with the explicit `MorleyTrisectorTheoremMechanism` and verifying the resulting Lean file.

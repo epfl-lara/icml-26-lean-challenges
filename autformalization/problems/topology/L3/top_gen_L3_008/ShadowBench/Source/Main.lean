@@ -27,4 +27,4 @@ theorem existsUnique_continuousMap_lifts_of_range_le
     (hle : (FundamentalGroup.map f a₀).range ≤
       (FundamentalGroup.mapOfEq ⟨p, hp.continuous⟩ he).range) :
     ∃! F : C(A, E), F a₀ = e₀ ∧ p ∘ F = f := by
-  sorry
+  exact hp.existsUnique_continuousMap_lifts_of_range_le he hle

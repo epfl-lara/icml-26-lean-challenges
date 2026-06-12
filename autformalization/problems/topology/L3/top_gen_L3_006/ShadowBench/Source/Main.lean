@@ -1,5 +1,6 @@
 import Mathlib.Topology.Connected.LocPathConnected
 import Mathlib.Topology.Covering.Basic
+import Mathlib.Topology.Homotopy.Lifting
 import Mathlib.Topology.UnitInterval
 
 open Topology unitInterval
@@ -32,4 +33,6 @@ theorem existsUnique_continuousMap_lifts {E X A : Type*}
         p ∘ (Γ' : I → E) = (f : A → X) ∘ (γ' : I → A) →
         γ 1 = γ' 1 → Γ 1 = Γ' 1) :
     ∃! F : C(A, E), F a₀ = e₀ ∧ p ∘ (F : A → E) = (f : A → X) := by
-  sorry
+  exact hp.existsUnique_continuousMap_lifts f a₀ e₀ he₀ h₁
+    (fun γ γ' Γ Γ' hγ hγ' hΓ hΓ' hΓlift hΓ'lift hend =>
+      h₂ γ γ' hγ hγ' Γ Γ' hΓ hΓ' hΓlift hΓ'lift hend)

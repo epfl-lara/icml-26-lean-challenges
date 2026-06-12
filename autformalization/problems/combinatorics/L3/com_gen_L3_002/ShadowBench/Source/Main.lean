@@ -33,7 +33,12 @@ theorem IsMinor.exists_eq_contract_delete_disjoint {α : Type*} {N M : Matroid �
     (h : N ≤ₘ M) :
     ∃ C D : Set α, C ⊆ M.E ∧ D ⊆ M.E ∧ (C ∩ D = ∅) ∧
       (N = Matroid.delete (Matroid.contract M C) D) := by
-  sorry
+  change Matroid.IsMinor N M at h
+  obtain ⟨C, D, hC, hD, hCD, hN⟩ :=
+    Matroid.IsMinor.exists_eq_contract_delete_disjoint h
+  refine ⟨C, D, hC, hD, ?_, ?_⟩
+  · exact hCD.inter_eq
+  · simpa using hN
 
 /--
 Source proof (`thm:minor-order`, reflexivity bullet): take the contraction and deletion
@@ -41,7 +46,7 @@ sets to be empty, giving `N = N ／ ∅ ＼ ∅`.
 Prover notes: unfold the local wrapper and use `Matroid.IsMinor.refl`.
 -/
 theorem IsMinor.refl {α : Type*} (N : Matroid α) : N ≤ₘ N := by
-  sorry
+  simpa [IsMinor] using (Matroid.IsMinor.refl : Matroid.IsMinor N N)
 
 /--
 Source proof (`thm:minor-order`, transitivity bullet): choose disjoint contraction and
@@ -53,7 +58,7 @@ proof uses `Matroid.contract_delete_contract_delete'`.
 -/
 theorem IsMinor.trans {α : Type*} {N M P : Matroid α} (hNM : N ≤ₘ M) (hMP : M ≤ₘ P) :
     N ≤ₘ P := by
-  sorry
+  simpa [IsMinor] using Matroid.IsMinor.trans hNM hMP
 
 /--
 Source proof (`thm:minor-order`, antisymmetry bullet): write each direction using
@@ -66,4 +71,4 @@ ground-set inclusions.
 -/
 theorem IsMinor_antisymm {α : Type*} {N M : Matroid α} (hNM : N ≤ₘ M) (hMN : M ≤ₘ N) :
     N = M := by
-  sorry
+  simpa [IsMinor] using Matroid.IsMinor.antisymm hNM hMN

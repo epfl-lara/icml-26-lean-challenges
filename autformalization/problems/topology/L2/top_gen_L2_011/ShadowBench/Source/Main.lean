@@ -50,4 +50,4 @@ theorem homBundle_vectorBundle_statement
     [FiberBundle F₂ E₂] [VectorBundle 𝕜₂ F₂ E₂]
     [∀ x, IsTopologicalAddGroup (E₂ x)] [∀ x, ContinuousSMul 𝕜₂ (E₂ x)] :
     VectorBundle 𝕜₂ (F₁ →SL[σ] F₂) (continuousLinearMap σ E₁ E₂) := by
-  sorry
+  simpa [continuousLinearMap] using (Bundle.ContinuousLinearMap.vectorBundle σ F₁ E₁ F₂ E₂)

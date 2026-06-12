@@ -24,4 +24,9 @@ closed-immersion infrastructure before expanding the source graph argument.
 theorem isAffineOpen_inf_preimage {X Y : Scheme} [Y.IsSeparated] (f : X ⟶ Y)
     (U : X.Opens) (V : Y.Opens) (hU : IsAffineOpen U) (hV : IsAffineOpen V) :
     IsAffineOpen (U ⊓ f ⁻¹ᵁ V) := by
-  sorry
+  haveI : IsAffine U.toScheme := hU
+  haveI : IsAffineHom (U.ι ≫ f) := by
+    exact IsAffineHom.of_comp (U.ι ≫ f) (Limits.terminal.from Y)
+  have hpre : IsAffineOpen ((U.ι ≫ f) ⁻¹ᵁ V) := hV.preimage (U.ι ≫ f)
+  convert hpre.image_of_isOpenImmersion U.ι using 1
+  rw [Scheme.Hom.comp_preimage, U.ι.image_preimage_eq_opensRange_inf, Scheme.Opens.opensRange_ι]

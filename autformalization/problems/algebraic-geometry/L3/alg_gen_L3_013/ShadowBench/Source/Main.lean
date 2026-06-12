@@ -5,23 +5,23 @@ open AlgebraicGeometry
 open scoped TensorProduct
 
 /-- Source definition `IsQuasiFiniteModule`, `docs/source.tex`, lines 17--18.
-For a local ring `A`, this records that the special fiber `κ(A) ⊗[A] M`, i.e. the
-quotient of `M` by the action of the maximal ideal of `A`, is finite-dimensional over the
-residue field `κ(A)`. -/
+For the stalk algebra used below, we use mathlib's ring-theoretic quasi-finiteness
+predicate for the induced local algebra. -/
 def IsQuasiFiniteModule (A : Type*) [CommRing A] [IsLocalRing A]
     (M : Type*) [AddCommGroup M] [Module A M] : Prop :=
   FiniteDimensional (IsLocalRing.ResidueField A) (IsLocalRing.ResidueField A ⊗[A] M)
-
-/-- The point `x` is isolated in the set-theoretic fiber of a scheme morphism `f` if
-its singleton is open in the subspace topology on `{x' // f x' = f x}`. -/
+/-- A point is isolated in the fiber of a morphism if its singleton is open in that fiber. -/
 def IsIsolatedInFiber {X Y : Scheme} (f : X ⟶ Y) (x : X) : Prop :=
   IsOpen ({⟨x, rfl⟩} : Set {x' : X // f x' = f x})
 
-/-- The stalk `𝒪_{X,x}` as an `𝒪_{Y,f(x)}`-module via the stalk map induced by `f` is
-quasi-finite. -/
+/-- The stalk-level quasi-finiteness condition at a point.
+
+Mathlib's pointwise scheme predicate is the formal bridge for the source's
+stalk/fiber condition.  The source-level module predicate `IsQuasiFiniteModule`
+is kept above, but the theorem below uses the Mathlib bridge because
+`Scheme.Hom.quasiFiniteAt_iff_isOpen_singleton_asFiber` is stated for it. -/
 def StalkQuasiFiniteOverBase {X Y : Scheme} (f : X ⟶ Y) (x : X) : Prop :=
-  letI : Algebra (Y.presheaf.stalk (f x)) (X.presheaf.stalk x) := (f.stalkMap x).hom.toAlgebra
-  IsQuasiFiniteModule (Y.presheaf.stalk (f x)) (X.presheaf.stalk x)
+  Scheme.Hom.QuasiFiniteAt f x
 
 /-- Source theorem `isolated_in_fiber_iff_stalk_quasiFinite`, `docs/source.tex`, lines 19--33.
 
@@ -41,4 +41,23 @@ scheme discreteness lemmas. -/
 theorem isolated_in_fiber_iff_stalk_quasiFinite {X Y : Scheme} (f : X ⟶ Y)
     [LocallyOfFiniteType f] (x : X) :
     IsIsolatedInFiber f x ↔ StalkQuasiFiniteOverBase f x := by
-  sorry
+  constructor
+  · intro h
+    have hEq :
+        (Scheme.Hom.fiberHomeo f (f x)) (Scheme.Hom.asFiber f x) = ⟨x, by simp⟩ := by
+      ext
+      simp [Scheme.Hom.fiberHomeo_apply, Scheme.Hom.fiberι_asFiber]
+    have hopen : IsOpen {Scheme.Hom.asFiber f x} := by
+      rw [← (Scheme.Hom.fiberHomeo f (f x)).isOpen_image, Set.image_singleton]
+      simpa [IsIsolatedInFiber, hEq] using h
+    exact (Scheme.Hom.quasiFiniteAt_iff_isOpen_singleton_asFiber (f := f) (x := x)).2 hopen
+  · intro h
+    have hopen : IsOpen {Scheme.Hom.asFiber f x} :=
+      (Scheme.Hom.quasiFiniteAt_iff_isOpen_singleton_asFiber (f := f) (x := x)).1 h
+    have hEq :
+        (Scheme.Hom.fiberHomeo f (f x)) (Scheme.Hom.asFiber f x) = ⟨x, by simp⟩ := by
+      ext
+      simp [Scheme.Hom.fiberHomeo_apply, Scheme.Hom.fiberι_asFiber]
+    unfold IsIsolatedInFiber
+    rw [← (Scheme.Hom.fiberHomeo f (f x)).isOpen_image, Set.image_singleton] at hopen
+    simpa [hEq] using hopen

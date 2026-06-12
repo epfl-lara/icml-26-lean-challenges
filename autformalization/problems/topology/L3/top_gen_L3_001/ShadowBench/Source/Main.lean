@@ -28,7 +28,7 @@ Prover notes: unfold `homotopyTo`; this is the pointwise formula for
 -/
 theorem homotopyTo_apply (i : N) (p : Ω^ N X x) (t : I) (y : I^{ j // j ≠ i }) :
     homotopyTo i p t y = p (Cube.insertAt i (t, y)) := by
-  sorry
+  rfl
 
 /--
 Source theorem `homotopicTo` (`docs/source.tex`, lines 73-161).
@@ -45,4 +45,4 @@ should be the direct route.
 theorem homotopicTo (i : N) {p q : Ω^ N X x}
     (H : (homotopyTo i p).Homotopic (homotopyTo i q)) :
     GenLoop.Homotopic p q := by
-  sorry
+  simpa [homotopyTo] using (GenLoop.homotopicFrom (i := i) H)

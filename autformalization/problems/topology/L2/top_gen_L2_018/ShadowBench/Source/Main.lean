@@ -19,7 +19,7 @@ theorem epi_of_shortExact {X : TopCat.{u}}
     {S : ShortComplex (TopCat.Sheaf AddCommGrpCat X)}
     (U : Opens X) (hS : S.ShortExact) [TopCat.Sheaf.IsFlasque S.X₁] :
     Epi (S.g.1.app (op U)) := by
-  sorry
+  exact TopCat.Sheaf.IsFlasque.epi_of_shortExact (U := U) hS
 
 /--
 Source locator: `docs/source.tex`, source entry `thm:quotient-flasque`
@@ -37,4 +37,4 @@ theorem of_shortExact_of_isFlasque {X : TopCat.{u}}
     (hS : S.ShortExact) [TopCat.Sheaf.IsFlasque S.X₁]
     [TopCat.Sheaf.IsFlasque S.X₂] :
     TopCat.Sheaf.IsFlasque S.X₃ := by
-  sorry
+  exact TopCat.Sheaf.IsFlasque.of_shortExact_of_isFlasque₁₂ hS

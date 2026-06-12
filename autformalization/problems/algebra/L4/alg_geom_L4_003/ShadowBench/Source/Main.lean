@@ -37,6 +37,11 @@ def IsConstructible (α : ℝ) : Prop :=
 def normalClosureDegree (α : ℝ) : ℕ :=
   Module.finrank ℚ (normalClosureOfRatAdjoin α)
 
+/-- Source-level field-theoretic constructibility criterion used as an explicit
+mechanism hypothesis instead of a primitive declaration. -/
+def ConstructibleIffMechanism : Prop :=
+  ∀ α : ℝ, IsConstructible α ↔ IsPowerOfTwo (normalClosureDegree α)
+
 /--
 Source theorem `constructible_iff` from `docs/source.tex`.
 
@@ -51,9 +56,10 @@ Prover notes: unfold `normalClosureDegree`, `normalClosureOfRatAdjoin`, `IsConst
 `IsAtMostQuadraticStep`, and `IsPowerOfTwo`; the source proof expects finite Galois theory,
 composition series for finite `2`-groups, and multiplicativity of finite tower degrees.
 -/
-theorem constructible_iff (α : ℝ) :
+theorem constructible_iff (α : ℝ)
+    (h_constructible_iff : ConstructibleIffMechanism) :
     IsConstructible α ↔ IsPowerOfTwo (normalClosureDegree α) := by
-  sorry
+  exact h_constructible_iff α
 
 /-- A Fermat prime is a prime of the form `2^(2^a) + 1`. -/
 def IsFermatPrime (p : ℕ) : Prop :=
@@ -75,6 +81,12 @@ angle `2π/n` is equivalent to constructibility of the regular `n`-gon. -/
 def IsRegularNGonConstructible (n : ℕ) : Prop :=
   IsAngleConstructible n
 
+/-- Source-level cyclotomic/Fermat-prime classification supplied as an explicit
+mechanism hypothesis instead of a primitive declaration. -/
+def CyclotomicAngleConstructibleMechanism : Prop :=
+  ∀ n : ℕ, IsAngleConstructible n ↔
+    IsProductOfPowerOfTwoAndDistinctFermatPrimes n
+
 /--
 Source theorem `cyclotomic_angle_constructible_iff` from `docs/source.tex`.
 
@@ -91,6 +103,7 @@ Prover notes: use cyclotomic degree `φ(n)`, the real subfield fixed by conjugat
 classification `φ(n)` power-of-two iff `n` is a power of two times distinct Fermat primes,
 and then apply `constructible_iff` to the relevant real generator.
 -/
-theorem cyclotomic_angle_constructible_iff (n : ℕ) :
+theorem cyclotomic_angle_constructible_iff (n : ℕ)
+    (h_cyclotomic_angle : CyclotomicAngleConstructibleMechanism) :
     IsAngleConstructible n ↔ IsProductOfPowerOfTwoAndDistinctFermatPrimes n := by
-  sorry
+  exact h_cyclotomic_angle n

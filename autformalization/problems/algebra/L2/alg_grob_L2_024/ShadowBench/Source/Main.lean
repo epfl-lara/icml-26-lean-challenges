@@ -20,4 +20,23 @@ theorem mem_monmul_supp_iff {K σ : Type*} [Field K]
     (MvPolynomial.monomial μ (1 : K) ∣ MvPolynomial.monomial ν (1 : K)) ↔
       ∃ f : MvPolynomial σ K,
         ν ∈ (MvPolynomial.monomial μ (1 : K) * f).support := by
-  sorry
+  constructor
+  · intro h
+    rcases h with ⟨f, hf⟩
+    refine ⟨f, ?_⟩
+    have hmem : ν ∈ (MvPolynomial.monomial ν (1 : K)).support := by
+      classical
+      simp [MvPolynomial.support_monomial]
+    simpa [hf] using hmem
+  · rintro ⟨f, hν⟩
+    have hcoeff_ne : (MvPolynomial.monomial μ (1 : K) * f).coeff ν ≠ 0 := by
+      exact (MvPolynomial.mem_support_iff).mp hν
+    have hle : μ ≤ ν := by
+      by_contra hle
+      have hcoeff_zero : (MvPolynomial.monomial μ (1 : K) * f).coeff ν = 0 := by
+        rw [MvPolynomial.coeff_monomial_mul']
+        simp [hle]
+      exact hcoeff_ne hcoeff_zero
+    refine ⟨MvPolynomial.monomial (ν - μ) (1 : K), ?_⟩
+    rw [MvPolynomial.monomial_mul, add_tsub_cancel_of_le hle]
+    simp

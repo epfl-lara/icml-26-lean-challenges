@@ -39,6 +39,6 @@ theorem line17_fourierInv_fourier_eq {V E : Type*} [NormedAddCommGroup V]
     {f : V → E} (hf : Integrable f) (hFf : Integrable (𝓕 f)) {v : V}
     (hv : ContinuousAt f v) :
     𝓕⁻ (𝓕 f) v = f v := by
-  sorry
+  exact hf.fourierInv_fourier_eq hFf hv
 
 end ShadowBench.Source

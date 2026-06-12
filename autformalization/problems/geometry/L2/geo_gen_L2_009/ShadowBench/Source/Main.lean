@@ -26,4 +26,6 @@ theorem tangentBundleProdDiffeomorph
     ∃ f : TangentBundle (I.prod I') (M × N) ≃
         (TangentBundle I M × TangentBundle I' N),
       CMDiff ∞ f ∧ CMDiff ∞ f.symm := by
-  sorry
+  refine ⟨equivTangentBundleProd I M I' N, ?_, ?_⟩
+  · exact contMDiff_equivTangentBundleProd
+  · exact contMDiff_equivTangentBundleProd_symm

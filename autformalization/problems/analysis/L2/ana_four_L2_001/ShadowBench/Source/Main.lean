@@ -38,4 +38,13 @@ theorem fourierIntegral_const_smul {K V W E : Type*} [CommRing K]
     [CompleteSpace E] (μ : Measure V) (L : V →ₗ[K] W →ₗ[K] K)
     (e : AddChar K Circle) (f : V → E) (r : ℂ) :
     fourierIntegral μ L e (r • f) = r • fourierIntegral μ L e f := by
-  sorry
+  funext w
+  change (∫ v, ((e (-L v w) : Circle) : ℂ) • (r • f v) ∂μ) =
+    r • ∫ v, ((e (-L v w) : Circle) : ℂ) • f v ∂μ
+  calc
+    (∫ v, ((e (-L v w) : Circle) : ℂ) • (r • f v) ∂μ)
+        = ∫ v, r • (((e (-L v w) : Circle) : ℂ) • f v) ∂μ := by
+          congr with v
+          rw [smul_comm]
+    _ = r • ∫ v, ((e (-L v w) : Circle) : ℂ) • f v ∂μ := by
+          rw [MeasureTheory.integral_smul]

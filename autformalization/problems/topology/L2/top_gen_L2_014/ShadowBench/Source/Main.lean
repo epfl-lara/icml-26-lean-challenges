@@ -56,4 +56,11 @@ theorem singularHomologyFunctorZeroOfTotallyDisconnectedSpace
         ∐ fun _ : X ↦ R)) ∧
     (0 < n →
       IsZero (((isZero_singularHomologyFunctor_of_totallyDisconnectedSpace C n).obj R).obj X)) := by
-  sorry
+  constructor
+  · intro hn
+    subst n
+    exact ⟨AlgebraicTopology.singularHomologyFunctorZeroOfTotallyDisconnectedSpace C R X⟩
+  · intro hpos
+    exact
+      AlgebraicTopology.isZero_singularHomologyFunctor_of_totallyDisconnectedSpace C n R X
+        (Nat.ne_of_gt hpos)

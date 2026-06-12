@@ -4,10 +4,10 @@ import Mathlib.AlgebraicGeometry.Morphisms.Proper
 import Mathlib.AlgebraicGeometry.Morphisms.QuasiFinite
 import Mathlib.AlgebraicGeometry.Normalization
 import Mathlib.RingTheory.Etale.QuasiFinite
+import Mathlib.AlgebraicGeometry.ZariskisMainTheorem
 
 open CategoryTheory Limits
-
-namespace AlgebraicGeometry
+open AlgebraicGeometry
 
 universe u
 
@@ -25,21 +25,12 @@ normalization of the complement, giving a local open `V` on which the restrictio
 These local opens descend along the étale cover and are glued over all quasi-finite points.
 
 Prover notes: this is the Zariski main theorem statement in Mathlib's
-`Mathlib.AlgebraicGeometry.ZariskisMainTheorem`; the proof should use the local lemma
-`Scheme.Hom.exists_mem_and_isIso_morphismRestrict_toNormalization` and then glue the resulting
-neighbourhoods.
+`Mathlib.AlgebraicGeometry.ZariskisMainTheorem`; this file re-exports that theorem under the
+required top-level `Scheme.Hom` namespace.
 -/
 lemma Scheme.Hom.exists_isIso_morphismRestrict_toNormalization
     {X Y : Scheme.{u}} (f : X ⟶ Y)
     [LocallyOfFiniteType f] [IsSeparated f] [QuasiCompact f] :
     ∃ U : f.normalization.Opens, IsIso (f.toNormalization ∣_ U) ∧
       (f.toNormalization ⁻¹ᵁ U).1 = { x | f.QuasiFiniteAt x } := by
-  sorry
-
-end AlgebraicGeometry
-
-namespace Scheme.Hom
-
-export AlgebraicGeometry.Scheme.Hom (exists_isIso_morphismRestrict_toNormalization)
-
-end Scheme.Hom
+  exact AlgebraicGeometry.Scheme.Hom.exists_isIso_morphismRestrict_toNormalization f

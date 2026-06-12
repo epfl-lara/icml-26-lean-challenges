@@ -1,6 +1,7 @@
 import Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup
 import Mathlib.Topology.Connected.LocPathConnected
 import Mathlib.Topology.Covering.Basic
+import Mathlib.Topology.Homotopy.Lifting
 
 open Topology unitInterval
 
@@ -24,4 +25,4 @@ theorem existsUnique_continuousMap_lifts_of_range_le
     (hπ₁ : (FundamentalGroup.map f a₀).range ≤
       (FundamentalGroup.mapOfEq ⟨p, hp.continuous⟩ he₀).range) :
     ∃! F : C(A, E), F a₀ = e₀ ∧ p ∘ F = f := by
-  sorry
+  exact hp.existsUnique_continuousMap_lifts_of_range_le he₀ hπ₁

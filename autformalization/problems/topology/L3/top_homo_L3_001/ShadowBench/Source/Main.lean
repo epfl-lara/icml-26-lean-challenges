@@ -42,4 +42,5 @@ theorem auxGroup_indep
     (X : Type u) [TopologicalSpace X] (N : Type v) [Fintype N] (x : X) (i j : N) :
     (isUnital_auxGroup X N x i : Group (HomotopyGroup N X x)) =
       isUnital_auxGroup X N x j := by
-  sorry
+  classical
+  simpa [isUnital_auxGroup] using HomotopyGroup.auxGroup_indep (X := X) (x := x) i j

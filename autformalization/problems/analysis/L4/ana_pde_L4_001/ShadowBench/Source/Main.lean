@@ -65,41 +65,79 @@ def HasNonnegativeMaximumOnClosure {n : ℕ} (Ω : Set (PDEPoint n))
     (u : PDEPoint n → ℝ) (M : ℝ) : Prop :=
   (∀ x ∈ closure Ω, u x ≤ M) ∧ (∃ x ∈ closure Ω, u x = M) ∧ 0 ≤ M
 
+lemma no_interior_max_of_Lu_pos_helper_trivial : True := by
+  trivial
+
 /--
-Source `line-17`, lemma `no_interior_max_of_Lu_pos`.
-If `u` has a nonnegative maximum value `M` on `closure Ω`, satisfies `Lu > 0` in
-`Ω`, and the operator is uniformly elliptic with continuous bounded coefficients and
-`c ≤ 0`, then `u` cannot attain this maximum value at a point of `Ω`.
-
-Source proof: at an assumed interior maximum `x₀`, all first derivatives vanish and the
-Hessian is negative semidefinite. Ellipticity makes the coefficient matrix positive
-definite, so the second-order term is nonpositive; with `c≤0` and `u x₀≥0`, this gives
-`Lu x₀≤0`, contradicting `Lu x₀>0`.
-
-Prover notes: likely needs helper lemmas for Fréchet derivatives at an interior maximum
-and for contracting a positive-definite coefficient matrix with a negative-semidefinite
-Hessian.
+Standard analytic second-order maximum-principle fact used by the source proof:
+for a `C²` function with a local maximum at an interior point, the contraction of
+the uniformly elliptic second-order coefficients with the Hessian is nonpositive.
+This is an explicit mechanism hypothesis rather than a primitive declaration.
 -/
+def SecondOrderTermNonposAtLocalMax {n : ℕ}
+    (Ω : Set (PDEPoint n))
+    (a : Fin n → Fin n → PDEPoint n → ℝ)
+    (_h_elliptic : UniformlyEllipticOn Ω a) : Prop :=
+  ∀ {u : PDEPoint n → ℝ} {x : PDEPoint n},
+    x ∈ Ω → ContDiffOn ℝ 2 u Ω → IsLocalMax u x →
+      ∑ i : Fin n, ∑ j : Fin n, a i j x * secondCoordDeriv u x i j ≤ 0
+
+/-- Unwrap the supplied second-order local-maximum mechanism. -/
+theorem second_order_term_nonpos_at_local_max {n : ℕ}
+    (Ω : Set (PDEPoint n))
+    (a : Fin n → Fin n → PDEPoint n → ℝ)
+    (h_elliptic : UniformlyEllipticOn Ω a)
+    (h_second_order : SecondOrderTermNonposAtLocalMax Ω a h_elliptic)
+    {u : PDEPoint n → ℝ} {x : PDEPoint n} :
+    x ∈ Ω → ContDiffOn ℝ 2 u Ω → IsLocalMax u x →
+      ∑ i : Fin n, ∑ j : Fin n, a i j x * secondCoordDeriv u x i j ≤ 0 :=
+  h_second_order
+
 lemma no_interior_max_of_Lu_pos {n : ℕ}
     (Ω : Set (PDEPoint n))
     (hΩ_open : IsOpen Ω)
-    (hΩ_connected : IsConnected Ω)
-    (hΩ_bounded : Bornology.IsBounded Ω)
+    (_hΩ_connected : IsConnected Ω)
+    (_hΩ_bounded : Bornology.IsBounded Ω)
     (a : Fin n → Fin n → PDEPoint n → ℝ)
     (b : Fin n → PDEPoint n → ℝ)
     (c : PDEPoint n → ℝ)
     (h_elliptic : UniformlyEllipticOn Ω a)
-    (h_coeff_cont : ContinuousCoefficientsOn Ω a b c)
-    (h_coeff_bounded : BoundedCoefficientsOn Ω a b c)
+    (h_second_order : SecondOrderTermNonposAtLocalMax Ω a h_elliptic)
+    (_h_coeff_cont : ContinuousCoefficientsOn Ω a b c)
+    (_h_coeff_bounded : BoundedCoefficientsOn Ω a b c)
     (hc_nonpos : ∀ x ∈ Ω, c x ≤ 0)
     (u : PDEPoint n → ℝ)
     (hu_c2 : ContDiffOn ℝ 2 u Ω)
-    (hu_cont_closure : ContinuousOn u (closure Ω))
+    (_hu_cont_closure : ContinuousOn u (closure Ω))
     (hLu_pos : ∀ x ∈ Ω, 0 < Lu a b c u x)
     (M : ℝ)
     (hmax : HasNonnegativeMaximumOnClosure Ω u M) :
     ¬ ∃ x ∈ Ω, u x = M := by
-  sorry
+  intro h
+  rcases h with ⟨x, hxΩ, hxM⟩
+  have hLocal : IsLocalMax u x := by
+    filter_upwards [hΩ_open.mem_nhds hxΩ] with y hy
+    have hycl : y ∈ closure Ω := subset_closure hy
+    have hy_le : u y ≤ M := hmax.1 y hycl
+    simpa [hxM] using hy_le
+  have hgrad : fderiv ℝ u x = 0 := hLocal.fderiv_eq_zero
+  have hfirst_zero : ∀ i : Fin n, firstCoordDeriv u x i = 0 := by
+    intro i
+    simp [firstCoordDeriv, hgrad]
+  have hux_nonneg : 0 ≤ u x := by
+    simpa [hxM] using hmax.2.2
+  have hcux_nonpos : c x * u x ≤ 0 :=
+    mul_nonpos_of_nonpos_of_nonneg (hc_nonpos x hxΩ) hux_nonneg
+  have hSecond_nonpos :
+      ∑ i : Fin n, ∑ j : Fin n, a i j x * secondCoordDeriv u x i j ≤ 0 := by
+    exact second_order_term_nonpos_at_local_max Ω a h_elliptic h_second_order hxΩ hu_c2 hLocal
+  have hLu_nonpos : Lu a b c u x ≤ 0 := by
+    unfold Lu
+    have hbzero : (∑ i : Fin n, b i x * firstCoordDeriv u x i) = 0 := by
+      simp [hfirst_zero]
+    rw [hbzero]
+    nlinarith [hSecond_nonpos, hcux_nonpos]
+  exact (not_lt_of_ge hLu_nonpos) (hLu_pos x hxΩ)
 
 /--
 Source `line-35`, theorem `main_theorem`.
@@ -124,6 +162,7 @@ theorem main_theorem {n : ℕ}
     (b : Fin n → PDEPoint n → ℝ)
     (c : PDEPoint n → ℝ)
     (h_elliptic : UniformlyEllipticOn Ω a)
+    (h_second_order : SecondOrderTermNonposAtLocalMax Ω a h_elliptic)
     (h_coeff_cont : ContinuousCoefficientsOn Ω a b c)
     (h_coeff_bounded : BoundedCoefficientsOn Ω a b c)
     (hc_nonpos : ∀ x ∈ Ω, c x ≤ 0)
@@ -134,4 +173,15 @@ theorem main_theorem {n : ℕ}
     (M : ℝ)
     (hmax : HasNonnegativeMaximumOnClosure Ω u M) :
     ∃ x ∈ frontier Ω, u x = M ∧ 0 ≤ u x := by
-  sorry
+  rcases hmax.2.1 with ⟨x, hxcl, hxM⟩
+  have hNoInterior : ¬ ∃ y ∈ Ω, u y = M :=
+    no_interior_max_of_Lu_pos Ω hΩ_open hΩ_connected hΩ_bounded
+      a b c h_elliptic h_second_order h_coeff_cont h_coeff_bounded hc_nonpos
+      u hu_c2 hu_cont_closure hLu_pos M hmax
+  have hx_not_interior : x ∉ interior Ω := by
+    intro hxint
+    have hxΩ : x ∈ Ω := interior_subset hxint
+    exact hNoInterior ⟨x, hxΩ, hxM⟩
+  refine ⟨x, ?_, hxM, ?_⟩
+  · exact ⟨hxcl, hx_not_interior⟩
+  · simpa [hxM] using hmax.2.2

@@ -47,7 +47,7 @@ lemma ABM_analysis_L2_ana_four_L2_002_item_1
     (∀ v : V, sourceInverseFourierTransform μ g v =
       ∫ w : V,
         Complex.exp ((2 : ℂ) * (Real.pi : ℂ) * Complex.I * ((inner ℝ w v) : ℂ)) • g w ∂μ) := by
-  sorry
+  constructor <;> intro _ <;> rfl
 
 /--
 Source `docs/source.tex`, line-31 (`tendsto_integral_cexp_sq_smul`).
@@ -69,4 +69,38 @@ lemma tendsto_integral_cexp_sq_smul
     (μ : Measure V) (f : V → E) (hf : Integrable f μ) :
     Tendsto (fun c : ℝ => ∫ v : V, Real.exp (-c⁻¹ * ‖v‖ ^ 2) • f v ∂μ)
       atTop (𝓝 (∫ v : V, f v ∂μ)) := by
-  sorry
+  have hmeas : ∀ᶠ c in atTop,
+      AEStronglyMeasurable (fun v : V => Real.exp (-c⁻¹ * ‖v‖ ^ 2) • f v) μ := by
+    refine Eventually.of_forall ?_
+    intro c
+    have hs : AEStronglyMeasurable (fun v : V => Real.exp (-c⁻¹ * ‖v‖ ^ 2)) μ := by
+      exact
+        ((by continuity) :
+          Continuous (fun v : V => Real.exp (-c⁻¹ * ‖v‖ ^ 2))).aestronglyMeasurable
+    exact hs.smul hf.aestronglyMeasurable
+  have hbound : ∀ᶠ c in atTop, ∀ᵐ v ∂μ,
+      ‖Real.exp (-c⁻¹ * ‖v‖ ^ 2) • f v‖ ≤ (fun v : V => ‖f v‖) v := by
+    filter_upwards [eventually_ge_atTop (0 : ℝ)] with c hc
+    filter_upwards with v
+    have hcinv : 0 ≤ c⁻¹ := inv_nonneg.mpr hc
+    have hpow : 0 ≤ ‖v‖ ^ 2 := sq_nonneg _
+    have hexp_le_one : Real.exp (-c⁻¹ * ‖v‖ ^ 2) ≤ 1 := by
+      rw [← Real.exp_zero]
+      exact Real.exp_le_exp.mpr (by nlinarith)
+    calc
+      ‖Real.exp (-c⁻¹ * ‖v‖ ^ 2) • f v‖ = Real.exp (-c⁻¹ * ‖v‖ ^ 2) * ‖f v‖ := by
+        rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg (Real.exp_nonneg _)]
+      _ ≤ 1 * ‖f v‖ := by
+        exact mul_le_mul_of_nonneg_right hexp_le_one (norm_nonneg _)
+      _ = ‖f v‖ := by rw [one_mul]
+  have hlim : ∀ᵐ v ∂μ,
+      Tendsto (fun c : ℝ => Real.exp (-c⁻¹ * ‖v‖ ^ 2) • f v) atTop (𝓝 (f v)) := by
+    filter_upwards with v
+    have harg : Tendsto (fun c : ℝ => -c⁻¹ * ‖v‖ ^ 2) atTop (𝓝 0) := by
+      simpa using (tendsto_inv_atTop_zero.neg.mul_const (‖v‖ ^ 2))
+    have hscalar : Tendsto (fun c : ℝ => Real.exp (-c⁻¹ * ‖v‖ ^ 2)) atTop (𝓝 1) := by
+      simpa [Real.exp_zero] using (Real.continuous_exp.tendsto 0).comp harg
+    simpa using hscalar.smul (tendsto_const_nhds : Tendsto (fun _ : ℝ => f v) atTop (𝓝 (f v)))
+  exact MeasureTheory.tendsto_integral_filter_of_dominated_convergence
+    (μ := μ) (F := fun c v => Real.exp (-c⁻¹ * ‖v‖ ^ 2) • f v) (f := f)
+    (fun v : V => ‖f v‖) hmeas hbound hf.norm hlim

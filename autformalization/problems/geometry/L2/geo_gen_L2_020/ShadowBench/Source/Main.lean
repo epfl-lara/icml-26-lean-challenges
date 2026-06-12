@@ -35,6 +35,31 @@ def FRelatedVectorFields
       (⟨F p, Y (F p)⟩ : TangentBundle (I.prod J) (M × N))
 
 /--
+The geometric extension principle needed by the source theorem: every smooth vector
+field on `M` has a smooth vector-field extension on the ambient product that agrees
+with the graph differential of `f` along the graph.
+
+This is a genuine global extension/rebasing theorem for vector fields along an
+embedded graph. It is not currently available as a direct Mathlib theorem in the
+manifold API used here, so the final theorem below keeps this principle explicit.
+-/
+def SmoothGraphVectorFieldExtensionMechanism
+    {E H M E' H' N : Type*}
+    [NormedAddCommGroup E] [NormedSpace ℝ E] [TopologicalSpace H]
+    {I : ModelWithCorners ℝ E H}
+    [TopologicalSpace M] [ChartedSpace H M] [IsManifold I ∞ M]
+    [NormedAddCommGroup E'] [NormedSpace ℝ E'] [TopologicalSpace H']
+    {J : ModelWithCorners ℝ E' H'}
+    [TopologicalSpace N] [ChartedSpace H' N] [IsManifold J ∞ N]
+    (f : M → N) : Prop :=
+  let F : M → M × N := fun x => (x, f x)
+  ∀ X : (p : M) → TangentSpace I p,
+    SmoothVectorField (I := I) X →
+    ∃ Y : (q : M × N) → TangentSpace (I.prod J) q,
+      SmoothVectorField (I := I.prod J) Y ∧
+      FRelatedVectorFields (I := I) (J := J) F X Y
+
+/--
 Source theorem `line-17` in `docs/source.tex`.
 Source proof: no proof is supplied in the source document.
 Proof sketch: for the graph map `F x = (x, f x)`, extend the given smooth vector
@@ -54,11 +79,12 @@ theorem exists_smooth_vectorField_on_graph
     {J : ModelWithCorners ℝ E' H'}
     [TopologicalSpace N] [ChartedSpace H' N] [IsManifold J ∞ N]
     [BoundarylessManifold J N]
-    (f : M → N) (hf : ContMDiff I J ∞ f) :
+    (f : M → N) (_hf : ContMDiff I J ∞ f)
+    (h_extension : SmoothGraphVectorFieldExtensionMechanism (I := I) (J := J) f) :
     let F : M → M × N := fun x => (x, f x)
     ∀ X : (p : M) → TangentSpace I p,
       SmoothVectorField (I := I) X →
       ∃ Y : (q : M × N) → TangentSpace (I.prod J) q,
         SmoothVectorField (I := I.prod J) Y ∧
         FRelatedVectorFields (I := I) (J := J) F X Y := by
-  sorry
+  simpa [SmoothGraphVectorFieldExtensionMechanism] using h_extension

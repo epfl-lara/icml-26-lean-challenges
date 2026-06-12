@@ -36,4 +36,26 @@ evaluation to contradict positivity of `r^2+1`.
 -/
 theorem ideal_xsq_add_one_radical_and_zeroLocus_empty :
     xsqAddOneIdeal.IsRadical ∧ realAffineZeroLocus xsqAddOneIdeal = ∅ := by
-  sorry
+  constructor
+  · unfold xsqAddOneIdeal xsqAddOneRealPolynomial
+    have hirr : Irreducible (Polynomial.X ^ 2 + (1 : Polynomial ℝ)) := by
+      refine Polynomial.irreducible_of_degree_le_three_of_not_isRoot ?_ ?_
+      · have hdeg_eq : (Polynomial.X ^ 2 + (1 : Polynomial ℝ)).natDegree = 2 := by
+          simpa using (Polynomial.natDegree_X_pow_add_C (R := ℝ) (n := 2) (r := (1 : ℝ)))
+        rw [hdeg_eq]
+        norm_num
+      · intro r hroot
+        have hzero : r ^ 2 + 1 = 0 := by
+          simpa [Polynomial.IsRoot] using hroot
+        nlinarith [sq_nonneg r]
+    have hprime : Prime (Polynomial.X ^ 2 + (1 : Polynomial ℝ)) := hirr.prime
+    exact ((Ideal.span_singleton_prime hprime.ne_zero).2 hprime).isRadical
+  · apply Set.eq_empty_iff_forall_notMem.mpr
+    intro r hr
+    have hmem : xsqAddOneRealPolynomial ∈ xsqAddOneIdeal := by
+      unfold xsqAddOneIdeal
+      exact Ideal.subset_span (by simp)
+    have hzero := hr xsqAddOneRealPolynomial hmem
+    have hzero' : r ^ 2 + 1 = 0 := by
+      simpa [xsqAddOneRealPolynomial] using hzero
+    nlinarith [sq_nonneg r]

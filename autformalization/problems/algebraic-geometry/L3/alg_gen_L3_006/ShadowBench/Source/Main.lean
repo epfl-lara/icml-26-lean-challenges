@@ -9,7 +9,7 @@ open AlgebraicGeometry
 
 /--
 Source `FiniteType` (docs/source.tex, lines 17-28): a morphism of schemes is of finite type
-when the target has an affine open cover whose inverse images admit finite affine open covers
+when the target has an affine open cover whose inverse images have finite affine open covers
 with finite-type coordinate algebras over the corresponding target coordinates.
 
 Formalization bridge: Mathlib provides `LocallyOfFiniteType` for the local finite-type ring-map
@@ -40,4 +40,13 @@ especially `LocallyOfFiniteType`, `QuasiCompact`, `Scheme.Hom.appTop`, and
 theorem affineFiniteType_iff_globalSectionsFiniteType {X Y : Scheme}
     (hX : IsAffine X) (hY : IsAffine Y) (f : X ⟶ Y) :
     FiniteType f ↔ RingHom.FiniteType f.appTop.hom := by
-  sorry
+  letI : IsAffine X := hX
+  letI : IsAffine Y := hY
+  unfold FiniteType
+  constructor
+  · intro hf
+    exact (HasRingHomProperty.iff_of_isAffine (P := @LocallyOfFiniteType) (f := f)).mp hf.1
+  · intro hf
+    refine ⟨?_, ?_⟩
+    · exact (HasRingHomProperty.iff_of_isAffine (P := @LocallyOfFiniteType) (f := f)).mpr hf
+    · exact (HasAffineProperty.iff_of_isAffine (P := @QuasiCompact) (f := f)).mpr inferInstance

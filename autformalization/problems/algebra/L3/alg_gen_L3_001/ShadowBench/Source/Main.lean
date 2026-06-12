@@ -1,4 +1,5 @@
 import Mathlib.RingTheory.Polynomial.UniqueFactorization
+import Mathlib.Algebra.Squarefree.Basic
 
 open scoped BigOperators
 
@@ -33,4 +34,78 @@ theorem radical_span_singleton_eq_span_prod_irreducibles
       f = MvPolynomial.C c * ∏ i : Fin r, factors i ^ exponents i) :
     Ideal.radical (Ideal.span ({f} : Set (MvPolynomial (Fin n) k))) =
       Ideal.span ({∏ i : Fin r, factors i} : Set (MvPolynomial (Fin n) k)) := by
-  sorry
+  classical
+  let R := MvPolynomial (Fin n) k
+  let p : R := ∏ i : Fin r, factors i
+  let q : R := ∏ i : Fin r, factors i ^ exponents i
+  have mem_span_singleton_iff_dvd (a x : R) :
+      x ∈ Ideal.span ({a} : Set R) ↔ a ∣ x := by
+    rw [Ideal.mem_span_singleton']
+    constructor
+    · rintro ⟨b, hb⟩
+      exact ⟨b, by rw [← hb, mul_comm]⟩
+    · rintro ⟨b, hb⟩
+      exact ⟨b, by rw [hb, mul_comm]⟩
+  have hC_unit : IsUnit (MvPolynomial.C c : R) := by
+    exact (isUnit_iff_ne_zero.mpr h_c_ne_zero).map (MvPolynomial.C : k →+* R)
+  have hp_squarefree : Squarefree p := by
+    dsimp [p]
+    refine Finset.squarefree_prod_of_pairwise_isCoprime (s := Finset.univ) ?_ ?_
+    · intro i hi j hj hij
+      dsimp [Function.onFun]
+      exact ((h_irreducible i).isRelPrime_iff_not_dvd).2 (by
+        intro hdiv
+        exact (h_distinct hij) ((h_irreducible i).associated_of_dvd (h_irreducible j) hdiv))
+    · intro i hi
+      exact (h_irreducible i).squarefree
+  have hspan_p_rad : (Ideal.span ({p} : Set R)).IsRadical := by
+    intro x hx
+    rw [Ideal.mem_radical_iff] at hx
+    rcases hx with ⟨m, hm⟩
+    rw [mem_span_singleton_iff_dvd] at hm ⊢
+    by_cases hm0 : m = 0
+    · subst m
+      have hp_unit : IsUnit p := isUnit_of_dvd_one (by simpa using hm)
+      exact hp_unit.dvd
+    · exact (hp_squarefree.dvd_pow_iff_dvd hm0).mp hm
+  have hp_dvd_q : p ∣ q := by
+    dsimp [p, q]
+    simpa using
+      (Finset.prod_dvd_prod_of_dvd (s := (Finset.univ : Finset (Fin r)))
+        (fun i : Fin r => factors i ^ 1) (fun i : Fin r => factors i ^ exponents i)
+        (fun i hi => pow_dvd_pow (factors i) (h_exponents_pos i)))
+  have hq_dvd_p_pow_sum : q ∣ p ^ (∑ i : Fin r, exponents i) := by
+    dsimp [p, q]
+    rw [← Finset.prod_pow (Finset.univ : Finset (Fin r))
+      (∑ i : Fin r, exponents i) (fun i : Fin r => factors i)]
+    exact Finset.prod_dvd_prod_of_dvd (s := (Finset.univ : Finset (Fin r)))
+      (fun i : Fin r => factors i ^ exponents i)
+      (fun i : Fin r => factors i ^ (∑ j : Fin r, exponents j))
+      (fun i hi =>
+        pow_dvd_pow (factors i)
+          (Finset.single_le_sum (fun j hj => Nat.zero_le _) (Finset.mem_univ i)))
+  have hp_dvd_f : p ∣ f := by
+    rw [h_factorization]
+    exact dvd_mul_of_dvd_right hp_dvd_q (MvPolynomial.C c)
+  have hf_dvd_p_pow_sum : f ∣ p ^ (∑ i : Fin r, exponents i) := by
+    rw [h_factorization]
+    rcases hC_unit with ⟨u, hu⟩
+    rcases hq_dvd_p_pow_sum with ⟨t, ht⟩
+    refine ⟨↑u⁻¹ * t, ?_⟩
+    rw [← hu]
+    calc
+      p ^ (∑ i : Fin r, exponents i) = q * t := ht
+      _ = (↑u * q) * (↑u⁻¹ * t) := by
+        simp [mul_assoc, mul_comm, mul_left_comm]
+  change Ideal.radical (Ideal.span ({f} : Set R)) = Ideal.span ({p} : Set R)
+  apply le_antisymm
+  · have hsf : Ideal.span ({f} : Set R) ≤ Ideal.span ({p} : Set R) := by
+      rw [Ideal.span_singleton_le_iff_mem]
+      rw [mem_span_singleton_iff_dvd]
+      exact hp_dvd_f
+    exact (hspan_p_rad.radical_le_iff).2 hsf
+  · rw [Ideal.span_singleton_le_iff_mem]
+    rw [Ideal.mem_radical_iff]
+    refine ⟨∑ i : Fin r, exponents i, ?_⟩
+    rw [mem_span_singleton_iff_dvd]
+    exact hf_dvd_p_pow_sum

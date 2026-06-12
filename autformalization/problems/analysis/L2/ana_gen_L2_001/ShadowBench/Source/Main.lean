@@ -26,4 +26,4 @@ lemma AnalyticAt.meromorphicAt {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
     {f : 𝕜 → E} {x : 𝕜} (hf : AnalyticAt 𝕜 f x) :
     MeromorphicAt f x := by
-  sorry
+  exact ⟨0, by simpa only [pow_zero, one_smul] using hf⟩

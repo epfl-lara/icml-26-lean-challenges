@@ -27,4 +27,39 @@ theorem zeroLocus_mul {k : Type*} [Field k] (n : ℕ)
     (I J : Ideal (MvPolynomial (Fin n) k)) :
     MvPolynomial.zeroLocus k (I * J) =
       MvPolynomial.zeroLocus k I ∪ MvPolynomial.zeroLocus k J := by
-  sorry
+  ext x
+  constructor
+  · intro hx
+    let P : Ideal (MvPolynomial (Fin n) k) :=
+      MvPolynomial.vanishingIdeal k ({x} : Set (Fin n → k))
+    have hprod : I * J ≤ P := by
+      intro p hp
+      exact (MvPolynomial.mem_vanishingIdeal_singleton_iff x p).mpr (hx p hp)
+    have hprime : P.IsPrime := by
+      dsimp [P]
+      infer_instance
+    rcases hprime.mul_le.mp hprod with hI | hJ
+    · left
+      intro p hp
+      exact (MvPolynomial.mem_vanishingIdeal_singleton_iff x p).mp (hI hp)
+    · right
+      intro p hp
+      exact (MvPolynomial.mem_vanishingIdeal_singleton_iff x p).mp (hJ hp)
+  · intro hx
+    let P : Ideal (MvPolynomial (Fin n) k) :=
+      MvPolynomial.vanishingIdeal k ({x} : Set (Fin n → k))
+    have hprime : P.IsPrime := by
+      dsimp [P]
+      infer_instance
+    have hprod : I * J ≤ P := by
+      rcases hx with hI | hJ
+      · have hIle : I ≤ P := by
+          intro p hp
+          exact (MvPolynomial.mem_vanishingIdeal_singleton_iff x p).mpr (hI p hp)
+        exact hprime.mul_le.mpr (Or.inl hIle)
+      · have hJle : J ≤ P := by
+          intro p hp
+          exact (MvPolynomial.mem_vanishingIdeal_singleton_iff x p).mpr (hJ p hp)
+        exact hprime.mul_le.mpr (Or.inr hJle)
+    intro p hp
+    exact (MvPolynomial.mem_vanishingIdeal_singleton_iff x p).mp (hprod hp)

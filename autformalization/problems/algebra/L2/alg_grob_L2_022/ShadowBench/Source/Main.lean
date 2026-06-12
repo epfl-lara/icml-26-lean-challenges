@@ -16,7 +16,9 @@ Prover notes: unfold `monomialSet`, use `Set.ext` on an exponent vector, and spl
 the source context but are not used by this set-theoretic identity.
 -/
 theorem monomial_set_union_distrib (R : Type*) [CommSemiring R] (σ : Type*)
-    (order : MonomialOrder σ) (F G : Set (MvPolynomial σ R))
-    (hF : F.Finite) (hG : G.Finite) :
+    (_order : MonomialOrder σ) (F G : Set (MvPolynomial σ R))
+    (_hF : F.Finite) (_hG : G.Finite) :
     monomialSet F ∪ monomialSet G = monomialSet (F ∪ G) := by
-  sorry
+  ext m
+  simp [monomialSet]
+  aesop

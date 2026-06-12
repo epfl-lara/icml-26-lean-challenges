@@ -22,4 +22,9 @@ theorem lm_sum_le_of_all_lm_le {σ R : Type*} [CommSemiring R] [Nontrivial R]
     (f : Fin n → MvPolynomial σ R) (δ : σ →₀ ℕ)
     (h : ∀ i : Fin n, m.degree (f i) ≼[m] δ) :
     m.degree (∑ i : Fin n, f i) ≼[m] δ := by
-  sorry
+  have _hn : 0 < n := hn
+  exact le_trans (by
+    simpa using (m.degree_sum_le (s := Finset.univ) (f := f))) (by
+    exact Finset.sup_le_iff.mpr (by
+      intro i hi
+      exact h i))

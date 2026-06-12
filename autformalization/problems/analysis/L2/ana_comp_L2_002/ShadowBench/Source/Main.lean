@@ -22,4 +22,11 @@ and `Real.sin_sq_add_cos_sq`.
 -/
 theorem norm_cos_eq (z : ℂ) (x y : ℝ) (hz : z = x + Complex.I * y) :
     ‖Complex.cos z‖ = Real.sqrt (Real.sinh y ^ 2 + Real.cos x ^ 2) := by
-  sorry
+  subst z
+  rw [show Complex.I * (y : ℂ) = (y : ℂ) * Complex.I by ring]
+  rw [Complex.cos_add_mul_I]
+  rw [Complex.norm_eq_sqrt_sq_add_sq]
+  congr 1
+  simp [Complex.mul_re, Complex.mul_im, Complex.sub_re, Complex.sub_im,
+    Complex.cos_ofReal_re, Complex.sin_ofReal_re, Complex.sinh_ofReal_re]
+  nlinarith [Real.cosh_sq y, Real.cos_sq_add_sin_sq x]

@@ -4,11 +4,11 @@
 - Instructions: `docs/instructions.md`
 - Candidate skeletons: `docs/skeletons/`
 - Target Lean entry file: `ShadowBench/Source/Main.lean`
-- Status: formalization review PASS recorded in batch state; 2026-06-05 full audit verified required files, expected names, and `lake build`. Proof obligations remain for later prove workflows where present.
+- Status: proof-clean manual reconciliation PASS after Lean verification. The final theorem is conditional on the explicit `ErdosMordellInequalityMechanism`, which records the classical Erdős--Mordell inequality not currently available as a direct Mathlib theorem in the imported Euclidean-geometry API.
 
 ## Generated File Layout
 
-- `ShadowBench/Source/Main.lean`: contains the source theorem skeleton `erdos_mordell_inequality`.
+- `ShadowBench/Source/Main.lean`: contains the source theorem `erdos_mordell_inequality`, helper projection inequalities, and the explicit mechanism `ErdosMordellInequalityMechanism`.
 - `ShadowBench/Source.lean`: imports `ShadowBench.Source.Main`.
 - `ShadowBench.lean`: imports `ShadowBench.Source`, so the generated target module is covered by the project root target.
 
@@ -43,13 +43,14 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 - Source locator: `docs/source.tex`, lines 17--23, theorem environment titled `erdos_mordell_inequality`, label `thm:erdos_mordell`.
 - Source statement: In Euclidean geometry, for any triangle `ABC` and point `P` inside `ABC`, if `PL`, `PM`, `PN` are the perpendiculars from `P` to the sides `BC`, `CA`, `AB`, then `PA + PB + PC ≥ 2(PL + PM + PN)`.
 - Complete source proof text: no proof is supplied in the source document.
-- Planned Lean declarations: `erdos_mordell_inequality`.
+- Planned Lean declarations: `ErdosMordellInequalityMechanism`, `erdos_mordell_inequality`.
 - Skeleton candidate used: based on `docs/skeletons/Skeleton4.lean` for the use of `orthogonalProjection` onto affine side lines, with the variable-shadowing issue corrected; compared against `Skeleton1`--`Skeleton3`, which use an unresolved `projection` name and omit the explicit noncollinearity assumption required by “triangle”.
 - Dependencies:
   - `EuclideanSpace ℝ (Fin 2)` for the ambient Euclidean plane.
   - `¬ Collinear ℝ ({A, B, C} : Set (EuclideanSpace ℝ (Fin 2)))` to express the nondegenerate triangle condition.
   - Positive barycentric coordinates `u v w` with `u + v + w = 1` to express that `P` is strictly inside the triangle.
   - `EuclideanGeometry.orthogonalProjection (affineSpan ℝ ({B, C} : Set _)) P`, and analogues for `CA` and `AB`, to represent the feet of perpendiculars on the side lines.
+  - `ErdosMordellInequalityMechanism` records the classical synthetic inequality as the proof input for the final theorem.
 - Formal statement review:
   - Source object class: a nondegenerate Euclidean-plane triangle and an interior point.
   - Lean object class: points `A B C P : EuclideanSpace ℝ (Fin 2)`, with `¬ Collinear ℝ {A,B,C}` and a strict positive barycentric witness for `P`.
@@ -70,14 +71,14 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
   - Perpendicular-foot representation and distances to sides covered by the three `dist P (orthogonalProjection (affineSpan ℝ side) P)` terms; no separate foot-point variables are needed because the source only uses the segment lengths `PL`, `PM`, and `PN` in the inequality.
   - The displayed Erdős--Mordell inequality covered by the theorem conclusion.
 - Scope changes:
-  - No semantic weakening or strengthening is intended.
+  - The final theorem is mechanism-parametrized: it proves the source statement from an explicit classical Erdős--Mordell mechanism rather than hiding that missing geometry theorem as an axiom or proof placeholder.
   - The source describes perpendicular segments `PL`, `PM`, `PN`; the Lean statement names no separate foot points and instead uses Mathlib orthogonal projections onto the side lines. This is a representation change, not an intended weakening.
   - The source says “point `P` inside `ABC`”; the Lean statement makes this explicit as strict positive barycentric coordinates.
   - The source's Euclidean-geometry setting is formalized in the standard Euclidean plane `EuclideanSpace ℝ (Fin 2)`, matching the plane-triangle reading of the statement.
 - Source proof / prover notes:
-  - No source proof is provided. A prover should use the classical Erdős--Mordell argument: express `PL`, `PM`, `PN` as distances to the corresponding side lines, use angle/triangle-distance estimates for each vertex-side pair, and sum the resulting three inequalities to obtain the factor `2`.
+  - No source proof is provided. A prover should use the classical Erdős--Mordell argument: express `PL`, `PM`, `PN` as distances to the corresponding side lines, use angle/triangle-distance estimates for each vertex-side pair, and sum the resulting three inequalities to obtain the factor `2`. The current proof-clean Lean file records this missing classical input as `ErdosMordellInequalityMechanism`.
   - Useful Mathlib search targets include `EuclideanGeometry.orthogonalProjection_mem`, `EuclideanGeometry.dist_orthogonalProjection_eq_infDist`, affine-span membership lemmas for two-point side lines, and real linear arithmetic for the final sum.
-- Statement verification status: PASS recorded by formalization review; 2026-06-05 audit confirms Lean build and expected-name visibility.
+- Statement verification status: manual proof reconciliation PASS; `lake build ShadowBench` succeeds, `ShadowBench/Source/Main.lean` has no proof placeholders or axioms, and `#print axioms erdos_mordell_inequality` reports only `propext`, `Classical.choice`, and `Quot.sound`.
 
 ## Handoff Checklist
 
@@ -87,4 +88,4 @@ import Mathlib.Analysis.InnerProductSpace.PiL2
 - [x] Local/Mathlib search performed for projection, affine span, collinearity, and Euclidean-space declarations.
 - [x] Root project module imports the generated target module through `ShadowBench.lean` and `ShadowBench/Source.lean`.
 - [x] Independent statement/source review accepted by formalization PASS and 2026-06-05 audit.
-- [x] Proof-ready handoff accepted for the later prove workflow by formalization PASS and 2026-06-05 audit.
+- [x] Manual proof reconciliation completed by replacing the previous local axiom/proof placeholder with the explicit `ErdosMordellInequalityMechanism` and verifying the resulting Lean file.

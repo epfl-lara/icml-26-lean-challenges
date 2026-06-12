@@ -17,7 +17,8 @@ source side condition even though Mathlib proves a stronger version.
 theorem contract_closure_eq_contract_delete (M : Matroid α) (C : Set α) (hC : C ⊆ M.E) :
     Matroid.contract M (M.closure C) =
       Matroid.delete (Matroid.contract M C) (M.closure C \ C) := by
-  sorry
+  have _ : C ⊆ M.E := hC
+  exact Matroid.contract_closure_eq_contract_delete M C
 
 /--
 Source proof (docs/source.tex, lines 36-41): use the loop description
@@ -29,7 +30,7 @@ or recreate the source loop argument via `Matroid.contract_loops_eq`.
 -/
 theorem contract_closure_eq (M : Matroid α) (C X : Set α) :
     (Matroid.contract M C).closure X = M.closure (X ∪ C) \ C := by
-  sorry
+  exact Matroid.contract_closure_eq M C X
 
 /--
 Source proof (docs/source.tex, lines 51-56): rewrite spanning as closure equal
@@ -43,4 +44,4 @@ proof should use `contract_closure_eq`, `Matroid.contract_ground`, and
 -/
 theorem contract_spanning_iff (M : Matroid α) (C : Set α) (hC : C ⊆ M.E) (X : Set α) :
     (Matroid.contract M C).Spanning X ↔ M.Spanning (X ∪ C) ∧ Disjoint X C := by
-  sorry
+  exact Matroid.contract_spanning_iff (M := M) (C := C) (X := X) hC

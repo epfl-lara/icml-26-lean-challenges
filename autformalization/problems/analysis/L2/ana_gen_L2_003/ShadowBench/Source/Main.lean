@@ -41,4 +41,8 @@ theorem saddle_sections_hasFDerivAt_eq_zero
     (fz' : EuclideanSpace ℝ (Fin m) →L[ℝ] ℝ)
     (hf_z : HasFDerivAt (fun z => f (x0, z)) fz' z0) :
     fx' = 0 ∧ fz' = 0 := by
-  sorry
+  have hx_local : IsLocalMin (fun x => f (x, z0)) x0 := by
+    exact Filter.Eventually.of_forall (fun x => (h_saddle x z0).2)
+  have hz_local : IsLocalMax (fun z => f (x0, z)) z0 := by
+    exact Filter.Eventually.of_forall (fun z => (h_saddle x0 z).1)
+  exact ⟨hx_local.hasFDerivAt_eq_zero hf_x, hz_local.hasFDerivAt_eq_zero hf_z⟩

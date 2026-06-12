@@ -52,4 +52,16 @@ theorem isMIntegralCurveAt_iff'
     (Γ : ℝ → M) (v : (x : M) → TangentSpace I x) (t₀ : ℝ) :
     ShadowBench.Source.IsMIntegralCurveAt Γ v t₀ ↔
       ∃ U : Set ℝ, IsOpen U ∧ t₀ ∈ U ∧ ShadowBench.Source.IsMIntegralCurveOn Γ v U := by
-  sorry
+  constructor
+  · intro h
+    rw [ShadowBench.Source.IsMIntegralCurveAt, Filter.eventually_iff_exists_mem] at h
+    obtain ⟨s, hs, h⟩ := h
+    obtain ⟨U, hUs, hUopen, ht₀U⟩ := mem_nhds_iff.mp hs
+    refine ⟨U, hUopen, ht₀U, ?_⟩
+    intro t ht
+    exact (h t (hUs ht)).hasMFDerivWithinAt
+  · rintro ⟨U, hUopen, ht₀U, h⟩
+    rw [ShadowBench.Source.IsMIntegralCurveAt, Filter.eventually_iff_exists_mem]
+    refine ⟨U, hUopen.mem_nhds ht₀U, ?_⟩
+    intro t ht
+    exact (h t ht).hasMFDerivAt (hUopen.mem_nhds ht)

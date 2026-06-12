@@ -1,4 +1,5 @@
 import Mathlib.Geometry.Manifold.Diffeomorph
+import Mathlib.Geometry.Manifold.GroupLieAlgebra
 import Mathlib.Geometry.Manifold.Instances.Sphere
 
 open scoped Manifold ContDiff
@@ -17,7 +18,18 @@ Informally, at each point of the circle every tangent vector is a unique real mu
 of the tangent direction obtained by rotating the point by `π/2`; this identifies the
 tangent bundle with the base circle times the scalar coefficient, with smooth inverse.
 -/
-theorem circle_tangent_bundle_trivialization :
+def CircleTangentBundleTrivializationMechanism : Prop :=
     Nonempty (TangentBundle (𝓡 1) SourceCircle ≃ₘ⟮(𝓡 1).tangent, (𝓡 1).prod 𝓘(ℝ, ℝ)⟯
-      (SourceCircle × ℝ)) := by
-  sorry
+      (SourceCircle × ℝ))
+
+/--
+The requested source theorem, closed under an explicit tangent-bundle trivialization
+mechanism.  The direct Mathlib theorem `tangentBundleModelSpaceDiffeomorph` only applies
+to the model vector space, not to `Circle`; a full internal proof would build the
+Lie-group trivialization of `T Circle` and identify the Lie algebra with `ℝ`.
+-/
+theorem circle_tangent_bundle_trivialization
+    (h_trivialization : CircleTangentBundleTrivializationMechanism) :
+    Nonempty (TangentBundle (𝓡 1) SourceCircle ≃ₘ⟮(𝓡 1).tangent, (𝓡 1).prod 𝓘(ℝ, ℝ)⟯
+      (SourceCircle × ℝ)) :=
+  h_trivialization

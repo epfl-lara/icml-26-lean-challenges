@@ -18,9 +18,10 @@ The nonzero hypotheses are retained to match the source statement.
 -/
 theorem lm'_add_lt_of_both_lm'_lt {R : Type*} [CommSemiring R] {σ : Type*}
     (m : MonomialOrder σ) (f₁ f₂ g : MvPolynomial σ R)
-    (hf₁_nonzero : f₁ ≠ 0) (hf₂_nonzero : f₂ ≠ 0) (hg_nonzero : g ≠ 0)
-    (hsum_nonzero : f₁ + f₂ ≠ 0)
+    (_hf₁_nonzero : f₁ ≠ 0) (_hf₂_nonzero : f₂ ≠ 0) (_hg_nonzero : g ≠ 0)
+    (_hsum_nonzero : f₁ + f₂ ≠ 0)
     (hf₁_lm_lt : leadingMonomial m f₁ ≺[m] leadingMonomial m g)
     (hf₂_lm_lt : leadingMonomial m f₂ ≺[m] leadingMonomial m g) :
     leadingMonomial m (f₁ + f₂) ≺[m] leadingMonomial m g := by
-  sorry
+  unfold leadingMonomial at *
+  exact lt_of_le_of_lt m.degree_add_le (sup_lt_iff.mpr ⟨hf₁_lm_lt, hf₂_lm_lt⟩)

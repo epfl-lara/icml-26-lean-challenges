@@ -52,7 +52,9 @@ theorem mem_divisor_support_iff (K : Type*) [NontriviallyNormedField K]
     (U : Set K) (f : K → E) (hf : MeromorphicOn f U) (z : K) :
     z ∈ divisor_support K E U f ↔
       z ∈ U ∧ meromorphicOrderAt f z ≠ 0 ∧ meromorphicOrderAt f z ≠ (⊤ : WithTop ℤ) := by
-  sorry
+  classical
+  simp [divisor_support, divisor, hf, WithTop.untop₀_eq_zero]
+  tauto
 
 /--
 Source `line-51` (`divisor_support_locally_finite`): if `f` is meromorphic on
@@ -75,4 +77,24 @@ theorem divisor_support_locally_finite (K : Type*) [NontriviallyNormedField K]
     (E : Type*) [NormedAddCommGroup E] [NormedSpace K E]
     (U : Set K) (f : K → E) (hf : MeromorphicOn f U) :
     ∀ x ∈ U, ∃ V ∈ 𝓝 x, (V ∩ divisor_support K E U f).Finite := by
-  sorry
+  classical
+  have hsub : (divisor K E U f).support ⊆ U := by
+    intro z hz
+    by_contra hzU
+    have hz0 : divisor K E U f z = 0 := by
+      simp [divisor, hzU]
+    have hzne : divisor K E U f z ≠ 0 := by
+      simpa [Function.mem_support] using hz
+    exact hzne hz0
+  have hlocSupport : ∀ z ∈ U, ∃ t ∈ 𝓝 z,
+      Set.Finite (t ∩ (divisor K E U f).support) := by
+    apply (supportDiscreteWithin_iff_locallyFiniteWithin hsub).1
+    filter_upwards [mem_codiscrete_subtype_iff_mem_codiscreteWithin.1
+      hf.codiscrete_setOf_meromorphicOrderAt_eq_zero_or_top] with y hy
+    simp [divisor, hf, WithTop.untop₀_eq_zero] at hy ⊢
+    tauto
+  intro x hx
+  rcases hlocSupport x hx with ⟨V, hV, hfin⟩
+  refine ⟨V, hV, hfin.subset ?_⟩
+  intro y hy
+  exact ⟨hy.1, by simpa [divisor_support, Function.mem_support] using hy.2.2⟩

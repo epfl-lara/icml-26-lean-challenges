@@ -25,7 +25,7 @@ Prover notes: this should close by definitional simplification once the prover p
 lemma IsExtremal.prop {V : Type*} [Fintype V] (p : SimpleGraph V → Prop) (G : SimpleGraph V) :
     IsExtremal p G ↔
       p G ∧ ∀ G' : SimpleGraph V, p G' → simpleGraphEdgeCount G' ≤ simpleGraphEdgeCount G := by
-  sorry
+  rfl
 
 /--
 Source proof: The displayed equivalence says that a graph satisfying `p` exists iff an
@@ -37,4 +37,14 @@ and left-to-right is the finite maximum argument from the source.
 -/
 theorem exists_isExtremal_iff_exists {V : Type*} [Fintype V] (p : SimpleGraph V → Prop) :
     (∃ G : SimpleGraph V, p G) ↔ (∃ G : SimpleGraph V, IsExtremal p G) := by
-  sorry
+  classical
+  constructor
+  · rintro ⟨G, hpG⟩
+    obtain ⟨G', hpG', hmax⟩ := by
+      apply exists_max_image {G : SimpleGraph V | p G} simpleGraphEdgeCount
+      exact ⟨G, by simpa using hpG⟩
+    exact ⟨G', ⟨by simpa using hpG', by
+      intro G'' hpG''
+      exact hmax G'' (by simpa using hpG'')⟩⟩
+  · rintro ⟨G, hG⟩
+    exact ⟨G, hG.1⟩

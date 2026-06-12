@@ -25,4 +25,24 @@ The source writes the embedding as `h` but the image as `f(S)`; the Lean stateme
 theorem IsQuasiSeparated.image_of_isEmbedding {X Y : Type*} [TopologicalSpace X]
     [TopologicalSpace Y] {s : Set X} {f : X → Y} (hs : IsQuasiSeparated s)
     (hf : IsEmbedding f) : IsQuasiSeparated (f '' s) := by
-  sorry
+  intro U V hU hUopen hUcomp hV hVopen hVcomp
+  convert
+    (hs (f ⁻¹' U) (f ⁻¹' V)
+      ?_ (hf.continuous.1 _ hUopen) ?_ ?_ (hf.continuous.1 _ hVopen) ?_).image hf.continuous
+  · symm
+    rw [← Set.preimage_inter, Set.image_preimage_eq_inter_range, Set.inter_eq_left]
+    exact Set.inter_subset_left.trans (hU.trans (Set.image_subset_range _ _))
+  · intro x hx
+    rw [← hf.injective.injOn.mem_image_iff (Set.subset_univ _) trivial]
+    exact hU hx
+  · rw [hf.isCompact_iff]
+    convert hUcomp
+    rw [Set.image_preimage_eq_inter_range, Set.inter_eq_left]
+    exact hU.trans (Set.image_subset_range _ _)
+  · intro x hx
+    rw [← hf.injective.injOn.mem_image_iff (Set.subset_univ _) trivial]
+    exact hV hx
+  · rw [hf.isCompact_iff]
+    convert hVcomp
+    rw [Set.image_preimage_eq_inter_range, Set.inter_eq_left]
+    exact hV.trans (Set.image_subset_range _ _)

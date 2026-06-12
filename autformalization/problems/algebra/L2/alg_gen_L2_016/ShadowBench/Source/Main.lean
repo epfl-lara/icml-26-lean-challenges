@@ -32,4 +32,53 @@ theorem span_pow_card_mul_le_span_image_pow
     J ^ (s.card * M) ≤
       Ideal.span (Set.image (fun g : MvPolynomial (Fin n) k => g ^ M)
         (s : Set (MvPolynomial (Fin n) k))) := by
-  sorry
+  classical
+  dsimp only
+  have aux : ∀ (u : Finset (MvPolynomial (Fin n) k)), u.Nonempty →
+      (Ideal.span (u : Set (MvPolynomial (Fin n) k))) ^ (u.card * M) ≤
+        Ideal.span (Set.image (fun g : MvPolynomial (Fin n) k => g ^ M)
+          (u : Set (MvPolynomial (Fin n) k))) := by
+    intro u
+    refine Finset.induction_on u ?empty ?insert
+    · intro hu
+      rcases hu with ⟨x, hx⟩
+      simp at hx
+    · intro a t hat IH hu
+      rcases t.eq_empty_or_nonempty with htempty | htne
+      · subst t
+        simp [Ideal.span_singleton_pow]
+      · let Ia : Ideal (MvPolynomial (Fin n) k) := Ideal.span ({a} : Set (MvPolynomial (Fin n) k))
+        let It : Ideal (MvPolynomial (Fin n) k) := Ideal.span (t : Set (MvPolynomial (Fin n) k))
+        let P : Ideal (MvPolynomial (Fin n) k) :=
+          Ideal.span (Set.image (fun g : MvPolynomial (Fin n) k => g ^ M)
+            ((insert a t : Finset (MvPolynomial (Fin n) k)) : Set (MvPolynomial (Fin n) k)))
+        have hspan :
+            Ideal.span (((insert a t : Finset (MvPolynomial (Fin n) k)) :
+              Set (MvPolynomial (Fin n) k))) = Ia ⊔ It := by
+          simpa [Ia, It] using (Ideal.span_insert a (t : Set (MvPolynomial (Fin n) k)))
+        have hpow_a : Ia ^ M ≤ P := by
+          rw [Ideal.span_singleton_pow]
+          exact Ideal.span_mono (by
+            intro x hx
+            rcases hx with rfl
+            exact ⟨a, by simp, rfl⟩)
+        have hpow_t : It ^ (t.card * M) ≤ P := by
+          exact (IH htne).trans (Ideal.span_mono (by
+            intro x hx
+            rcases hx with ⟨g, hg, rfl⟩
+            exact ⟨g, by simp [hg], rfl⟩))
+        have hsup : (Ia ⊔ It) ^ (M + t.card * M) ≤ P := by
+          exact
+            (Ideal.sup_pow_add_le_pow_sup_pow (I := Ia) (J := It) (n := M)
+              (m := t.card * M)).trans
+            (sup_le hpow_a hpow_t)
+        calc
+          (Ideal.span (((insert a t : Finset (MvPolynomial (Fin n) k)) :
+            Set (MvPolynomial (Fin n) k)))) ^ ((insert a t).card * M)
+              = (Ia ⊔ It) ^ (M + t.card * M) := by
+                rw [hspan]
+                congr 1
+                rw [Finset.card_insert_of_notMem hat]
+                simp [Nat.add_mul, Nat.add_comm]
+          _ ≤ P := hsup
+  exact aux s hs

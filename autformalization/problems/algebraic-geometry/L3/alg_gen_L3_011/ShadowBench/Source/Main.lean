@@ -24,4 +24,15 @@ theorem isAffineHom_of_isAffineHom_struct_of_isAffineHom_diagonal
     (w : g ≫ p = f) (hX : IsAffineHom f)
     (hΔ : IsAffineHom (pullback.diagonal p)) :
     IsAffineHom g := by
-  sorry
+  let γ : X ⟶ pullback (g ≫ p) p := pullback.lift (𝟙 X) g (by simp)
+  have hgp : IsAffineHom (g ≫ p) := by simpa [w] using hX
+  haveI : IsAffineHom (pullback.snd (g ≫ p) p) :=
+    MorphismProperty.pullback_snd (g ≫ p) p hgp
+  haveI : IsAffineHom γ :=
+    MorphismProperty.of_isPullback (P := @IsAffineHom)
+      (pullback_lift_diagonal_isPullback g p) hΔ
+  have hcomp : γ ≫ pullback.snd (g ≫ p) p = g := by
+    change pullback.lift (𝟙 X) g _ ≫ pullback.snd (g ≫ p) p = g
+    rw [pullback.lift_snd]
+  rw [← hcomp]
+  infer_instance

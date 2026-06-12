@@ -33,4 +33,10 @@ theorem zariskiClosure_is_smallest_algebraic_set (k : Type*) [Field k] (n : ℕ)
     S ⊆ zariskiClosure k S ∧
       ∀ W : Set (Fin n → k), IsAffineAlgebraicSet k W → S ⊆ W →
         zariskiClosure k S ⊆ W := by
-  sorry
+  constructor
+  · unfold zariskiClosure
+    exact MvPolynomial.zeroLocus_vanishingIdeal_le S
+  · intro W hW hSW
+    rcases hW with ⟨I, rfl⟩
+    unfold zariskiClosure
+    exact MvPolynomial.zeroLocus_anti_mono ((MvPolynomial.le_zeroLocus_iff_le_vanishingIdeal).1 hSW)

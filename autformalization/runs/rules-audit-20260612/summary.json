@@ -1,0 +1,14 @@
+{
+  "code_banned_construct_problems": 0,
+  "external_only_expected_name_problems": 3,
+  "extra_import_problems": 126,
+  "fatal_issue_count": 10,
+  "generated_at_utc": "2026-06-12T00:00:00Z",
+  "hf_dataset": "DicoTiar/ShadowBench default/test",
+  "mechanism_problems": 9,
+  "missing_abm_namespace_problems": 126,
+  "missing_local_expected_name_problems": 3,
+  "problem_count": 126,
+  "raw_import_problems": 126,
+  "warning_count": 3
+}

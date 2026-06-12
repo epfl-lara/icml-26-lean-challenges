@@ -24,4 +24,12 @@ theorem smooth_function_separating_closed_sets
       ContMDiff I 𝓘(ℝ) ∞ f ∧
         (∀ x : M, 0 ≤ f x ∧ f x ≤ 1) ∧
           f ⁻¹' {0} = A ∧ f ⁻¹' {1} = B := by
-  sorry
+  rcases exists_contMDiff_zero_iff_one_iff_of_isClosed (I := I) (n := ⊤) hA hB hAB with
+    ⟨f, hf_smooth, hf_range, hzero, hone⟩
+  refine ⟨f, hf_smooth, ?_, ?_, ?_⟩
+  · intro x
+    exact hf_range (mem_range_self x)
+  · ext x
+    simp [hzero x]
+  · ext x
+    simp [hone x]

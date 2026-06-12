@@ -36,4 +36,13 @@ combination witnesses.  The final equality is product/Pi extensionality and modu
 theorem convex_partialSum (m n : ℕ) (S₁ S₂ : Set ((Fin m → ℝ) × (Fin n → ℝ)))
     (h₁ : Convex ℝ S₁) (h₂ : Convex ℝ S₂) :
     Convex ℝ (partialSum S₁ S₂) := by
-  sorry
+  rw [convex_iff_add_mem]
+  intro p hp q hq a b ha hb hab
+  rcases hp with ⟨x, y₁, y₂, hx₁, hx₂, rfl⟩
+  rcases hq with ⟨x', y₁', y₂', hx₁', hx₂', rfl⟩
+  refine ⟨a • x + b • x', a • y₁ + b • y₁', a • y₂ + b • y₂', ?_, ?_, ?_⟩
+  · simpa [Prod.smul_def, Prod.add_def] using
+      (convex_iff_add_mem.mp h₁ hx₁ hx₁' ha hb hab)
+  · simpa [Prod.smul_def, Prod.add_def] using
+      (convex_iff_add_mem.mp h₂ hx₂ hx₂' ha hb hab)
+  · ext i <;> simp [smul_add, add_assoc, add_left_comm]

@@ -39,7 +39,7 @@ theorem flat_is_open {X Y : AlgebraicGeometry.Scheme} (f : X ⟶ Y)
     [AlgebraicGeometry.Flat f] [AlgebraicGeometry.LocallyOfFiniteType f]
     [AlgebraicGeometry.QuasiCompact f] :
     IsOpenMap f.base := by
-  sorry
+  exact AlgebraicGeometry.Scheme.Hom.isOpenMap f
 
 /--
 Source proof: By `flat_is_open`, the morphism is an open map; applying the definition of
@@ -53,7 +53,7 @@ theorem flat_open_image {X Y : AlgebraicGeometry.Scheme} (f : X ⟶ Y)
     [AlgebraicGeometry.QuasiCompact f]
     (U : Set X.carrier) (hU : IsOpen U) :
     IsOpen (f.base '' U) := by
-  sorry
+  exact (flat_is_open f) U hU
 
 /--
 Source proof: The cited openness theorem makes `f(U) ∩ V` open in the affine open chart
@@ -76,4 +76,15 @@ theorem flat_morphism_complement_of_image_is_closed
     (U : Set X.carrier) (hU : IsOpen U)
     {B : Type*} [CommRing B] (V : AffineOpenModel Y B) :
     ∃ I : Ideal B, V.carrier \ (f.base '' U ∩ V.carrier) = V.vanishingSet I := by
-  sorry
+  exact V.closed_subsets_are_vanishing _ ⟨(f.base '' U)ᶜ,
+    (flat_open_image f U hU).isClosed_compl, by
+      ext y
+      constructor
+      · intro hy
+        exact ⟨hy.1, by
+          intro hyImage
+          exact hy.2 ⟨hyImage, hy.1⟩⟩
+      · intro hy
+        exact ⟨hy.1, by
+          intro hyInter
+          exact hy.2 hyInter.1⟩⟩

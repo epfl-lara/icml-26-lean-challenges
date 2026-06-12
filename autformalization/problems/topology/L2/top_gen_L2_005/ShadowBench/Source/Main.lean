@@ -46,7 +46,12 @@ finite product of compact locally compact spaces, so compact-open full evaluatio
 -/
 theorem continuous_ev (x : X) (N : ℕ) :
     Continuous (ev x N) := by
-  sorry
+  have hmap : Continuous (fun p : setoid X x N × (Fin N → unitInterval) =>
+      toContinuousMap x N p.1) := by
+    simpa [toContinuousMap] using
+      (continuous_fst.subtype_val :
+        Continuous (fun p : setoid X x N × (Fin N → unitInterval) => p.1.1))
+  simpa [ev] using hmap.eval continuous_snd
 
 /--
 Source proof / prover notes (`docs/source.tex`, line-17): the fixed-point evaluation statement is
@@ -56,6 +61,8 @@ continuous maps after composing with the subtype inclusion `toContinuousMap x N`
 -/
 theorem continuous_ev_at (x : X) (N : ℕ) (y : Fin N → unitInterval) :
     Continuous (fun f : setoid X x N => (toContinuousMap x N f) y) := by
-  sorry
+  simpa [ev] using (continuous_ev x N).comp
+    ((continuous_id : Continuous (fun f : setoid X x N => f)).prodMk
+      (continuous_const : Continuous (fun _ : setoid X x N => y)))
 
 end setoid

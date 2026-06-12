@@ -9,7 +9,6 @@ Before proving declarations in `ShadowBench/Source/Main.lean`, read and use the 
 
 - Blueprint: `ShadowBench/Source/Blueprint.md`
 - Source document: `docs/source.tex`
-- Source inventory entry `line-17`: theorem `main_theorem`, formalized by Lean declaration `main_theorem`; see the blueprint for coverage, scope choices, and prover notes.
 - Treat the blueprint as the source map for theorem locators, planned Lean names, dependencies, statement-fidelity caveats, and prover notes.
 - If the current proof is unclear, reopen the blueprint first, then the original source document when listed.
 - Do not change source-backed theorem statements during proving unless a separate statement/source review explicitly corrected the blueprint and Lean draft.

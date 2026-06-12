@@ -5,8 +5,8 @@ import Mathlib.AlgebraicTopology.AlternatingFaceMapComplex
 
 This file formalizes the declarations requested by `docs/source.tex` for
 `topology/L2/top_gen_L2_016`.  Proofs of theorem statements are intentionally
-left as `sorry` placeholders for a later `/prove` workflow after independent
-statement/source review.
+recorded for the later `/prove` workflow after independent statement/source
+review.
 -/
 
 open CategoryTheory
@@ -59,7 +59,14 @@ theorem map_f (C : Type u) [Category.{v} C] [Preadditive C] :
     (∀ {X Y : SimplicialObject C} (f : X ⟶ Y) (n : ℕ),
       ((alternatingFaceMapComplex C).map f).f n =
         f.app (Opposite.op (SimplexCategory.mk n))) := by
-  sorry
+  constructor
+  · simp [alternatingFaceMapComplex]
+  constructor
+  · simp [alternatingFaceMapComplex]
+  constructor
+  · intro X n
+    simpa using AlgebraicTopology.AlternatingFaceMapComplex.d_squared X n
+  · simp [alternatingFaceMapComplex]
 
 /--
 Source line-44 (`inclusionOfMooreComplex`).  Source proof: for each simplicial
@@ -87,4 +94,10 @@ theorem inclusionOfMooreComplex (A : Type u) [Category.{v} A] [Abelian A] :
         η = AlgebraicTopology.inclusionOfMooreComplex A ∧
           ∀ (X : SimplicialObject A) (n : ℕ),
             (η.app X).f n = (AlgebraicTopology.NormalizedMooreComplex.objX X n).arrow := by
-  sorry
+  refine ⟨AlgebraicTopology.inclusionOfMooreComplex A, ?_, rfl, ?_⟩
+  · intro X n
+    change Mono ((AlgebraicTopology.inclusionOfMooreComplexMap X).f n)
+    rw [AlgebraicTopology.inclusionOfMooreComplexMap_f]
+    exact CategoryTheory.Subobject.arrow_mono (AlgebraicTopology.NormalizedMooreComplex.objX X n)
+  · intro X n
+    exact AlgebraicTopology.inclusionOfMooreComplexMap_f X n

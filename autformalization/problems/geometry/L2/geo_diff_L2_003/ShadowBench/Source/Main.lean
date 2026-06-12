@@ -46,4 +46,16 @@ theorem isMIntegralCurveAt_iff'
     {v : (x : M) → TangentSpace I x} {Γ : ℝ → M} {t₀ : ℝ} :
     IsMIntegralCurveAt Γ v t₀ ↔
       ∃ U : Set ℝ, IsOpen U ∧ t₀ ∈ U ∧ IsMIntegralCurveOn Γ v U := by
-  sorry
+  constructor
+  · intro h
+    rw [IsMIntegralCurveAt, Filter.eventually_iff_exists_mem] at h
+    obtain ⟨s, hs, h⟩ := h
+    obtain ⟨U, hUs, hUopen, ht₀U⟩ := mem_nhds_iff.mp hs
+    refine ⟨U, hUopen, ht₀U, ?_⟩
+    intro t ht
+    exact (h t (hUs ht)).hasMFDerivWithinAt
+  · rintro ⟨U, hUopen, ht₀U, hU⟩
+    rw [IsMIntegralCurveAt, Filter.eventually_iff_exists_mem]
+    refine ⟨U, hUopen.mem_nhds ht₀U, ?_⟩
+    intro t ht
+    exact (hU t ht).hasMFDerivAt (hUopen.mem_nhds ht)

@@ -18,4 +18,25 @@ theorem min_divisor_le_divisor_add {𝕜 : Type*} [NontriviallyNormedField 𝕜]
     (hz : z ∈ U) (h_fin : meromorphicOrderAt (f₁ + f₂) z ≠ ⊤) :
     min (MeromorphicOn.divisor f₁ U z) (MeromorphicOn.divisor f₂ U z) ≤
       MeromorphicOn.divisor (f₁ + f₂) U z := by
-  sorry
+  rw [MeromorphicOn.divisor_apply hf₁ hz,
+    MeromorphicOn.divisor_apply hf₂ hz,
+    MeromorphicOn.divisor_apply (hf₁.add hf₂) hz]
+  set A : WithTop ℤ := meromorphicOrderAt f₁ z
+  set B : WithTop ℤ := meromorphicOrderAt f₂ z
+  set C : WithTop ℤ := meromorphicOrderAt (f₁ + f₂) z
+  have hCfin : C ≠ ⊤ := by simpa [C] using h_fin
+  have hle : min A B ≤ C := by
+    simpa [A, B, C] using meromorphicOrderAt_add (hf₁ z hz) (hf₂ z hz)
+  by_cases hA : A = ⊤
+  · by_cases hB : B = ⊤
+    · have htop : (⊤ : WithTop ℤ) ≤ C := by simpa [hA, hB] using hle
+      exact (hCfin (top_le_iff.mp htop)).elim
+    · have hleB : B ≤ C := by simpa [hA] using hle
+      exact le_trans (min_le_right A.untop₀ B.untop₀)
+        (WithTop.untop₀_le_untop₀ hCfin hleB)
+  · by_cases hB : B = ⊤
+    · have hleA : A ≤ C := by simpa [hB] using hle
+      exact le_trans (min_le_left A.untop₀ B.untop₀)
+        (WithTop.untop₀_le_untop₀ hCfin hleA)
+    · have hmain : (min A B).untop₀ ≤ C.untop₀ := WithTop.untop₀_le_untop₀ hCfin hle
+      simpa [WithTop.untop₀_min hA hB] using hmain

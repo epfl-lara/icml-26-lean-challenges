@@ -26,4 +26,53 @@ theorem isProperMap_proj_iff_compactSpace
     (E : M → Type*) [TopologicalSpace (Bundle.TotalSpace F E)]
     [∀ m : M, TopologicalSpace (E m)] [FiberBundle F E] :
     IsProperMap (Bundle.TotalSpace.proj (F := F) (E := E)) ↔ CompactSpace F := by
-  sorry
+  constructor
+  · intro hprop
+    classical
+    obtain ⟨m⟩ := ‹Nonempty M›
+    have hpre : IsCompact ((Bundle.TotalSpace.proj (F := F) (E := E)) ⁻¹' ({m} : Set M)) :=
+      hprop.isCompact_preimage isCompact_singleton
+    have hE : CompactSpace (E m) := by
+      refine ⟨?_⟩
+      rw [(FiberBundle.totalSpaceMk_isEmbedding F E m).isCompact_iff]
+      simpa [Bundle.TotalSpace.range_mk, Set.image_univ] using hpre
+    haveI : CompactSpace (E m) := hE
+    exact (FiberBundle.homeomorphAt F E m).compactSpace
+  · intro hF
+    classical
+    haveI : CompactSpace F := hF
+    rw [isProperMap_iff_isClosedMap_and_compact_fibers]
+    refine ⟨FiberBundle.continuous_proj F E, ?_, ?_⟩
+    · let V : M → Set M := fun m => (FiberBundle.trivializationAt F E m).baseSet
+      let hopen : ∀ m : M, IsOpen (V m) := fun m =>
+        (FiberBundle.trivializationAt F E m).open_baseSet
+      let U : M → Opens M := fun m => ⟨V m, hopen m⟩
+      have hU : TopologicalSpace.IsOpenCover U := by
+        refine TopologicalSpace.IsOpenCover.mk ?_
+        ext x
+        simp only [Opens.coe_iSup, Set.mem_iUnion, SetLike.mem_coe, Opens.coe_top,
+          Set.mem_univ, iff_true]
+        exact ⟨x, FiberBundle.mem_baseSet_trivializationAt F E x⟩
+      rw [hU.isClosedMap_iff_restrictPreimage]
+      intro m
+      dsimp [U, V, hopen]
+      let e : Bundle.Trivialization F (Bundle.TotalSpace.proj (F := F) (E := E)) :=
+        FiberBundle.trivializationAt F E m
+      change IsClosedMap (e.baseSet.restrictPreimage (Bundle.TotalSpace.proj (F := F) (E := E)))
+      have hproper :
+          IsProperMap ((Prod.fst : e.baseSet × F → e.baseSet) ∘
+            (e.preimageHomeomorph (s := e.baseSet) (by intro x hx; exact hx))) := by
+        exact isProperMap_fst_of_compactSpace.comp
+          (e.preimageHomeomorph (s := e.baseSet) (by intro x hx; exact hx)).isProperMap
+      have hproper' :
+          IsProperMap (e.baseSet.restrictPreimage (Bundle.TotalSpace.proj (F := F) (E := E))) := by
+        convert hproper using 1
+        ext p
+        simp [Set.restrictPreimage]
+      exact hproper'.isClosedMap
+    · intro m
+      haveI : CompactSpace (E m) := (FiberBundle.homeomorphAt F E m).symm.compactSpace
+      have hpre : IsCompact (Set.range ((↑) : E m → Bundle.TotalSpace F E)) := by
+        simpa [Set.image_univ] using
+          (isCompact_univ.image (FiberBundle.continuous_totalSpaceMk F E m))
+      simpa [Bundle.TotalSpace.range_mk] using hpre

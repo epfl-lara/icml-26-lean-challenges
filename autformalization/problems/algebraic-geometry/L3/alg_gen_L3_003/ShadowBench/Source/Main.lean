@@ -24,4 +24,4 @@ theorem locallyOfFinitePresentation_isStableUnderBaseChange
     [LocallyOfFinitePresentation f] [QuasiCompact f]
     {E : Set X} (hE : IsLocallyConstructible E) :
     IsLocallyConstructible (f '' E) := by
-  sorry
+  exact AlgebraicGeometry.Scheme.Hom.isLocallyConstructible_image f hE

@@ -42,7 +42,19 @@ finite intersection of compact subsets.
 theorem isCompact_sInter_of_subset_constructibleTopologySubbasis [CompactSpace X]
     [QuasiSeparatedSpace X] {s : Set (Set X)} (hs : s ⊆ constructibleTopologySubbasis X)
     (hf : s.Finite) : IsCompact (⋂₀ s) := by
-  sorry
+  apply QuasiSeparatedSpace.isCompact_sInter hf
+  · intro t ht
+    have hsub := hs ht
+    rw [constructibleTopologySubbasis] at hsub
+    rcases hsub with h | h
+    · exact Or.inl h.1
+    · exact Or.inr h.1
+  · intro t ht
+    have hsub := hs ht
+    rw [constructibleTopologySubbasis] at hsub
+    rcases hsub with h | h
+    · exact h.2
+    · exact h.1.isCompact
 
 /--
 Source proof (`docs/source.tex`, lines 24--187): apply Alexander's subbasis theorem to the
@@ -63,4 +75,77 @@ compactness of `W` and the closed family `B'` with the finite-intersection prope
 theorem compactSpace_withConstructibleTopology [CompactSpace X] [QuasiSober X]
     [PrespectralSpace X] [QuasiSeparatedSpace X] :
     CompactSpace (WithConstructibleTopology X) := by
-  sorry
+  let 𝔅 := constructibleTopologySubbasis X
+  /- It suffices to check that any subset of `𝔅` for which every finite subset has non-empty
+  intersection, has non-empty intersection. We argue by contradiction and by Zorn's
+  lemma, we may take a maximal counterexample `B`. -/
+  apply compactSpace_generateFrom_of_compl_mem (T := constructibleTopology X) 𝔅 rfl
+    (by
+      intro s hs
+      dsimp [𝔅, constructibleTopologySubbasis] at hs ⊢
+      rcases hs with h | h
+      · exact Or.inr ⟨h.1.isClosed_compl, by simpa using h.2⟩
+      · exact Or.inl ⟨h.1.isOpen_compl, h.2⟩)
+  let 𝒮 := {P : Set (Set X) | P ⊆ 𝔅 ∧ (∀ Q ⊆ P, Q.Finite → (⋂₀ Q).Nonempty) ∧ (⋂₀ P) = ∅}
+  suffices 𝒮 = ∅ by contrapose! this; tauto
+  by_contra! h𝒮
+  obtain ⟨s, hs⟩ := h𝒮
+  obtain ⟨B, hsB, hB⟩ := by
+    refine zorn_subset_nonempty 𝒮 (fun c hc𝒮 hc hne@⟨x, hxc⟩ ↦ ?_) s hs
+    refine ⟨⋃₀ c, ?_, fun S hSc ↦ Set.subset_sUnion_of_subset c S subset_rfl hSc⟩
+    refine ⟨by grind, fun a hac ha ↦ ?_, by grind⟩
+    obtain ⟨i, hmem, hsub⟩ := hc.directedOn.exists_mem_subset_of_finite_of_subset_sUnion hne ha hac
+    exact (hc𝒮 hmem).2.1 a hsub ha
+  let B' := {s | s ∈ B ∧ IsClosed s}
+  /- Let `Z` be the intersection of all closed sets in `B`. We argue
+  by cases if `Z` is irreducible or not. -/
+  let Z := ⋂₀ B'
+  have hZ_closed : IsClosed Z := isClosed_sInter fun b hb ↦ hb.2
+  have hZ_nonempty : Z.Nonempty :=
+    CompactSpace.nonempty_sInter (fun _ ht ↦ ht.2) fun t ht hf ↦
+      hB.prop.2.1 _ (subset_trans ht (by simp [B'])) hf
+  by_cases hZ_irred : IsIrreducible Z
+  · -- If `Z` is irreducible, the intersection `⋂₀ B` contains the generic point of `Z`.
+    suffices (⋂₀ B).Nonempty by simp_all [hB.prop.2.2]
+    have hη := hZ_irred.isGenericPoint_genericPoint (isClosed_sInter fun b hb ↦ hb.2)
+    refine ⟨hZ_irred.genericPoint, ?_⟩
+    rw [Set.mem_sInter]
+    intro i hi
+    by_cases hiB' : i ∈ B'
+    · exact Set.sInter_subset_of_mem hiB' hη.mem
+    · have hi_cmpt : IsCompact i := by grind [hB.prop, constructibleTopologySubbasis]
+      rw [hη.mem_open_set_iff (by grind [hB.prop, constructibleTopologySubbasis]), Set.inter_comm]
+      refine hi_cmpt.nonempty_inter_sInter (fun _ hb ↦ hb.2) fun a ha hfa ↦ ?_
+      rw [← Set.sInter_insert]
+      exact hB.prop.2.1 _ (by grind) (by simpa)
+  · -- If `Z` is reducible, there exist closed compacts `Y₁` and `Y₂` such that `Z ⊆ Y₁ ∪ Y₂`.
+    simp only [IsIrreducible, hZ_nonempty, true_and] at hZ_irred
+    obtain ⟨Y₁, Y₂, hY₁_cl, hY₂_cl, hc₁, hc₂, hsub, ⟨x₁, hx₁⟩, ⟨x₂, hx₂⟩⟩ :=
+      PrespectralSpace.exists_isClosed_of_not_isPreirreducible _ hZ_irred
+    have hY₁ : Y₁ ∈ 𝔅 := .inr ⟨hY₁_cl, hc₁⟩
+    have hY₂ : Y₂ ∈ 𝔅 := .inr ⟨hY₂_cl, hc₂⟩
+    have hY₁_inter_B : Y₁ ∩ ⋂₀ B = ∅ := by grind
+    have hY₂_inter_B : Y₂ ∩ ⋂₀ B = ∅ := by grind
+    -- By maximality of `B`, neither `B ∪ {Y₁}` nor `B ∪ {Y₂}` is contained in `𝒮`
+    have hY₁B : insert Y₁ B ∉ 𝒮 := by
+      intro hY₁B
+      grind [show insert Y₁ B ⊆ B from hB.le_of_ge hY₁B (Set.subset_insert Y₁ B)]
+    have hY₂B : insert Y₂ B ∉ 𝒮 := by
+      intro hY₂B
+      grind [show insert Y₂ B ⊆ B from hB.le_of_ge hY₂B (Set.subset_insert Y₂ B)]
+    dsimp [𝒮] at hY₁B hY₂B
+    simp only [Set.insert_subset_iff, hY₁, hB.prop.1, and_self, Set.sInter_insert, hY₁_inter_B,
+      and_true, true_and, not_forall, Set.not_nonempty_iff_eq_empty, hY₂, hY₂_inter_B] at hY₁B hY₂B
+    -- Hence there exist finitely many `{Aᵢ} ⊆ B` such that `Z ∩ ⋂ Aᵢ = ∅`.
+    obtain ⟨A₁, hA₁, hA₁', hA₁''⟩ := hY₁B
+    obtain ⟨A₂, hA₂, hA₂', hA₂''⟩ := hY₂B
+    have : Z ∩ ⋂₀ (A₁ \ {Y₁} ∪ A₂ \ {Y₂}) = ∅ := by grind
+    rw [← Set.not_nonempty_iff_eq_empty] at this
+    apply this
+    rw [Set.inter_comm]
+    refine IsCompact.nonempty_inter_sInter ?_ (fun _ hb ↦ hb.2) fun F hsub hF ↦ ?_
+    · apply isCompact_sInter_of_subset_constructibleTopologySubbasis _ (hA₁'.diff.union hA₂'.diff)
+      grind [hB.prop, Set.union_subset_iff]
+    · rw [← Set.sInter_union]
+      refine hB.prop.2.1 (_ ∪ F) ?_ <| (hA₁'.diff.union hA₂'.diff).union hF
+      grind [Set.diff_singleton_subset_iff, Set.union_subset_iff]
