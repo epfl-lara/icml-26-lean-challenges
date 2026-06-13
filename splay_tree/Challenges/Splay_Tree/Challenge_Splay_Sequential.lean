@@ -902,53 +902,57 @@ private theorem splay_cost_eq_search_path_len_sub_one :
     ∀ (t : BinaryTree) (q : Nat),
       splay.cost t q = ((t.search_path_len q - 1 : Nat) : ℝ)
 | .empty, q => by
-    simp [splay.cost.eq_def, BinaryTree.search_path_len]
+    simp only [splay.cost.eq_def, BinaryTree.search_path_len, zero_tsub, CharP.cast_eq_zero]
 | .node l k r, q => by
     rw [splay.cost.eq_def]
     simp only [BinaryTree.search_path_len]
     by_cases hqk : q = k
-    · simp [hqk]
+    · simp only [hqk, ↓reduceIte, lt_self_iff_false, tsub_self, CharP.cast_eq_zero]
     · by_cases hq_lt_k : q < k
       · cases l with
         | empty =>
-            simp [hqk, hq_lt_k]
+            simp only [hqk, ↓reduceIte, hq_lt_k, add_tsub_cancel_left, CharP.cast_eq_zero]
         | node ll lk lr =>
             by_cases hq_lt_lk : q < lk
             · cases ll with
               | empty =>
-                  simp [hqk, hq_lt_k, hq_lt_lk,
-                    BinaryTree.search_path_len]
+                  simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_lk, BinaryTree.search_path_len,
+                    add_zero, Nat.reduceAdd, Nat.add_one_sub_one, Nat.cast_one]
               | node a x b =>
                   have hll := splay_cost_eq_search_path_len_sub_one
                     (BinaryTree.node a x b) q
-                  simp [hqk, hq_lt_k, hq_lt_lk,
-                    BinaryTree.search_path_len, hll]
-                  simpa [BinaryTree.search_path_len] using
+                  simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_lk, hll, BinaryTree.search_path_len,
+                    add_tsub_cancel_left, Nat.cast_add, Nat.cast_one, Nat.cast_ite]
+                  simpa only [BinaryTree.search_path_len, Nat.cast_ite, Nat.cast_add,
+                    Nat.cast_one] using
                     cast_pred_add_two_of_pos
                       ((BinaryTree.node a x b).search_path_len q)
                       (node_search_path_len_pos a x b q)
             · by_cases hlk_lt_q : lk < q
               · cases lr with
                 | empty =>
-                    simp [hqk, hq_lt_k, hq_lt_lk, hlk_lt_q,
-                      BinaryTree.search_path_len]
+                    simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_lk, hlk_lt_q,
+                      BinaryTree.search_path_len, add_zero, Nat.reduceAdd, Nat.add_one_sub_one,
+                      Nat.cast_one]
                 | node a x b =>
                     have hlr := splay_cost_eq_search_path_len_sub_one
                       (BinaryTree.node a x b) q
-                    simp [hqk, hq_lt_k, hq_lt_lk, hlk_lt_q,
-                      BinaryTree.search_path_len, hlr]
-                    simpa [BinaryTree.search_path_len] using
+                    simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_lk, hlk_lt_q, hlr,
+                      BinaryTree.search_path_len, add_tsub_cancel_left, Nat.cast_add, Nat.cast_one,
+                      Nat.cast_ite]
+                    simpa only [BinaryTree.search_path_len, Nat.cast_ite, Nat.cast_add,
+                      Nat.cast_one] using
                       cast_pred_add_two_of_pos
                         ((BinaryTree.node a x b).search_path_len q)
                         (node_search_path_len_pos a x b q)
-              · simp [hqk, hq_lt_k, hq_lt_lk, hlk_lt_q,
-                  BinaryTree.search_path_len]
+              · simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_lk, hlk_lt_q,
+                  BinaryTree.search_path_len, Nat.reduceAdd, Nat.add_one_sub_one, Nat.cast_one]
       · cases r with
         | empty =>
             have hk_lt_q : k < q := by
               exact lt_of_le_of_ne (Nat.le_of_not_lt hq_lt_k)
                 (by intro h; exact hqk h.symm)
-            simp [hqk, hq_lt_k, hk_lt_q]
+            simp only [hqk, ↓reduceIte, hq_lt_k, hk_lt_q, add_tsub_cancel_left, CharP.cast_eq_zero]
         | node rl rk rr =>
             have hk_lt_q : k < q := by
               exact lt_of_le_of_ne (Nat.le_of_not_lt hq_lt_k)
@@ -956,33 +960,38 @@ private theorem splay_cost_eq_search_path_len_sub_one :
             by_cases hq_lt_rk : q < rk
             · cases rl with
               | empty =>
-                  simp [hqk, hq_lt_k, hk_lt_q, hq_lt_rk,
-                    BinaryTree.search_path_len]
+                  simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_rk, hk_lt_q,
+                    BinaryTree.search_path_len, add_zero, Nat.reduceAdd, Nat.add_one_sub_one,
+                    Nat.cast_one]
               | node a x b =>
                   have hrl := splay_cost_eq_search_path_len_sub_one
                     (BinaryTree.node a x b) q
-                  simp [hqk, hq_lt_k, hk_lt_q, hq_lt_rk,
-                    BinaryTree.search_path_len, hrl]
-                  simpa [BinaryTree.search_path_len] using
+                  simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_rk, hrl, BinaryTree.search_path_len,
+                    hk_lt_q, add_tsub_cancel_left, Nat.cast_add, Nat.cast_one, Nat.cast_ite]
+                  simpa only [BinaryTree.search_path_len, Nat.cast_ite, Nat.cast_add,
+                    Nat.cast_one] using
                     cast_pred_add_two_of_pos
                       ((BinaryTree.node a x b).search_path_len q)
                       (node_search_path_len_pos a x b q)
             · by_cases hrk_lt_q : rk < q
               · cases rr with
                 | empty =>
-                    simp [hqk, hq_lt_k, hk_lt_q, hq_lt_rk, hrk_lt_q,
-                      BinaryTree.search_path_len]
+                    simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_rk, hrk_lt_q, hk_lt_q,
+                      BinaryTree.search_path_len, add_zero, Nat.reduceAdd, Nat.add_one_sub_one,
+                      Nat.cast_one]
                 | node a x b =>
                     have hrr := splay_cost_eq_search_path_len_sub_one
                       (BinaryTree.node a x b) q
-                    simp [hqk, hq_lt_k, hk_lt_q, hq_lt_rk, hrk_lt_q,
-                      BinaryTree.search_path_len, hrr]
-                    simpa [BinaryTree.search_path_len] using
+                    simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_rk, hrk_lt_q, hrr,
+                      BinaryTree.search_path_len, hk_lt_q, add_tsub_cancel_left, Nat.cast_add,
+                      Nat.cast_one, Nat.cast_ite]
+                    simpa only [BinaryTree.search_path_len, Nat.cast_ite, Nat.cast_add,
+                      Nat.cast_one] using
                       cast_pred_add_two_of_pos
                         ((BinaryTree.node a x b).search_path_len q)
                         (node_search_path_len_pos a x b q)
-              · simp [hqk, hq_lt_k, hk_lt_q, hq_lt_rk, hrk_lt_q,
-                  BinaryTree.search_path_len]
+              · simp only [hqk, ↓reduceIte, hq_lt_k, hq_lt_rk, hrk_lt_q, hk_lt_q,
+                  BinaryTree.search_path_len, Nat.reduceAdd, Nat.add_one_sub_one, Nat.cast_one]
 
 private theorem splay_cost_le_search_path_len (t : BinaryTree) (q : Nat) :
     splay.cost t q ≤ t.search_path_len q := by
@@ -1536,7 +1545,7 @@ private theorem leftSpine_rightSubtree_splay_min_subset :
       (∀ y ∈ t.toKeyList, q ≤ y) →
       ∀ x, x ∈ leftSpine (rightSubtree (splay t q)) →
         x ∈ leftSpine t ∨ x ∈ leftSpine (minCargo t)
-  | .empty, q, _, hmem, _, x, hx => by simp [BinaryTree.toKeyList] at hmem
+  | .empty, q, _, hmem, _, x, hx => by simp only [BinaryTree.toKeyList, List.not_mem_nil] at hmem
   | .node l k r, q, hbst, hmem, hmin, x, hx => by
       rcases eq_or_ne q k with hqk | hqk
       · -- accessed at root: root is the min ⇒ left subtree is empty; splay is the identity
@@ -1547,7 +1556,8 @@ private theorem leftSpine_rightSubtree_splay_min_subset :
           | node la lx lb =>
               exfalso
               have hlx_mem : lx ∈ (BinaryTree.node (.node la lx lb) q r).toKeyList := by
-                simp [BinaryTree.toKeyList]
+                simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append,
+                  List.nil_append, List.mem_append, List.mem_cons, true_or, or_true]
               have hlx_lt : lx < q := by
                 cases hbst with
                 | node _ _ _ hfl _ _ _ =>
@@ -1556,23 +1566,24 @@ private theorem leftSpine_rightSubtree_splay_min_subset :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp] at hx
         simp only [rightSubtree] at hx
         right
-        simpa [minCargo] using hx
+        simpa only [minCargo] using hx
       · -- q ≠ k: q < k (q is the min), so the access goes left
         have hkmem : k ∈ (BinaryTree.node l k r).toKeyList := by simp [BinaryTree.toKeyList]
         have hqlt : q < k := lt_of_le_of_ne (hmin k hkmem) hqk
         have hql : q ∈ l.toKeyList := isBST_node_mem_left_of_lt_root hbst hmem hqlt
         have hbl : IsBST l := by cases hbst; assumption
         cases l with
-        | empty => simp [BinaryTree.toKeyList] at hql
+        | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hql
         | node ll lk lr =>
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
-              exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+              refine hmin y ?_
+              rw [BinaryTree.toKeyList]
+              exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             rcases eq_or_ne q lk with hqeq | hqne
             · -- found at child (zig): the min is the left child; its left subtree is empty
@@ -1595,24 +1606,25 @@ private theorem leftSpine_rightSubtree_splay_min_subset :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp] at hx
               simp only [rightSubtree, leftSpine, List.mem_cons] at hx
               rcases hx with rfl | hx
-              · left; simp [leftSpine]
-              · right; simpa [minCargo] using hx
+              · left; simp only [leftSpine, List.mem_cons, List.not_mem_nil, or_false, true_or]
+              · right; simpa only [minCargo] using hx
             · -- q < lk: zig-zig with recursion into ll
               have hqllt : q < lk := lt_of_le_of_ne hqlk hqne
               have hqll : q ∈ ll.toKeyList :=
                 isBST_node_mem_left_of_lt_root hbl hql hqllt
               cases ll with
-              | empty => simp [BinaryTree.toKeyList] at hqll
+              | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hqll
               | node a b c =>
                   have hbll : IsBST (BinaryTree.node a b c) := by cases hbl; assumption
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
-                    exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                    refine hminl y ?_
+                    rw [BinaryTree.toKeyList]
+                    exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hnk : ¬ q = k := hqk
                   have hsp : splay (BinaryTree.node (.node (.node a b c) lk lr) k r) q
@@ -1622,18 +1634,18 @@ private theorem leftSpine_rightSubtree_splay_min_subset :
                     rw [splay.eq_def]
                     simp only [if_neg hnk, if_pos hqlt, if_pos hqllt]
                     rw [hS]
-                    simp [rotate, rotateRight, rightSubtree]
+                    simp only [rotate, rotateRight, rightSubtree]
                   rw [hsp] at hx
                   simp only [rightSubtree, leftSpine, List.mem_cons] at hx
                   rcases hx with rfl | hx
-                  · left; simp [leftSpine]
+                  · left; simp only [leftSpine, List.mem_cons, true_or, or_true]
                   · rcases leftSpine_rightSubtree_splay_min_subset (BinaryTree.node a b c) q
                         hbll hqll hminll x hx with hold | hcargo
                     · left
                       show x ∈ k :: lk :: leftSpine (BinaryTree.node a b c)
                       exact List.mem_cons_of_mem _ (List.mem_cons_of_mem _ hold)
                     · right
-                      simpa [minCargo] using hcargo
+                      simpa only [minCargo] using hcargo
 
 
 /-- **Halving lemma** for min-splay (the geometric-decay engine): the new splaying spine is at
@@ -1645,7 +1657,7 @@ private theorem leftSpine_rightSubtree_splay_min_length :
       (∀ y ∈ t.toKeyList, q ≤ y) →
       2 * (leftSpine (rightSubtree (splay t q))).length
         ≤ (leftSpine t).length + 2 * (leftSpine (minCargo t)).length
-  | .empty, q, _, hmem, _ => by simp [BinaryTree.toKeyList] at hmem
+  | .empty, q, _, hmem, _ => by simp only [BinaryTree.toKeyList, List.not_mem_nil] at hmem
   | .node l k r, q, hbst, hmem, hmin => by
       rcases eq_or_ne q k with hqk | hqk
       · subst hqk
@@ -1662,20 +1674,22 @@ private theorem leftSpine_rightSubtree_splay_min_length :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp]
-        simp [rightSubtree, minCargo, leftSpine]
+        simp only [rightSubtree, leftSpine, List.length_cons, List.length_nil, zero_add, minCargo,
+          le_add_iff_nonneg_left, zero_le]
       · have hkmem : k ∈ (BinaryTree.node l k r).toKeyList := by simp [BinaryTree.toKeyList]
         have hqlt : q < k := lt_of_le_of_ne (hmin k hkmem) hqk
         have hql : q ∈ l.toKeyList := isBST_node_mem_left_of_lt_root hbst hmem hqlt
         have hbl : IsBST l := by cases hbst; assumption
         cases l with
-        | empty => simp [BinaryTree.toKeyList] at hql
+        | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hql
         | node ll lk lr =>
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
-              exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+              refine hmin y ?_
+              rw [BinaryTree.toKeyList]
+              exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             rcases eq_or_ne q lk with hqeq | hqne
             · subst hqeq
@@ -1697,7 +1711,7 @@ private theorem leftSpine_rightSubtree_splay_min_length :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp]
               simp only [rightSubtree, minCargo, leftSpine, List.length_cons, List.length_nil]
               omega
@@ -1705,13 +1719,14 @@ private theorem leftSpine_rightSubtree_splay_min_length :
               have hqll : q ∈ ll.toKeyList :=
                 isBST_node_mem_left_of_lt_root hbl hql hqllt
               cases ll with
-              | empty => simp [BinaryTree.toKeyList] at hqll
+              | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hqll
               | node a b c =>
                   have hbll : IsBST (BinaryTree.node a b c) := by cases hbl; assumption
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
-                    exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                    refine hminl y ?_
+                    rw [BinaryTree.toKeyList]
+                    exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hnk : ¬ q = k := hqk
                   have hsp : splay (BinaryTree.node (.node (.node a b c) lk lr) k r) q
@@ -1721,13 +1736,13 @@ private theorem leftSpine_rightSubtree_splay_min_length :
                     rw [splay.eq_def]
                     simp only [if_neg hnk, if_pos hqlt, if_pos hqllt]
                     rw [hS]
-                    simp [rotate, rotateRight, rightSubtree]
+                    simp only [rotate, rotateRight, rightSubtree]
                   have ih := leftSpine_rightSubtree_splay_min_length (BinaryTree.node a b c) q
                     hbll hqll hminll
                   rw [hsp]
                   have hmc : minCargo (BinaryTree.node (.node (.node a b c) lk lr) k r)
                       = minCargo (BinaryTree.node a b c) := by
-                    simp [minCargo]
+                    simp only [minCargo]
                   rw [hmc]
                   simp only [rightSubtree, leftSpine, List.length_cons] at ih ⊢
                   omega
@@ -2148,7 +2163,7 @@ private theorem relation5_touchedCount_rightSpine_splay_min (T : List Nat) :
       (∀ x ∈ leftSpine t, x ∈ T) →
       touchedCount T (rightSpine (rightSubtree (splay t q)))
         ≤ touchedCount T (rightSpine t) + 1
-  | .empty, q, _, hmem, _, _ => by simp [BinaryTree.toKeyList] at hmem
+  | .empty, q, _, hmem, _, _ => by simp only [BinaryTree.toKeyList, List.not_mem_nil] at hmem
   | .node l k r, q, hbst, hmem, hmin, hT => by
       rcases eq_or_ne q k with hqk | hqk
       · -- root case: result right subtree is `r`; old chain was `q :: rightSpine r`
@@ -2166,7 +2181,7 @@ private theorem relation5_touchedCount_rightSpine_splay_min (T : List Nat) :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp]
         simp only [rightSubtree, rightSpine_node_eq]
         by_cases hq : q ∈ T
@@ -2177,12 +2192,13 @@ private theorem relation5_touchedCount_rightSpine_splay_min (T : List Nat) :
         have hql : q ∈ l.toKeyList := isBST_node_mem_left_of_lt_root hbst hmem hqlt
         have hbl : IsBST l := by cases hbst; assumption
         cases l with
-        | empty => simp [BinaryTree.toKeyList] at hql
+        | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hql
         | node ll lk lr =>
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
-              exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+              refine hmin y ?_
+              rw [BinaryTree.toKeyList]
+              exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             rcases eq_or_ne q lk with hqeq | hqne
             · -- zig: result right subtree `node lr k r`; chain `k :: rightSpine r` unchanged
@@ -2205,7 +2221,7 @@ private theorem relation5_touchedCount_rightSpine_splay_min (T : List Nat) :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp]
               simp only [rightSubtree, rightSpine_node_eq]
               omega
@@ -2215,13 +2231,14 @@ private theorem relation5_touchedCount_rightSpine_splay_min (T : List Nat) :
               have hqll : q ∈ ll.toKeyList :=
                 isBST_node_mem_left_of_lt_root hbl hql hqllt
               cases ll with
-              | empty => simp [BinaryTree.toKeyList] at hqll
+              | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hqll
               | node a b c =>
                   have hbll : IsBST (BinaryTree.node a b c) := by cases hbl; assumption
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
-                    exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                    refine hminl y ?_
+                    rw [BinaryTree.toKeyList]
+                    exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hnk : ¬ q = k := hqk
                   have hsp : splay (BinaryTree.node (.node (.node a b c) lk lr) k r) q
@@ -2231,10 +2248,10 @@ private theorem relation5_touchedCount_rightSpine_splay_min (T : List Nat) :
                     rw [splay.eq_def]
                     simp only [if_neg hnk, if_pos hqlt, if_pos hqllt]
                     rw [hS]
-                    simp [rotate, rotateRight, rightSubtree]
+                    simp only [rotate, rotateRight, rightSubtree]
                   rw [hsp]
                   have hlkT : lk ∈ T := hT lk (by
-                    simp only [leftSpine, List.mem_cons]; tauto)
+                    simp only [leftSpine, List.mem_cons, true_or, or_true])
                   simp only [rightSubtree, rightSpine_node_eq]
                   rw [touchedCount_cons_of_mem T _ hlkT]
 
@@ -2749,18 +2766,19 @@ private theorem vInv_preserved_zig (T T' : List Nat) (lr r : BinaryTree) (k q : 
   have hmem_lr : ∀ x ∈ lr.toKeyList,
       x ∈ (BinaryTree.node (.node .empty q lr) k r).toKeyList := by
     intro x hx
-    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
-    tauto
+    rw [BinaryTree.toKeyList, BinaryTree.toKeyList]
+    exact List.mem_append.mpr (Or.inl (List.mem_append.mpr
+      (Or.inl (List.mem_append.mpr (Or.inr hx)))))
   have hmem_r : ∀ x ∈ r.toKeyList,
       x ∈ (BinaryTree.node (.node .empty q lr) k r).toKeyList := by
     intro x hx
-    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
-    tauto
+    rw [BinaryTree.toKeyList]
+    exact List.mem_append.mpr (Or.inr hx)
   -- 1. the released cargo lr
   have hfullLr' : vInvariantFull T' lr := by
     refine vInvariantFull_release T T' lr hblr hfullLr hclosedLr hmono ?_ ?_
     · intro x hx
-      exact hnew x (by simp only [leftSpine, List.mem_cons]; tauto)
+      exact hnew x (by rw [leftSpine]; exact List.mem_cons_of_mem k hx)
     · intro x hx hxT' hxT
       have hxs := hconf x (hmem_lr x hx) hxT' hxT
       simp only [leftSpine, List.mem_cons] at hxs
@@ -2799,7 +2817,7 @@ private theorem vInv_preserved_zig (T T' : List Nat) (lr r : BinaryTree) (k q : 
           have hyc : y ∈ c.toKeyList := rightSpine_subset_toKeyList c y hy
           have hyb : b < y := forallTree_mem hfcb y hyc
           have hylr : y ∈ (BinaryTree.node a b c).toKeyList := by
-            simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto
+            rw [BinaryTree.toKeyList]; exact List.mem_append.mpr (Or.inr hyc)
           have hys := hconf y (hmem_lr y hylr) hyT' hyT
           simp only [leftSpine, List.mem_cons] at hys
           rcases hys with rfl | rfl | hys
@@ -2813,13 +2831,13 @@ private theorem vInv_preserved_zig (T T' : List Nat) (lr r : BinaryTree) (k q : 
             = touchedCount T' (rightSpine c) + 1 :=
           touchedCount_cons_of_mem T' (rightSpine c) hbT'
         have h2 : boundaryBit T' (b :: rightSpine c) = 0 := by
-          simp [boundaryBit, hbT']
+          simp only [boundaryBit, hbT', ↓reduceIte]
         -- old vAt of k: chain q :: b :: rightSpine c
         have hold := hvAtk hkT
         simp only [rightSpine] at hold
         rw [touchedCount_cons_of_mem T _ hqT] at hold
         have h3 : boundaryBit T (q :: b :: rightSpine c) = 0 := by
-          simp [boundaryBit, hqT]
+          simp only [boundaryBit, hqT, ↓reduceIte]
         rw [h3] at hold
         simp only [rightSpine]
         by_cases hbT : b ∈ T
@@ -2858,7 +2876,7 @@ private theorem survivor_rsM_le (T' : List Nat) :
       (∀ y ∈ t.toKeyList, q ≤ y) →
       touchedCount T' (rightSpine (rightSubtree (splay t q)))
         ≤ 2 + touchedCount T' (rightSpine (rightSubtree t))
-  | .empty, q, _, hmem, _ => by simp [BinaryTree.toKeyList] at hmem
+  | .empty, q, _, hmem, _ => by simp only [BinaryTree.toKeyList, List.not_mem_nil] at hmem
   | .node l k r, q, hbst, hmem, hmin => by
       rcases eq_or_ne q k with hqk | hqk
       · -- root: result right subtree is r = rightSubtree t
@@ -2876,7 +2894,7 @@ private theorem survivor_rsM_le (T' : List Nat) :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp]
         simp only [rightSubtree]
         omega
@@ -2885,12 +2903,13 @@ private theorem survivor_rsM_le (T' : List Nat) :
         have hql : q ∈ l.toKeyList := isBST_node_mem_left_of_lt_root hbst hmem hqlt
         have hbl : IsBST l := by cases hbst; assumption
         cases l with
-        | empty => simp [BinaryTree.toKeyList] at hql
+        | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hql
         | node ll lk lr =>
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
-              exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+              refine hmin y ?_
+              rw [BinaryTree.toKeyList]
+              exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             rcases eq_or_ne q lk with hqeq | hqne
             · -- zig: result right subtree node lr k r; chain k :: rs r vs old k :: rs r
@@ -2913,7 +2932,7 @@ private theorem survivor_rsM_le (T' : List Nat) :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp]
               simp only [rightSubtree, rightSpine_node_eq]
               have := touchedCount_cons_le T' k (rightSpine r)
@@ -2929,8 +2948,9 @@ private theorem survivor_rsM_le (T' : List Nat) :
                   have hbll : IsBST (BinaryTree.node a b c) := by cases hbl; assumption
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
-                    exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                    refine hminl y ?_
+                    rw [BinaryTree.toKeyList]
+                    exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hsp := splay_min_zigzig_shape a c lr r b lk k q hqk hqlt hqllt hS
                   rw [hsp]
@@ -3000,15 +3020,18 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
   have hmem_lr : ∀ x ∈ lr.toKeyList,
       x ∈ (BinaryTree.node (.node (.node a b c) lk lr) k r).toKeyList := by
     intro x hx
-    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto
+    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
+    exact Or.inl (Or.inl (Or.inr hx))
   have hmem_r : ∀ x ∈ r.toKeyList,
       x ∈ (BinaryTree.node (.node (.node a b c) lk lr) k r).toKeyList := by
     intro x hx
-    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto
+    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
+    exact Or.inr hx
   have hmem_ll : ∀ x ∈ (BinaryTree.node a b c).toKeyList,
       x ∈ (BinaryTree.node (.node (.node a b c) lk lr) k r).toKeyList := by
     intro x hx
-    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton] at hx ⊢; tauto
+    simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton] at hx ⊢
+    exact Or.inl (Or.inl (Or.inl (Or.inl hx)))
   -- (A) lr frozen
   have hlr_frozen : ∀ y ∈ lr.toKeyList, y ∈ T' → y ∈ T := by
     intro y hy hyT'
@@ -3046,7 +3069,8 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
     have hold := hvAt_k hkT
     simp only [rightSpine_node_eq] at hold
     rw [touchedCount_cons_of_mem T _ hlkT] at hold
-    have hb0 : boundaryBit T (lk :: rightSpine lr) = 0 := by simp [boundaryBit, hlkT]
+    have hb0 : boundaryBit T (lk :: rightSpine lr) = 0 := by
+      simp only [boundaryBit, hlkT, ↓reduceIte]
     rw [hb0] at hold
     omega
   -- (C) dropped parent k
@@ -3070,9 +3094,9 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
         have hmkT' : mk ∈ T' := by
           apply hnew mk
           rw [hMshape]
-          simp [leftSpine]
+          simp only [leftSpine, List.mem_cons, true_or, or_true]
         have hbit : boundaryBit T' (rightSpine (BinaryTree.node m₁ mk m₂)) = 0 := by
-          simp [rightSpine, boundaryBit, hmkT']
+          simp only [boundaryBit, rightSpine, hmkT', ↓reduceIte]
         rw [← hMshape] at hbit ⊢
         rw [hbit]
         -- survivor chain bound: tc'(rs M) ≤ 2 + tc'(rs c) (defeq: rightSubtree (node a b c) = c)
@@ -3091,7 +3115,8 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
               have hyc : y ∈ c.toKeyList := rightSpine_subset_toKeyList c y hy
               have hyb : b < y := forallTree_mem hfcb y hyc
               have hyll : y ∈ (BinaryTree.node (.node a₁ ab a₂) b c).toKeyList := by
-                simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto
+                simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
+                exact Or.inr hyc
               have hys := hconf y (hmem_ll y hyll) hyT' hyT
               simp only [leftSpine, List.mem_cons] at hys
               rcases hys with rfl | hys
@@ -3107,7 +3132,7 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
                   · have hy1 : y ∈ a₁.toKeyList := leftSpine_subset_toKeyList a₁ y hold
                     have : y < b := forallTree_mem hfab y
                       (by simp only [BinaryTree.toKeyList, List.mem_append,
-                            List.mem_singleton]; tauto)
+                            List.mem_singleton]; exact Or.inl (Or.inl hy1))
                     omega
                 · have h1 : y ∈ (minCargo (BinaryTree.node (.node a₁ ab a₂) b c)).toKeyList :=
                     leftSpine_subset_toKeyList _ y hcargo
@@ -3123,7 +3148,8 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
             have hzOld := hvAt_lk hlkT
             simp only [rightSpine_node_eq] at hzOld
             rw [touchedCount_cons_of_mem T _ hbT] at hzOld
-            have hb0 : boundaryBit T (b :: rightSpine c) = 0 := by simp [boundaryBit, hbT]
+            have hb0 : boundaryBit T (b :: rightSpine c) = 0 := by
+              simp only [boundaryBit, hbT, ↓reduceIte]
             rw [hb0] at hzOld
             omega
         | empty =>
@@ -3142,9 +3168,9 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
               rw [hM, hqb]
               have hsp : splay (BinaryTree.node .empty b c) b
                   = BinaryTree.node .empty b c := by
-                simp [splay.eq_def]
+                simp only [splay.eq_def, ↓reduceIte]
               rw [hsp]
-              simp [rightSubtree]
+              simp only [rightSubtree]
             -- with M = c: bound tc'(rs c) directly
             rw [hMc] at hsb hMshape ⊢
             -- c = node m₁ mk m₂ (from hMshape)
@@ -3161,9 +3187,11 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
               have hym2 : y ∈ m₂.toKeyList := rightSpine_subset_toKeyList m₂ y hy
               have hymk : mk < y := forallTree_mem hf_m2 y hym2
               have hyc : y ∈ (BinaryTree.node m₁ mk m₂).toKeyList := by
-                simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto
+                simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
+                exact Or.inr hym2
               have hyll : y ∈ (BinaryTree.node .empty b (BinaryTree.node m₁ mk m₂)).toKeyList := by
-                simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto
+                simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]
+                exact Or.inr (Or.inr hym2)
               have hys := hconf y (hmem_ll y hyll) hyT' hyT
               rw [hMc] at hys
               simp only [leftSpine, List.mem_cons] at hys
@@ -3182,7 +3210,7 @@ private theorem vInv_preserved_zigzig (T T' : List Nat) (a c lr r : BinaryTree)
             rw [hqb] at *
             rw [touchedCount_cons_of_mem T _ hbT] at hzOld
             have hb0 : boundaryBit T (b :: mk :: rightSpine m₂) = 0 := by
-              simp [boundaryBit, hbT]
+              simp only [boundaryBit, hbT, ↓reduceIte]
             rw [hb0] at hzOld
             have hmk_le := touchedCount_cons_le T (mk) (rightSpine m₂)
             -- new chain: mk :: rs m₂ with mk ∈ T'
@@ -3234,7 +3262,7 @@ private theorem vInvariant_splay_preserved :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp] at hnew hconf ⊢
         simp only [rightSubtree] at hnew hconf ⊢
         obtain ⟨_, _, hfullR⟩ := hfullT
@@ -3243,7 +3271,7 @@ private theorem vInvariant_splay_preserved :
         refine vInvariantFull_release T T' r hbr hfullR hclosedR hmono hnew ?_
         intro x hx hxT' hxT
         exact hconf x (by
-          simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto)
+          simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; exact Or.inr hx)
           hxT' hxT
       · have hkmem : k ∈ (BinaryTree.node l k r).toKeyList := by simp [BinaryTree.toKeyList]
         have hqlt : q < k := lt_of_le_of_ne (hmin k hkmem) hqk
@@ -3255,7 +3283,7 @@ private theorem vInvariant_splay_preserved :
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
               exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             have hkT : k ∈ T := hspineT k (by simp [leftSpine])
             rcases eq_or_ne q lk with hqeq | hqne
@@ -3279,7 +3307,7 @@ private theorem vInvariant_splay_preserved :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp] at hnew hconf ⊢
               simp only [rightSubtree] at hnew hconf ⊢
               have hqT : q ∈ T := hspineT q (by simp [leftSpine])
@@ -3296,7 +3324,7 @@ private theorem vInvariant_splay_preserved :
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
                     exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hsp := splay_min_zigzig_shape a c lr r b lk k q hqk hqlt hqllt hS
                   rw [hsp] at hnew hconf ⊢
@@ -3316,19 +3344,19 @@ private theorem vInvariant_splay_preserved :
                   have hspine_ll : ∀ x ∈ leftSpine (BinaryTree.node a b c), x ∈ T := by
                     intro x hx
                     exact hspineT x (by
-                      simp only [leftSpine, List.mem_cons] at hx ⊢; tauto)
+                      simp only [leftSpine, List.mem_cons] at hx ⊢; exact Or.inr (Or.inr hx))
                   have hnew_ll : ∀ x ∈ leftSpine
                       (rightSubtree (splay (BinaryTree.node a b c) q)), x ∈ T' := by
                     intro x hx
                     exact hnew x (by
-                      simp only [leftSpine, List.mem_cons]; tauto)
+                      simp only [leftSpine, List.mem_cons]; exact Or.inr hx)
                   have hconf_ll : ∀ x, x ∈ (BinaryTree.node a b c).toKeyList → x ∈ T' →
                       x ∉ T → x ∈ leftSpine
                         (rightSubtree (splay (BinaryTree.node a b c) q)) := by
                     intro x hx hxT' hxT
                     have hxs := hconf x (by
                       simp only [BinaryTree.toKeyList, List.mem_append,
-                        List.mem_singleton] at hx ⊢; tauto) hxT' hxT
+                        List.mem_singleton] at hx ⊢; exact Or.inl (Or.inl (Or.inl (Or.inl hx)))) hxT' hxT
                     simp only [leftSpine, List.mem_cons] at hxs
                     rcases hxs with rfl | hxs
                     · exact absurd (hll_lt_lk x hx) (lt_irrefl x)
@@ -3357,7 +3385,7 @@ private theorem touchedClosed_splay_preserved :
         x ∈ leftSpine (rightSubtree (splay t q))) →
       touchedClosed T' (rightSubtree (splay t q))
   | .empty, q, T, T', _, hmem, _, _, _, _, _, _ => by
-      simp [BinaryTree.toKeyList] at hmem
+      simp only [BinaryTree.toKeyList, List.not_mem_nil] at hmem
   | .node l k r, q, T, T', hbst, hmem, hmin, hclosedT, hmono, hspineT, hnew, hconf => by
       rcases eq_or_ne q k with hqk | hqk
       · -- root case
@@ -3370,12 +3398,12 @@ private theorem touchedClosed_splay_preserved :
               have hlx_lt : lx < q := by
                 cases hbst with
                 | node _ _ _ hfl _ _ _ =>
-                    exact (forallTree_iff_forall_mem.mp hfl) lx (by simp [BinaryTree.toKeyList])
-              have := hmin lx (by simp [BinaryTree.toKeyList])
+                    exact (forallTree_iff_forall_mem.mp hfl) lx (by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true])
+              have := hmin lx (by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true])
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp] at hnew hconf ⊢
         simp only [rightSubtree] at hnew hconf ⊢
         obtain ⟨_, _, hclosedR⟩ := hclosedT
@@ -3383,27 +3411,27 @@ private theorem touchedClosed_splay_preserved :
         refine touchedClosed_release T T' r hbr hclosedR hmono hnew ?_
         intro x hx hxT' hxT
         exact hconf x (by
-          simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; tauto)
+          simp only [BinaryTree.toKeyList, List.mem_append, List.mem_singleton]; exact Or.inr hx)
           hxT' hxT
-      · have hkmem : k ∈ (BinaryTree.node l k r).toKeyList := by simp [BinaryTree.toKeyList]
+      · have hkmem : k ∈ (BinaryTree.node l k r).toKeyList := by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true]
         have hqlt : q < k := lt_of_le_of_ne (hmin k hkmem) hqk
         have hql : q ∈ l.toKeyList := isBST_node_mem_left_of_lt_root hbst hmem hqlt
         have hbl : IsBST l := by cases hbst; assumption
         have hbr : IsBST r := by cases hbst; assumption
         have hf_l : ForallTree (fun x => x < k) l := by cases hbst; assumption
         have hf_r : ForallTree (fun x => k < x) r := by cases hbst; assumption
-        have hkT : k ∈ T := hspineT k (by simp [leftSpine])
+        have hkT : k ∈ T := hspineT k (by simp only [leftSpine, List.mem_cons, true_or])
         have hr_gt_k : ∀ x ∈ r.toKeyList, k < x := forallTree_mem hf_r
         cases l with
-        | empty => simp [BinaryTree.toKeyList] at hql
+        | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hql
         | node ll lk lr =>
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
               exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
-            have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
+                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
+            have hqlk : q ≤ lk := hminl lk (by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true])
             have hlr_lt_k : ∀ x ∈ lr.toKeyList, x < k := fun x hx =>
-              forallTree_mem hf_l x (by simp [BinaryTree.toKeyList, hx])
+              forallTree_mem hf_l x (by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, hx, or_true])
             have hf_lr : ForallTree (fun x => lk < x) lr := by cases hbl; assumption
             have hlr_gt_lk : ∀ x ∈ lr.toKeyList, lk < x := forallTree_mem hf_lr
             rcases eq_or_ne q lk with hqeq | hqne
@@ -3418,8 +3446,8 @@ private theorem touchedClosed_splay_preserved :
                       cases hbl with
                       | node _ _ _ hfl _ _ _ =>
                           exact (forallTree_iff_forall_mem.mp hfl) b
-                            (by simp [BinaryTree.toKeyList])
-                    have := hminl b (by simp [BinaryTree.toKeyList])
+                            (by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true])
+                    have := hminl b (by simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true])
                     omega
               subst hlleq
               have hnk : ¬ q = k := hqk
@@ -3427,7 +3455,7 @@ private theorem touchedClosed_splay_preserved :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp] at hnew hconf ⊢
               simp only [rightSubtree] at hnew hconf ⊢
               obtain ⟨_, hclosedL, hclosedR⟩ := hclosedT
@@ -3437,11 +3465,11 @@ private theorem touchedClosed_splay_preserved :
               · -- released cargo lr
                 refine touchedClosed_release T T' lr hblr hclosedLr hmono ?_ ?_
                 · intro x hx
-                  exact hnew x (by simp only [leftSpine, List.mem_cons]; tauto)
+                  exact hnew x (by simp only [leftSpine, List.mem_cons]; exact Or.inr hx)
                 · intro x hx hxT' hxT
                   have hxs := hconf x (by
                     simp only [BinaryTree.toKeyList, List.mem_append,
-                      List.mem_singleton]; tauto) hxT' hxT
+                      List.mem_singleton]; exact Or.inl (Or.inl (Or.inr hx))) hxT' hxT
                   simp only [leftSpine, List.mem_cons] at hxs
                   rcases hxs with rfl | hxs
                   · exact absurd (hlr_lt_k x hx) (lt_irrefl x)
@@ -3452,7 +3480,7 @@ private theorem touchedClosed_splay_preserved :
                 by_contra hyT
                 have hys := hconf y (by
                   simp only [BinaryTree.toKeyList, List.mem_append,
-                    List.mem_singleton]; tauto) hyT' hyT
+                    List.mem_singleton]; exact Or.inr hy) hyT' hyT
                 have hky : k < y := hr_gt_k y hy
                 simp only [leftSpine, List.mem_cons] at hys
                 rcases hys with rfl | hys
@@ -3464,18 +3492,18 @@ private theorem touchedClosed_splay_preserved :
               have hqll : q ∈ ll.toKeyList :=
                 isBST_node_mem_left_of_lt_root hbl hql hqllt
               cases ll with
-              | empty => simp [BinaryTree.toKeyList] at hqll
+              | empty => simp only [BinaryTree.toKeyList, List.not_mem_nil] at hqll
               | node a b c =>
                   have hbll : IsBST (BinaryTree.node a b c) := by cases hbl; assumption
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
                     exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hsp := splay_min_zigzig_shape a c lr r b lk k q hqk hqlt hqllt hS
                   rw [hsp] at hnew hconf ⊢
                   simp only [rightSubtree] at hnew hconf ⊢
-                  have hlkT : lk ∈ T := hspineT lk (by simp [leftSpine])
+                  have hlkT : lk ∈ T := hspineT lk (by simp only [leftSpine, List.mem_cons, true_or, or_true])
                   have hll_lt_lk : ∀ x ∈ (BinaryTree.node a b c).toKeyList, x < lk := by
                     intro x hx
                     have hf : ForallTree (fun y => y < lk) (BinaryTree.node a b c) := by
@@ -3496,19 +3524,19 @@ private theorem touchedClosed_splay_preserved :
                   have hspine_ll : ∀ x ∈ leftSpine (BinaryTree.node a b c), x ∈ T := by
                     intro x hx
                     exact hspineT x (by
-                      simp only [leftSpine, List.mem_cons] at hx ⊢; tauto)
+                      simp only [leftSpine, List.mem_cons] at hx ⊢; exact Or.inr (Or.inr hx))
                   have hnew_ll : ∀ x ∈ leftSpine
                       (rightSubtree (splay (BinaryTree.node a b c) q)), x ∈ T' := by
                     intro x hx
                     exact hnew x (by
-                      simp only [leftSpine, List.mem_cons]; tauto)
+                      simp only [leftSpine, List.mem_cons]; exact Or.inr hx)
                   have hconf_ll : ∀ x, x ∈ (BinaryTree.node a b c).toKeyList → x ∈ T' →
                       x ∉ T → x ∈ leftSpine
                         (rightSubtree (splay (BinaryTree.node a b c) q)) := by
                     intro x hx hxT' hxT
                     have hxs := hconf x (by
                       simp only [BinaryTree.toKeyList, List.mem_append,
-                        List.mem_singleton] at hx ⊢; tauto) hxT' hxT
+                        List.mem_singleton] at hx ⊢; exact Or.inl (Or.inl (Or.inl (Or.inl hx)))) hxT' hxT
                     simp only [leftSpine, List.mem_cons] at hxs
                     rcases hxs with rfl | hxs
                     · exact absurd (hll_lt_lk x hx) (lt_irrefl x)
@@ -3523,7 +3551,7 @@ private theorem touchedClosed_splay_preserved :
                     by_contra hyT
                     have hys := hconf y (by
                       simp only [BinaryTree.toKeyList, List.mem_append,
-                        List.mem_singleton]; tauto) hyT' hyT
+                        List.mem_singleton]; exact Or.inl (Or.inl (Or.inr hy))) hyT' hyT
                     simp only [leftSpine, List.mem_cons] at hys
                     rcases hys with rfl | hys
                     · exact absurd (hlr_gt_lk y hy) (lt_irrefl y)
@@ -3536,10 +3564,10 @@ private theorem touchedClosed_splay_preserved :
                     by_contra hyT
                     have hys := hconf y (by
                       simp only [BinaryTree.toKeyList, List.mem_append,
-                        List.mem_singleton]; tauto) hyT' hyT
+                        List.mem_singleton]; exact Or.inr hy) hyT' hyT
                     have hky : k < y := hr_gt_k y hy
                     have hlkk : lk < k := forallTree_mem hf_l lk (by
-                      simp [BinaryTree.toKeyList])
+                      simp only [BinaryTree.toKeyList, List.append_assoc, List.cons_append, List.nil_append, List.mem_append, List.mem_cons, true_or, or_true])
                     simp only [leftSpine, List.mem_cons] at hys
                     rcases hys with rfl | hys
                     · omega
@@ -3612,7 +3640,7 @@ private theorem vInvariantFull_of_spine (T : List Nat) :
       vInvariantFull T u := by
   intro u
   induction u with
-  | empty => intro _ _ _; simp [vInvariantFull]
+  | empty => intro _ _ _; simp only [vInvariantFull]
   | node l k r ihl ihr =>
     intro hbst hconf hspine
     rcases hbst with _ | ⟨_, _, _, hl, hr, bl, br⟩
@@ -3621,20 +3649,21 @@ private theorem vInvariantFull_of_spine (T : List Nat) :
     · intro _hkT
       cases l with
       | empty =>
-        simp [rightSpine, touchedCount, boundaryBit]
+        simp only [touchedCount, rightSpine, List.filter_nil, List.length_nil, boundaryBit,
+          add_zero, zero_le]
       | node l₁ lk₁ l₂ =>
         rcases bl with _ | ⟨_, _, _, hl₁, hl₂, bl₁, bl₂⟩
-        have hlk₁T : lk₁ ∈ T := hspine lk₁ (by simp [leftSpine])
+        have hlk₁T : lk₁ ∈ T := hspine lk₁ (by simp only [leftSpine, List.mem_cons, true_or, or_true])
         have hzero : touchedCount T (rightSpine l₂) = 0 := by
           apply touchedCount_zero
           intro y hy hyT
           have hykeys : y ∈ l₂.toKeyList := rightSpine_subset_toKeyList l₂ y hy
           have hlk₁y : lk₁ < y := forallTree_mem hl₂ y hykeys
-          have hyk : y < k := forallTree_mem hl y (by simp [BinaryTree.toKeyList]; tauto)
-          have hyu : y ∈ (BinaryTree.node (BinaryTree.node l₁ lk₁ l₂) k r).toKeyList := by
-            simp [BinaryTree.toKeyList]; tauto
+          have hyk : y < k := forallTree_mem hl y (mem_node_right hykeys)
+          have hyu : y ∈ (BinaryTree.node (BinaryTree.node l₁ lk₁ l₂) k r).toKeyList :=
+            mem_node_left (mem_node_right hykeys)
           have hys := hconf y hyu hyT
-          simp [leftSpine] at hys
+          simp only [leftSpine, List.mem_cons] at hys
           rcases hys with h | h | h
           · omega
           · omega
@@ -3643,27 +3672,26 @@ private theorem vInvariantFull_of_spine (T : List Nat) :
         show touchedCount T (lk₁ :: rightSpine l₂) + boundaryBit T (lk₁ :: rightSpine l₂)
               ≤ 1 + touchedCount T (rightSpine r)
         rw [touchedCount_cons_of_mem T _ hlk₁T, hzero]
-        simp [boundaryBit, hlk₁T]
+        simp only [zero_add, boundaryBit, hlk₁T, ↓reduceIte, add_zero, le_add_iff_nonneg_right,
+          zero_le]
     · refine ihl bl ?_ ?_
       · intro y hy hyT
-        have hyu : y ∈ (BinaryTree.node l k r).toKeyList := by
-          simp [BinaryTree.toKeyList]; tauto
+        have hyu : y ∈ (BinaryTree.node l k r).toKeyList := mem_node_left hy
         have hys := hconf y hyu hyT
-        simp [leftSpine] at hys
+        simp only [leftSpine, List.mem_cons] at hys
         rcases hys with h | h
         · exfalso
           have : y < k := forallTree_mem hl y hy
           omega
         · exact h
       · intro x hx
-        exact hspine x (by simp [leftSpine]; tauto)
+        exact hspine x (List.mem_cons_of_mem _ hx)
     · apply vInvariantFull_of_untouched
       intro y hy hyT
       have hky : k < y := forallTree_mem hr y hy
-      have hyu : y ∈ (BinaryTree.node l k r).toKeyList := by
-        simp [BinaryTree.toKeyList]; tauto
+      have hyu : y ∈ (BinaryTree.node l k r).toKeyList := mem_node_right hy
       have hys := hconf y hyu hyT
-      simp [leftSpine] at hys
+      simp only [leftSpine, List.mem_cons] at hys
       rcases hys with h | h
       · omega
       · have : y < k := forallTree_mem hl y (leftSpine_subset_toKeyList l y h)
@@ -3805,7 +3833,7 @@ private theorem process_invariants_step (init : BinaryTree) (hbst : IsBST init)
         have hsp : splay (BinaryTree.node L (k - 1) (.node .empty k rr)) k
             = BinaryTree.node (.node L (k - 1) .empty) k rr := by
           rw [splay.eq_def]
-          simp [hnqm, hnqltm, hnq, rotate, rotateLeft]
+          simp only [hnqm, ↓reduceIte, hnqltm, lt_self_iff_false, rotate, rotateLeft]
         have hR' : rightSubtree (seqTree init (k + 1)) = rr := by
           rw [hstep, heq, hsp]; rfl
         rw [hR'] at hnewT' hconfT ⊢
@@ -3828,7 +3856,7 @@ private theorem process_invariants_step (init : BinaryTree) (hbst : IsBST init)
             · -- Full(T', w₁): release
               refine vInvariantFull_release _ _ w₁ hbw₁ ihFull_w₁ hcl_w₁ hmono ?_ ?_
               · intro x hx
-                exact hnewT' x (by simp only [leftSpine, List.mem_cons]; tauto)
+                exact hnewT' x (by simp only [leftSpine, List.mem_cons]; exact Or.inr hx)
               · intro x hx hxT' hxT
                 have hxs := hconfT x hxT' hxT
                 simp only [leftSpine, List.mem_cons] at hxs
@@ -3856,7 +3884,7 @@ private theorem process_invariants_step (init : BinaryTree) (hbst : IsBST init)
             have hminrl : ∀ y ∈ (BinaryTree.node a b c).toKeyList, k ≤ y := by
               intro y hy
               exact hkminR y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
             have hS := splay_min_eq_node_empty (BinaryTree.node a b c) k hb_rl hkrl hminrl
             have hsp : splay (BinaryTree.node L (k - 1)
                 (.node (.node a b c) rk rr)) k
@@ -3865,7 +3893,7 @@ private theorem process_invariants_step (init : BinaryTree) (hbst : IsBST init)
               rw [splay.eq_def]
               simp only [if_neg hnqm, if_neg hnqltm, if_pos hkltrk]
               rw [hS]
-              simp [rotate, rotateLeft, rotateRight, rightSubtree]
+              simp only [rotate, rotateLeft, rotateRight, rightSubtree]
             have hR' : rightSubtree (seqTree init (k + 1))
                 = BinaryTree.node (rightSubtree (splay (BinaryTree.node a b c) k)) rk rr := by
               rw [hstep, heq, hsp]; rfl
@@ -3879,7 +3907,7 @@ private theorem process_invariants_step (init : BinaryTree) (hbst : IsBST init)
                 x ∈ touchedKeys init k := by
               intro x hx
               exact hRspine x (by
-                simp only [leftSpine, List.mem_cons] at hx ⊢; tauto)
+                simp only [leftSpine, List.mem_cons] at hx ⊢; exact Or.inr hx)
             have hrl_lt_rk : ∀ x ∈ (BinaryTree.node a b c).toKeyList, x < rk :=
               forallTree_mem hf_rl
             have hMkeys : ∀ x ∈ (rightSubtree
@@ -3894,7 +3922,7 @@ private theorem process_invariants_step (init : BinaryTree) (hbst : IsBST init)
                 (rightSubtree (splay (BinaryTree.node a b c) k)),
                 x ∈ touchedKeys init (k + 1) := by
               intro x hx
-              exact hnewT' x (by simp only [leftSpine, List.mem_cons]; tauto)
+              exact hnewT' x (by simp only [leftSpine, List.mem_cons]; exact Or.inr hx)
             have hconf_M : ∀ x, x ∈ (BinaryTree.node a b c).toKeyList →
                 x ∈ touchedKeys init (k + 1) → x ∉ touchedKeys init k →
                 x ∈ leftSpine (rightSubtree (splay (BinaryTree.node a b c) k)) := by
@@ -3980,11 +4008,13 @@ private theorem pay_per_link (a b c m : Nat)
     m ^ 2 + b ^ 2 + 4 * (phi2Term m (2 + c)) + 4 * (phi2Term b (1 + c)) + 2
       ≤ a ^ 2 + (1 + b) ^ 2 + 4 * (phi2Term a (1 + b)) + 4 * (phi2Term (1 + b) (1 + c)) := by
   simp only [phi2Term]
-  have hm2 : m ^ 2 ≤ a ^ 2 + 2 * a + 1 := by nlinarith
+  have hm2 : m ^ 2 ≤ a ^ 2 + 2 * a + 1 := by
+    calc m ^ 2 ≤ (a + 1) ^ 2 := Nat.pow_le_pow_left h5 2
+      _ = a ^ 2 + 2 * a + 1 := by ring
   have hb2 : (1 + b) ^ 2 = b ^ 2 + 2 * b + 1 := by ring
   have hlin : 2 * a + 4 * ((m + 2) - (2 + c)) + 4 * ((b + 2) - (1 + c)) + 2
       ≤ 2 * b + 4 * ((a + 2) - (1 + b)) + 4 * (((1 + b) + 2) - (1 + c)) := by omega
-  linarith [hm2, hb2, hlin]
+  omega
 
 
 /-- The Φ₂ potential over all nodes: a touched node with left subtree `l`, right subtree `r`
@@ -4233,7 +4263,7 @@ private theorem omega_restructure :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         have hlk : splayLinks (BinaryTree.node .empty q r) q = 0 := by
           rw [splayLinks.eq_def]; simp
         rw [hsp, hlk]
@@ -4250,7 +4280,7 @@ private theorem omega_restructure :
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
               exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             have hlkT : lk ∈ T := hspineT lk (by simp [leftSpine])
             rcases eq_or_ne q lk with hqeq | hqne
@@ -4274,21 +4304,23 @@ private theorem omega_restructure :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               have hlk0 : splayLinks (BinaryTree.node (.node .empty q lr) k r) q = 0 := by
                 rw [splayLinks.eq_def]
-                simp [hnk, hqlt, hnq]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false]
               rw [hsp, hlk0]
-              simp only [rightSubtree, hSqPotential, phi2Full, rightSpine_node_eq,
+              simp only [rightSubtree, hSqPotential, phi2Full,
                 rightSpine, touchedCount_nil, if_pos hkT, if_pos hlkT]
               -- old k-chain: q :: rs lr (q touched); new: rs lr
               rw [touchedCount_cons_of_mem T _ (hspineT q (by simp [leftSpine]))]
               have hmono := phi2Term_mono_left
                 (1 + touchedCount T (rightSpine r))
                 (Nat.le_succ (touchedCount T (rightSpine lr)))
-              nlinarith [sq_nonneg (touchedCount T (rightSpine lr)),
-                phi2Term_le (touchedCount T (rightSpine lr))
-                  (1 + touchedCount T (rightSpine r))]
+              have hsq : (touchedCount T (rightSpine lr) + 1) ^ 2
+                  = touchedCount T (rightSpine lr) ^ 2
+                    + 2 * touchedCount T (rightSpine lr) + 1 := by ring
+              simp only [phi2Term] at hmono ⊢
+              omega
             · -- zig-zig: pay_per_link + recursion
               have hqllt : q < lk := lt_of_le_of_ne hqlk hqne
               have hqll : q ∈ ll.toKeyList :=
@@ -4300,19 +4332,19 @@ private theorem omega_restructure :
                   have hminll : ∀ y ∈ (BinaryTree.node A B C).toKeyList, q ≤ y := by
                     intro y hy
                     exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
                   have hS := splay_min_eq_node_empty (BinaryTree.node A B C) q hbll hqll hminll
                   have hsp := splay_min_zigzig_shape A C lr r B lk k q hqk hqlt hqllt hS
                   -- links: zig-zig level adds one
                   have hlks : splayLinks (BinaryTree.node (.node (.node A B C) lk lr) k r) q
                       = splayLinks (BinaryTree.node A B C) q + 1 := by
                     rw [splayLinks.eq_def]
-                    simp [hqk, hqlt, hqllt]
+                    simp only [hqk, ↓reduceIte, hqlt, hqllt]
                   -- spine of ll ⊆ T for the recursion and rel-5
                   have hspine_ll : ∀ x ∈ leftSpine (BinaryTree.node A B C), x ∈ T := by
                     intro x hx
                     exact hspineT x (by
-                      simp only [leftSpine, List.mem_cons] at hx ⊢; tauto)
+                      simp only [leftSpine, List.mem_cons] at hx ⊢; exact Or.inr (Or.inr hx))
                   -- the F2 values: a ≤ 1 + b and b ≤ c
                   have hvz : touchedCount T (rightSpine (BinaryTree.node A B C))
                       ≤ 1 + touchedCount T (rightSpine lr) := by
@@ -4403,7 +4435,7 @@ private theorem omega_restructure :
                   have e1 : 1 + (1 + touchedCount T (rightSpine r))
                       = 2 + touchedCount T (rightSpine r) := by omega
                   rw [e1]
-                  linarith [hpay, hIH]
+                  omega
 
 
 /-- The h²-potential excluding the root and its right chain (the blacks): the root's h-term
@@ -4476,12 +4508,12 @@ private theorem omegaNB_step_restructure (init : BinaryTree) (hbst : IsBST init)
         have hsp : splay (BinaryTree.node L (k - 1) (.node .empty k rr)) k
             = BinaryTree.node (.node L (k - 1) .empty) k rr := by
           rw [splay.eq_def]
-          simp [hnqm, hnqltm, hnq, rotate, rotateLeft]
+          simp only [hnqm, ↓reduceIte, hnqltm, lt_self_iff_false, rotate, rotateLeft]
         have hR' : rightSubtree (seqTree init (k + 1)) = rr := by
           rw [hstep, heq, hsp]; rfl
         have hlk0 : splayLinks (BinaryTree.node L (k - 1) (.node .empty k rr)) k = 0 := by
           rw [splayLinks.eq_def]
-          simp [hnqm, hnqltm, hnq]
+          simp only [hnqm, ↓reduceIte, hnqltm, lt_self_iff_false]
         rw [hR', heq, hlk0]
         simp only [omegaNB, hSqNB, phi2NB, hSqPotential, phi2Full]
         omega
@@ -4493,8 +4525,9 @@ private theorem omegaNB_step_restructure (init : BinaryTree) (hbst : IsBST init)
         | node a b c =>
             have hminrl : ∀ y ∈ (BinaryTree.node a b c).toKeyList, k ≤ y := by
               intro y hy
-              exact hkminR y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+              refine hkminR y ?_
+              rw [BinaryTree.toKeyList]
+              exact List.mem_append.mpr (Or.inl (List.mem_append.mpr (Or.inl hy)))
             have hS := splay_min_eq_node_empty (BinaryTree.node a b c) k hb_rl hkrl hminrl
             have hsp : splay (BinaryTree.node L (k - 1)
                 (.node (.node a b c) rk rr)) k
@@ -4503,7 +4536,7 @@ private theorem omegaNB_step_restructure (init : BinaryTree) (hbst : IsBST init)
               rw [splay.eq_def]
               simp only [if_neg hnqm, if_neg hnqltm, if_pos hkltrk]
               rw [hS]
-              simp [rotate, rotateLeft, rotateRight, rightSubtree]
+              simp only [rotate, rotateLeft, rotateRight, rightSubtree]
             have hR' : rightSubtree (seqTree init (k + 1))
                 = BinaryTree.node (rightSubtree (splay (BinaryTree.node a b c) k)) rk rr := by
               rw [hstep, heq, hsp]; rfl
@@ -4511,7 +4544,7 @@ private theorem omegaNB_step_restructure (init : BinaryTree) (hbst : IsBST init)
                 (.node (.node a b c) rk rr)) k
                 = splayLinks (BinaryTree.node a b c) k + 1 := by
               rw [splayLinks.eq_def]
-              simp [hnqm, hnqltm, hkltrk]
+              simp only [hnqm, ↓reduceIte, hnqltm, hkltrk]
             have hrlspine : ∀ x ∈ leftSpine (BinaryTree.node a b c),
                 x ∈ touchedKeys init k := by
               intro x hx
@@ -4694,7 +4727,9 @@ private theorem phi2Full_growth_le (T T2 : List Nat) :
         ≤ phi2Full T u + 3 * ((leftSpine u).filter (· ∉ T)).length := by
   intro u
   induction u with
-  | empty => intro _ _ _ _ _; simp [phi2Full, leftSpine, boundaryBit]
+  | empty => intro _ _ _ _ _
+             simp only [phi2Full, boundaryBit, leftSpine, add_zero, decide_not, List.filter_nil,
+               List.length_nil, mul_zero, le_refl]
   | node l k r ihl _ =>
     intro hbst htc hTT2 hspine hconf
     have hlk : ForallTree (fun x => x < k) l := by cases hbst; assumption
@@ -4702,13 +4737,13 @@ private theorem phi2Full_growth_le (T T2 : List Nat) :
     have hbstl : IsBST l := by cases hbst; assumption
     simp only [touchedClosed] at htc
     obtain ⟨hclosed, htcl, -⟩ := htc
-    have hkT2 : k ∈ T2 := hspine k (by simp [leftSpine])
+    have hkT2 : k ∈ T2 := hspine k (by simp only [leftSpine, List.mem_cons, true_or])
     have hspinel : ∀ x ∈ leftSpine l, x ∈ T2 := by
-      intro x hx; exact hspine x (by simp [leftSpine, hx])
+      intro x hx; exact hspine x (by simp only [leftSpine, List.mem_cons, hx, or_true])
     have hconfl : ∀ x, x ∈ l.toKeyList → x ∈ T2 → x ∉ T → x ∈ leftSpine l := by
       intro x hxl hx2 hxT
       have hxk : x < k := forallTree_mem hlk x hxl
-      have hmem := hconf x (by simp [BinaryTree.toKeyList]; tauto) hx2 hxT
+      have hmem := hconf x (mem_node_left hxl) hx2 hxT
       simp only [leftSpine, List.mem_cons] at hmem
       rcases hmem with h | h
       · omega
@@ -4719,7 +4754,7 @@ private theorem phi2Full_growth_le (T T2 : List Nat) :
       intro y hy hy2
       by_contra hyT
       have hky : k < y := forallTree_mem hkr y hy
-      have hmem := hconf y (by simp [BinaryTree.toKeyList]; tauto) hy2 hyT
+      have hmem := hconf y (mem_node_right hy) hy2 hyT
       simp only [leftSpine, List.mem_cons] at hmem
       rcases hmem with h | h
       · omega
@@ -4735,10 +4770,11 @@ private theorem phi2Full_growth_le (T T2 : List Nat) :
     by_cases hkT : k ∈ T
     · -- root already touched: boundary bit 0, root key not in the filter
       have hbit : boundaryBit T (leftSpine (BinaryTree.node l k r)) = 0 := by
-        simp [leftSpine, boundaryBit, hkT]
+        simp only [boundaryBit, leftSpine, hkT, ↓reduceIte]
       have hfilter : ((leftSpine (BinaryTree.node l k r)).filter (· ∉ T)).length
           = ((leftSpine l).filter (· ∉ T)).length := by
-        simp [leftSpine, hkT]
+        simp only [decide_not, leftSpine, hkT, decide_true, Bool.not_true, Bool.false_eq_true,
+          not_false_eq_true, List.filter_cons_of_neg]
       have hterm : phi2Term (touchedCount T2 (rightSpine l))
             (1 + touchedCount T (rightSpine r))
           ≤ phi2Term (touchedCount T (rightSpine l))
@@ -4754,10 +4790,11 @@ private theorem phi2Full_growth_le (T T2 : List Nat) :
     · -- fresh root: everything below is untouched in T; budget 3 pays
       obtain ⟨huntl, huntr⟩ := hclosed hkT
       have hbit : boundaryBit T (leftSpine (BinaryTree.node l k r)) = 1 := by
-        simp [leftSpine, boundaryBit, hkT]
+        simp only [boundaryBit, leftSpine, hkT, ↓reduceIte]
       have hfilter : ((leftSpine (BinaryTree.node l k r)).filter (· ∉ T)).length
           = ((leftSpine l).filter (· ∉ T)).length + 1 := by
-        simp [leftSpine, hkT]
+        simp only [decide_not, leftSpine, hkT, decide_false, Bool.not_false,
+          List.filter_cons_of_pos, List.length_cons]
       have hPl0 : phi2Full T l = 0 := phi2Full_untouched T l huntl
       have hPr0 : phi2Full T r = 0 := phi2Full_untouched T r huntr
       have hBl0 : touchedCount T (rightSpine l) = 0 :=
@@ -4829,34 +4866,36 @@ private theorem hSq_growth_le (T T2 : List Nat) :
         rw [hB0, hb]
         have hcases : touchedCount T2 (rightSpine l) = 0
             ∨ touchedCount T2 (rightSpine l) = 1 := by omega
-        rcases hcases with h | h <;> norm_num [h]
+        rcases hcases with h | h <;> simp only [h] <;> omega
       · have hb0 : boundaryBit T (leftSpine l) = 0 := by omega
         rw [hb0] at h1 ⊢
         have h1' : touchedCount T2 (rightSpine l) ≤ touchedCount T (rightSpine l) := by
           omega
-        simpa using Nat.pow_le_pow_left h1' 2
+        simpa only [add_zero, ge_iff_le] using Nat.pow_le_pow_left h1' 2
     by_cases hkT : k ∈ T
     · have hbit : boundaryBit T (leftSpine (BinaryTree.node l k r)) = 0 := by
-        simp [leftSpine, boundaryBit, hkT]
+        simp only [boundaryBit, leftSpine, hkT, ↓reduceIte]
       have hfilter : ((leftSpine (BinaryTree.node l k r)).filter (· ∉ T)).length
           = ((leftSpine l).filter (· ∉ T)).length := by
-        simp [leftSpine, hkT]
+        simp only [decide_not, leftSpine, hkT, decide_true, Bool.not_true, Bool.false_eq_true,
+          not_false_eq_true, List.filter_cons_of_neg]
       rw [hbit, hfilter]
       simp only [hSqPotential]
       rw [hSr]
       omega
     · obtain ⟨huntl, huntr⟩ := hclosed hkT
       have hbit : boundaryBit T (leftSpine (BinaryTree.node l k r)) = 1 := by
-        simp [leftSpine, boundaryBit, hkT]
+        simp only [boundaryBit, leftSpine, hkT, ↓reduceIte]
       have hfilter : ((leftSpine (BinaryTree.node l k r)).filter (· ∉ T)).length
           = ((leftSpine l).filter (· ∉ T)).length + 1 := by
-        simp [leftSpine, hkT]
+        simp only [decide_not, leftSpine, hkT, decide_false, Bool.not_false,
+          List.filter_cons_of_pos, List.length_cons]
       have hSl0 : hSqPotential T l = 0 := hSq_untouched T l huntl
       have hSr0 : hSqPotential T r = 0 := hSq_untouched T r huntr
       have hBl0 : touchedCount T (rightSpine l) = 0 :=
         touchedCount_zero T _ (fun y hy => huntl y (rightSpine_subset_toKeyList l y hy))
       have hB20 : touchedCount T (rightSpine l) ^ 2 = 0 := by
-        rw [hBl0]; norm_num
+        rw [hBl0]; rfl
       rw [hbit, hfilter]
       simp only [hSqPotential]
       rw [hSr]
@@ -5068,7 +5107,7 @@ private theorem touchedClosed_restructure_fixedT :
               omega
         subst hleq
         have hsp : splay (BinaryTree.node .empty q r) q = BinaryTree.node .empty q r := by
-          simp [splay.eq_def]
+          simp only [splay.eq_def, ↓reduceIte]
         rw [hsp]
         exact hclosed.2.2
       · have hkmem : k ∈ (BinaryTree.node l k r).toKeyList := by simp [BinaryTree.toKeyList]
@@ -5082,7 +5121,7 @@ private theorem touchedClosed_restructure_fixedT :
             have hminl : ∀ y ∈ (BinaryTree.node ll lk lr).toKeyList, q ≤ y := by
               intro y hy
               exact hmin y (by
-                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
             have hqlk : q ≤ lk := hminl lk (by simp [BinaryTree.toKeyList])
             have hlkT : lk ∈ T := hspineT lk (by simp [leftSpine])
             rcases eq_or_ne q lk with hqeq | hqne
@@ -5105,7 +5144,7 @@ private theorem touchedClosed_restructure_fixedT :
               have hsp : splay (BinaryTree.node (.node .empty q lr) k r) q
                   = BinaryTree.node .empty q (.node lr k r) := by
                 rw [splay.eq_def]
-                simp [hnk, hqlt, hnq, rotate, rotateRight]
+                simp only [hnk, ↓reduceIte, hqlt, lt_self_iff_false, rotate, rotateRight]
               rw [hsp]
               simp only [rightSubtree]
               exact ⟨fun hk' => absurd hkT hk', hclosed.2.1.2.2, hclosed.2.2⟩
@@ -5119,7 +5158,7 @@ private theorem touchedClosed_restructure_fixedT :
                   have hminll : ∀ y ∈ (BinaryTree.node a b c).toKeyList, q ≤ y := by
                     intro y hy
                     exact hminl y (by
-                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                      simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
                   have hS := splay_min_eq_node_empty (BinaryTree.node a b c) q hbll hqll hminll
                   have hsp := splay_min_zigzig_shape a c lr r b lk k q hqk hqlt hqllt hS
                   rw [hsp]
@@ -5127,7 +5166,7 @@ private theorem touchedClosed_restructure_fixedT :
                   have hclosedM := touchedClosed_restructure_fixedT (BinaryTree.node a b c)
                     q T hbll hqll hminll hclosed.2.1.2.1
                     (fun x hx => hspineT x (by
-                      simp only [leftSpine, List.mem_cons] at hx ⊢; tauto))
+                      simp only [leftSpine, List.mem_cons] at hx ⊢; exact Or.inr (Or.inr hx)))
                   exact ⟨fun hlk' => absurd hlkT hlk', hclosedM,
                     fun hk' => absurd hkT hk',
                     hclosed.2.1.2.2, hclosed.2.2⟩
@@ -5260,7 +5299,7 @@ private theorem omegaNB_step (init : BinaryTree) (hbst : IsBST init)
           have hsp : splay (BinaryTree.node L (k - 1) (.node .empty k rr)) k
               = BinaryTree.node (.node L (k - 1) .empty) k rr := by
             rw [splay.eq_def]
-            simp [hnqm, hnqltm, hnq, rotate, rotateLeft]
+            simp only [hnqm, ↓reduceIte, hnqltm, lt_self_iff_false, rotate, rotateLeft]
           have hR' : rightSubtree (seqTree init (k + 1)) = rr := by
             rw [hstep, heq, hsp]; rfl
           rw [hR']
@@ -5273,7 +5312,7 @@ private theorem omegaNB_step (init : BinaryTree) (hbst : IsBST init)
               have hminrl : ∀ y ∈ (BinaryTree.node a b c).toKeyList, k ≤ y := by
                 intro y hy
                 exact hkminR y (by
-                  simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; tauto)
+                  simp only [BinaryTree.toKeyList, List.mem_append] at hy ⊢; exact Or.inl (Or.inl hy))
               have hS := splay_min_eq_node_empty (BinaryTree.node a b c) k hb_rl hkrl hminrl
               have hsp : splay (BinaryTree.node L (k - 1)
                   (.node (.node a b c) rk rr)) k
@@ -5282,7 +5321,7 @@ private theorem omegaNB_step (init : BinaryTree) (hbst : IsBST init)
                 rw [splay.eq_def]
                 simp only [if_neg hnqm, if_neg hnqltm, if_pos hkltrk]
                 rw [hS]
-                simp [rotate, rotateLeft, rotateRight, rightSubtree]
+                simp only [rotate, rotateLeft, rotateRight, rightSubtree]
               have hR' : rightSubtree (seqTree init (k + 1))
                   = BinaryTree.node (rightSubtree (splay (BinaryTree.node a b c) k)) rk rr := by
                 rw [hstep, heq, hsp]; rfl
@@ -5291,7 +5330,7 @@ private theorem omegaNB_step (init : BinaryTree) (hbst : IsBST init)
               have hclosedM := touchedClosed_restructure_fixedT (BinaryTree.node a b c) k
                 (touchedKeys init k) hb_rl hkrl hminrl ihC.2.1
                 (fun x hx => hRspine x (by
-                  simp only [leftSpine, List.mem_cons] at hx ⊢; tauto))
+                  simp only [leftSpine, List.mem_cons] at hx ⊢; exact Or.inr hx))
               exact ⟨fun h' => absurd hrkT h', hclosedM, ihC.2.2⟩
   -- phase (b)
   have hB := omegaNB_growth (touchedKeys init k) (touchedKeys init (k + 1))

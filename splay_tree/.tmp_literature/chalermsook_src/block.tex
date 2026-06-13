@@ -1,0 +1,402 @@
+
+\section{Decomposition theorem and applications}
+\label{sec:decomposition}
+
+%%copy/paste:
+
+%%Given a permutation $P$ and $k$-blocks $P_1,\cdots,P_k$ of $P$ numbered in increasing $y$-coordinate, we partition the matrix $P$ into $k^2$ rectangular \textit{regions} whose boundaries are aligned with those of the $P_i$, and index them $R_{i,j}$ with $i$ going left to right and $j$ going bottom to top. In particular, the region $R_{i,j}$ is horizontally aligned (same $y$-coordinate) with $P_j$.
+
+
+%%In this section, we investigate whether \greedy is ``decomposable''  in the sense that one can bound the cost of \greedy on input sequences by summing over local costs on blocks. 
+%
+%It turns out that \greedy does not have such properties\parinya{We actually have an explicit example of this. We should add it}. 
+%We instead propose a more ``robust'' variant of \greedy which turns out to be decomposable.\laszlo{I'm a bit confused - does this mean that Greedy is not competitive with RGReedy?}
+%This new algorithm allows us to prove a decomposition theorem which bounds the total cost of our algorithm by the sum of the costs of \greedy on smaller sub-problems.
+%We give three applications as by-products of our decomposition theorem.  
+%
+%%Proving such properties for \greedy seems to be prohibitively difficult \parinya{We actually have an explicit example of this. We should add it}. \kurt{say already here that rgreedy is not online}
+%%We instead propose a more ``robust'' variant of \greedy which turns out to be decomposable. This new algorithm allows us to prove a decomposition theorem which bounds the total cost of the algorithm by the sum of the costs of \greedy on smaller sub-problems. 
+%%We give three applications as by-products of our decomposition theorem.  
+
+\subsection{Preliminaries}
+\label{subsec:decomp}
+Given a permutation $\sigma: [n] \rightarrow [n]$, we call a set $[a,b] \times [c,d]$, with the property that $\{\sigma(a), \sigma(a+1), \dots, \sigma(b)\} = [c,d]$, a \emph{block} of $\sigma$ %of size $b-a+1$
+\emph{induced} by the interval $[a,b]$. 
+Let $P$ be a block induced by interval $I$. Consider a partitioning of $I$ into $k$ intervals, denoted (left-to-right) as $I_1, I_2, \dots, I_k$, such that each interval induces a block, denoted respectively as $P_1, P_2, \dots, P_k$. Consider the unique permutation $\tilde{P}$ of size $[k]$ that is order-isomorphic to a sequence of arbitrary representative elements from the blocks $P_1, P_2, \dots, P_k$. We denote $P = \tilde{P}[P_1, P_2, \dots, P_k]$ a \emph{deflation} of $P$, and we call $\tilde{P}$ the skeleton of $P$. Visually, $\tilde{P}$ is obtained from $P$ by contracting each block $P_i$ to a single point (Figure~\ref{fig_intro}). Deflation is analogously defined on permutations. Every permutation $\sigma$ has the trivial deflations $\sigma = \sigma[1, \dots, 1]$ and $\sigma=1[\sigma]$. Permutations that have only the trivial deflations are called \emph{simple permutations}.
+
+
+%%We call the unique permutation of $[j-i+1]$ that is order-isomorphic to $(\sigma(i), \dots, \sigma(j))$, a \emph{block} of $\sigma$ \emph{induced} by the interval $[i,j]$. 
+
+A \emph{block decomposition tree} $\tset$ of $\sigma$ is a tree in which each node is a block of $\sigma$. We define $\tset$ recursively as follows: The root of $\tset$ is the block $[n] \times [n]$. A node $P$ of $\tset$ is either a leaf, or it has children $P_1, P_2, \dots$ corresponding to a nontrivial deflation $P = \tilde{P}[P_1, P_2, \dots ]$. To every non-leaf block $P$ we associate its skeleton $\tilde{P}$. For convenience, we assume that the blocks $P_1,\ldots, P_k$ are ordered by their $y$-coordinates from bottom to top. We partition $P$ into $k^2$ rectangular regions whose boundaries are aligned with $P_1, \ldots, P_k$, and index them $R(i,j)$ with $i$ going left to right and $j$ going bottom to top. In particular, the region $R(i,j)$ is aligned with $P_j$ (same $y$-coordinates). 
+To every leaf block $P = [a,b] \times [c,d]$ we associate the unique permutation that is order-isomorphic to $(\sigma(a), \sigma(a+1), \dots, \sigma(b))$. When there is no chance of confusion, we refer interchangeably to a block and its associated permutation. We denote the leaves and non-leaves of the tree $\tset$ by $L(\tset)$ and $N(\tset)$ respectively.
+
+
+A permutation is \emph{$k$-decomposable} if it has a block decomposition tree $\tset$ in which every node has an associated permutation of size at most $k$. As an example, we observe that preorder sequences of binary search trees are $2$-decomposable. 
+
+
+%%%In the following we mostly look at permutations in the geometric view. Therefore, if a node $P \in B(\tset)$ represents a block of $\sigma$ induced by the interval $[i,j]$, then by slight abuse of notation we will also refer to the set $[i,j] \times \{\sigma(i), \dots, \sigma(j)\}$ as \emph{the block} $P$. \lk{todo: simplify}
+
+
+%In this case, we say that $P = \tilde{P}[P_1,P_2,P_3,P_4]$ is a \emph{block-decomposition} of $P$, and $P$ is called an {\em inflation} of $\tilde P$.
+
+%If there are $k$ blocks, then the skeleton $\tilde P$ is isomorphic to a permutation over $[k]$. Given a block-decomposition of a permutation, we further decompose each non-simple block, resulting in a tree.
+
+
+%It is known that any non-simple permutation can be uniquely rewritten as a simple permutation over blocks of permutations (to be formalized later). 
+%We will use this fact to prove our theorem, stated formally below.  
+ 
+ 
+\subsection{A robust {\sc Greedy}}
+
+%%We augment \greedy with some additional steps that will enable us to prove the desired properties.
+%%Suppose that we run \greedy on permutation $P = \tilde P[P_1,\ldots, P_k]$. 
+
+%%We denote the leftmost, respectively rightmost $x$-coordinate of a rectangular region $R$ as $\textit{left}(R)$, resp.\ $\textit{right}(R)$. Similarly we denote the topmost, respectively bottommost $y$-coordinate of $R$ as $\textit{top}(R)$, resp.\ $\textit{bottom}(R)$. We define \emph{topwing}$(R)$ to be the set of access or touched points $(x,y) \in R$, such that the rectangle with corners $(x,y)$, $(\textit{left}(R), \textit{top}(R))$ or the rectangle with corners $(x,y)$, $(\textit{right}(R), \textit{top}(R))$ has no other access or touched points.\\
+
+%We denote the top left, respectively top right corner point of a region $R$ as $\textit{topleft}(R)$, respectively $\textit{topright}(R)$. 
+%We define $\textit{topwing}(R)$ to be the set of access or touched points $q \in R$, such that at least one of the following properties is satisfied: 
+%\begin{compactenum}[--]
+%\item The rectangle with corners $q$ and $\textit{topleft}(R)$ has no other access or touched points besides $q$ and $\textit{topleft}(R)$.  
+%
+%\item The rectangle with corners $q$ and $\textit{topright}(R)$ has no other access or touched points besides $q$ and possibly $\textit{topright}(R)$. 
+%
+%\item $q$ is the topmost access or touched point in the leftmost or rightmost column of $R$. 
+%\end{compactenum}
+%
+%Remark that the set $topwing(R)$ depends on the time point where we are in the execution of the algorithm, but for simplicity of notation, we omit the reference to a specific time (it will always be clear from the context).
+%
+%When \greedy completes processing the last input point $(a,t)$ in block $P_j$, for each region $R(i,j)$  in which \greedy touched at least one point (this includes the region $P_j $ itself), we further touch the projection of all points in $\textit{topwing}(R(i,j))$ onto the horizontal timeline $t$. Note that an input point $(a,t)$ might be the last input point in several nested blocks. We perform the described step for all the nested blocks that terminate at time $t$. We name our new algorithm \agreedy (see Figure~\ref{fig_rgreedy} for an illustration). \kurt{Say already here that \agreedy is an off-line algorithm.} 
+
+
+
+%let $t_{i,j}$ be the topmost $y$-coordinate at which at least one point was touched in $R(i,j)$, and let $p_{left}(i,j), p_{right}(i,j)$ be the leftmost and rightmost points touched in $R(i,j)$ at time $t_{i,j}$.
+%We add two points $p'_{left}(i,j), p'_{right}(i,j)$ on the topmost $y$-coordinate of $R(i,j)$ such that $p'_{left}(i,j), p'_{right}(i,j)$ are vertically aligned with $p_{left}(i,j), p_{right}(i,j)$ respectively.   
+
+
+%%%\paragraph{Remark:} At this point \agreedy becomes an off-line algorithm, but we argue later that one can efficiently implement $\agreedy$ in an online manner. This will be discussed in Section~\ref{sec: online robust}.  
+
+
+
+%\Kurt{doesn't this make $\agreedy$ and off-line algorithm. It must know when $P_i$ ends.}
+
+%\Kurt{I don't understand the proof of Observation 5.1. I would understand it if $p'_{left}$ would be the projection of the leftmost point in $R(i,j)$ onto the top row of $R(i,j)$. }
+
+%\Kurt{I assume $R(i,i)$ is $P_i$ in what follows.}
+
+%\Kurt{I didn't get at first that \agreedy sees the new points. In particular, this implies that unsatisfied rectangles cannot have new points as lower corner. }
+
+%we add two points $p_{left}(i,j)$ and $p_{right}(i,j)$ lying on the same vertical lines as the left-most and right-most points in $R(i,j)$ respectively.
+
+%%Given a permutation $P$ and $k$-blocks $P_1,\dots,P_k$ of $P$ numbered in increasing $y$-coordinate, we partition the matrix $P$ into $k^2$ rectangular \textit{regions} whose boundaries are aligned with those of the $P_i$, and index them $R_{i,j}$ with $i$ going left to right and $j$ going bottom to top. In particular, the region $R_{i,j}$ is horizontally aligned (same $y$-coordinate) with $P_j$.
+
+We augment \greedy with some additional steps and we obtain an offline algorithm (called \agreedy) with several desirable properties. We remark that in this section we always assume the preprocessing discussed in \S\,\ref{sec:prelim-short} or equivalently, in geometric view we assume that \agreedy is executed without initial tree (since \agreedy is offline, this is a non-issue).
+
+Before describing the algorithm, we give some simple definitions.
+
+We denote the top left, respectively top right corner point of a rectangular region $R$ as $\textit{topleft}(R)$, respectively $\textit{topright}(R)$. We define $\textit{topwing}(R)$ to be a subset of the points touched in $R$, that are the last touch points of their respective columns. A point $q$ is in $\textit{topwing}(R)$ if at least one of the following properties is satisfied:  %, and 2) the topmost points in the left and right columns of $R$. The top wing of $R$, denoted $\textit{topwing}(R)$ is the set of elements $q$ that are touched inside $R$, and for which at least one of the following properties is satisfied: 
+\begin{compactenum}[--]
+\item The rectangle with corners $q$ and $\textit{topleft}(R)$ is empty,  
+\item The rectangle with corners $q$ and $\textit{topright}(R)$ is empty,  
+\item $q$ is in the leftmost or rightmost column of $R$.
+\end{compactenum}
+Note that the set $\textit{topwing}(R)$ depends on the time point where we are in the execution of the algorithm, but for simplicity of notation, we omit the reference to a specific time (it will always be clear from the context).
+
+
+We can now describe how \agreedy processes an input point $(a,t)$. First, it acts as \greedy would, i.e.\ for every empty rectangle with corners $(a,t)$ and $(b,t')$, it touches the point $(b,t)$ on the current timeline. Let $Y_t$ be the points touched in this way (including the point $(a,t)$). Second, it touches additional points on the timeline. Let $v_1$, $v_2 = \parent(v_1)$, \ldots, $v_\ell = \parent(v_{\ell - 1})$ be the nodes of the decomposition tree such that the blocks associated with these nodes end at time $t$. Note that $v_1$ is a leaf. Let $v_{\ell +1} = \parent(v_\ell)$; $v_{\ell + 1}$ exists except when the last input is processed. For $h \in [2,\ell + 1]$ in increasing order, we consider the deflation $\tilde{P}[P_1,\ldots,P_k]$ associated with $v_h$. Let $(a,t)$ lie in $P_j$; note that $j = k$ if $h \le \ell$ and $j < k$ for $h = \ell + 1$. For every sibling region $R(i,j)$ of $P_j$, \agreedy touches the projection of $\topwing(R(i,j))$ on the timeline $t$.
+
+Let $Y_{h,t}$ be the points touched. Figure~\ref{fig_rgreedy} illustrates the definition of \agreedy.
+
+
+
+
+%\kurt{The figure needs more explanation. The access point in the topmost line completes the black square and also the enclosing grey square. The topwing of the black square consists of the black circle at position (1,6) and the grey circle at position (3,5). Therefore the augmentation of the black square adds the grey square at position (3,6). The top-wing of $R(2,2)$ consists of the grey circle at position (4,4) and hence the grey square at position (4,6) is added. The topwing of the grey square consists of points (1,6) and (6,3); the point (4,4) does not belong to the topwing because (4,6) has already been added. Therefore, the grey square at position (6,6) is added.}
+
+%let $t_{i,j}$ be the topmost $y$-coordinate at which at least one point was touched in $R(i,j)$, and let $p_{left}(i,j), p_{right}(i,j)$ be the leftmost and rightmost points touched in $R(i,j)$ at time $t_{i,j}$.
+%We add two points $p'_{left}(i,j), p'_{right}(i,j)$ on the topmost $y$-coordinate of $R(i,j)$ such that $p'_{left}(i,j), p'_{right}(i,j)$ are vertically aligned with $p_{left}(i,j), p_{right}(i,j)$ respectively.   
+
+
+
+We need to argue that the augmentation step does not violate the feasibility of the solution.
+
+
+\begin{lemma}
+\label{lem:feasibility}
+The output of \agreedy is feasible.  
+\end{lemma}  
+\begin{proof} 
+
+
+
+Suppose for contradiction that at time $t$ we have created an unsatisfied rectangle $r$ with corners $(a,t)$ and $(x,y)$, where $y<t$. The point $(a,t)$ is the result of projecting $(a,t')$ onto the horizontal line $t$, where $(a,t') \in \textit{topwing}(R)$, for some region $R$ processed at time $t$. Clearly $t'<t$. Assume that before adding $(a,t)$, the rectangle formed by the points $(a,t')$ and $\textit{topleft}(R)$ is empty. A symmetric argument works if $(a,t')$ formed an empty rectangle with $\textit{topright}(R)$. We have $y > t'$, for otherwise the point $(a,t')$ would satisfy $r$. Let $R = R(i,j)$. Since $(x,y)$ lies in the time window of $R$, we have $(x,y) \in R(i',j)$ for some $i'$.
+
+
+Suppose first that $i = i'$. 
+If $x \leq a$, then the rectangle with corners $(a,t')$ and $\textit{topleft}(R)$ contains $(x,y)$, contradicting the fact that $(a,t')$ was in $\textit{topwing}(R)$ before the augmentation. Therefore $x>a$ holds. But then, if $r$ is not satisfied, then the rectangle with corners $(x,y)$ and $\textit{topleft}(R)$ had to be empty before the augmentation, and therefore $(x,t)$ must have been touched in the augmentation step, making $r$ satisfied. 
+
+The case $i \not= i'$ remains. If $i'<i$, then $r$ contains the rectangle formed by $(x,y)$ and the top right corner of $R(i',j)$. Either this rectangle is nonempty, or $(x,y)$ was in $\textit{topwing}(R(i',j))$ before the augmentation, in which case $(x,t)$ was touched in the augmentation step. In both cases $r$ must be satisfied. The case when $i'>i$ is symmetric, finishing the proof.
+
+\end{proof} 
+
+
+Observe that \agreedy processes the input and emits the output line-by-line, in increasing order of time. It is, however, not an online algorithm, as it has a priori access to a block decomposition tree of the input.
+
+\subsection{Decomposition theorem }
+
+%Now we define the recursive partitioning of the points into {\em blocks}. 
+%We will keep track of these blocks by a tree $\tset = (\bset, \pi)$ where $\pi$ is a parent relationship and $\bset$ is a collection of blocks.  
+%Let $X$ be the set of initial input points.  
+%Our procedure starts from, initially, $\bset = \{X\}$. 
+%Then, as long as there is a block $P \in \bset$ that is still not simple, we break $P$ into $P = \tilde P[P_1,\ldots, P_k]$, and we insert $P_1,\ldots, P_k$ into $\bset$. 
+%Call these new blocks the children of $P$ and $\tilde P$ the skeleton of $P$.
+%Notice that this procedure naturally defines the tree structure, and except for the leafs, all other blocks $P$ in $\bset$ are associated with their skeletons $\tilde P$.  
+
+
+%\agreedy would add some points to the plane, and we will bound the number of these points. 
+
+%For leaf blocks, the cost will be bounded by our hypothesis that \greedy is $c$-competitve for simple permutations, so we only need to bound the cost of non-leaf blocks. 
+
+Our main technical contribution in this section is the following result: 
+
+\begin{theorem} [Decomposition theorem for permutations] 
+\label{lem: main} 
+For any block decomposition tree $\tset$ of a permutation $P$, the total cost of \agreedy is bounded as \[ \textsc{RGreedy}(P) \leq 4 \cdot \sum_{\tilde P \in N(\tset) }  \textsc{Greedy}(\tilde P) + \sum_{P \in L(\tset) } \textsc{Greedy}(P)+ 3n.\]
+\end{theorem} 
+
+%%%\paragraph{Observation.} \laszlo{now I think this will not work. There are too many places in the proof where we assume properties of Greedy. We probably need to retract this observation, and wherever marked with *} In the description of {\sc RGreedy} we can replace {\sc Greedy} with any other {\sc MinASS} algorithm, and all the proofs in this section go through unchanged, providing results analogous to Theorem~\ref{lem: main}. In this way we can ``robustify'' any {\sc MinASS} algorithm. This observation will become more interesting in light of Application 2\ below.\\ 
+
+We discuss applications of Theorem~\ref{lem: main}.  
+
+\paragraph{Application 1: Cole et al.'s ``showcase'' sequences.}
+In Cole et al.~\cite{finger1}, a showcase sequence is defined in order to introduce necessary technical tools for proving the dynamic finger theorem. 
+This sequence can be defined (in our context) as a permutation $P = \tilde P[P_1,\ldots, P_{n/\log n}]$ where each $P_j$ is a sequence for which \greedy has linear linear access cost, i.e.\ $|P_j| = \log n$, and $\textsc{Greedy}(P_j) = O(\log n)$. 
+Now, by applying Theorem~\ref{lem: main}, we can say that the cost of \agreedy on $P$ is $\textsc{RGreedy}(P) \leq 4 \cdot \textsc{Greedy}(\tilde P) + \sum_{j} \textsc{Greedy}(P_j) + O(n) \leq O(\frac{n}{\log n} \cdot \log (\frac{n}{\log n})) + \frac{n}{\log n}O(\log n) + O(n) = O(n)$. 
+This implies that our algorithm has linear access cost on this sequence.  
+
+
+\paragraph{Application 2: Simple permutations as the ``core'' difficulty of BST inputs.}  
+We argue that whether \agreedy performs well on all sequences depends only on whether \greedy does well on simple permutation sequences. 
+More formally, we prove the following theorem. 
+
+\begin{theorem}
+\label{thm:greedy_rgreedy} 
+If \greedy is $c$-competitive on simple permutations, then \agreedy is an $O(1)$ approximation algorithm for $\opt(X)$ for all permutations $X$. 
+%\kurt{I find the usage of the term $O(c)$-competitive for \agreedy inappropriate. It is an offline-algorithm and hence we should use $O(c)$-approximate instead.}
+\end{theorem} 
+
+Using Theorem~\ref{thm:perm-all} we can extend this statement from all permutations to all access sequences.
+%%%, and using the observation after Theorem~\ref{lem: main} we can conclude that the task of finding a dynamically optimal BST algorithm has been reduced to the task of finding a BST algorithm that is competitive on simple permutations.\lk{*}\\
+
+To prove Theorem~\ref{thm:greedy_rgreedy} we use of the known easy fact~\cite{brignall} that every permutation $P$ has a block decomposition tree $\tset$ in which all permutations in $L(\tset)$ and all permutations in $N(\tset)$ are simple. Applying Theorem~\ref{lem: main} and the hypothesis that \greedy is $c$-competitive for simple permutations, we get the bound: 
+\[\textsc{RGreedy}(P) \leq 4c \cdot \sum_{\tilde P \in  N(\tset)} \opt(\tilde P) + c \cdot \sum_{P \in L(\tset)} \opt(P) +3n.\]
+
+ 
+%%starting from the bound $\textsc{Greedy}(P) \leq \sum_{\tilde P: N(\tset) } \textsc{Greedy}(\tilde P) + \sum_{P: N(\tset)} \textsc{Greedy}(P)$,  
+%we can apply the hypothesis that \greedy is 
+
+Now we need to decompose $\opt$ into subproblems the same way as done for \agreedy. 
+The following lemma finishes the proof (modulo the proof of Theorem~\ref{lem: main}), since it implies that $\textsc{RGreedy}(P) \leq 4c \cdot \opt(P) + (8c + 3)n$.  
+
+\begin{lemma} 
+\label{lem:decomp opt lower-bound}
+$\opt(P) \geq \sum_{P \in \tset } \opt(P) - 2n$.
+\end{lemma}  
+
+\begin{proof} 
+
+We show that for an arbitrary permutation $P = \tilde{P}[P_1,\dots,P_k]$, it holds that $\opt(P) \geq \opt(\tilde{P}) + \sum_{i=1}^k{\opt(P_i)} - k$. The result then follows simply by iterating this operation for every internal node of the block decomposition tree $\tset$ of $P$ and observing that the numbers of children of each internal node add up to at most $2n$. %$\sum_{\tilde P \in N(\tset) }{|\tilde{P}|} \leq n$.\\
+
+Let $Y^*$ be the set of points of the optimal solution for $P$. We partition $Y^*$ into sets $Y^*_i$ contained inside each block $P_i$, and we let $Y^*_{out} = Y^* \setminus \bigcup_{i=1}^k{Y^*_i}$. Each $Y^*_i$ must clearly be feasible for $P_i$, so we have $|Y^*_i| \geq \opt(P_i)$. It remains to show that $|Y^*_{out}| \geq OPT(\tilde{P}) - k$. 
+%%% in the same fashion as done in defining $\tset$: For each leaf $P \in L(\tset)$, $Y^*_P$ contains points in $Y^* \cap P$, and for each non-leaf $P \in N(\tset)$ that has the children $P_1, \dots, P_k$,  $Y^*_P$ contains points in $Y^* \cap P \setminus \bigcup_{i=1}^k{P_i}$.
+
+%%Let $Y^*$ be the set of points added by the optimal solution. 
+%%We break $Y^*$ into sets $Y^*_P$ in the same fashion as done in defining $\tset$: For each leaf $P \in L(\tset)$, $Y^*_P$ contains points in $Y^* \cap P$, and for each non-leaf $P \in N(\tset)$ that has the children $P_1, \dots, P_k$,  $Y^*_P$ contains points in $Y^* \cap P \setminus \bigcup_{i=1}^k{P_i}$.
+%We have that $\sum_{P \in B(\tset)} |Y^*_P| = |Y^*| = \opt$.
+
+%For a leaf block $P$, it is clear that 
+
+Again, consider the partitioning of $P$ into $k^2$ rectangular regions $R(i,j)$, aligned with the blocks $P_1, \dots, P_k$. Consider the contraction operation that replaces each region $R(i,j)$ with a point $(i,j)$ if and only if $Y^* \cap R(i,j)$ is nonempty. We obtain a point set $Y' \in [k] \times [k]$, and clearly $|Y'| \leq |Y^*_{out}| + |\tilde{P}|$. We claim that the obtained point set $Y'$ is a satisfied superset of $\tilde{P}$, and therefore $|Y^*_{out}| \geq \opt(\tilde{P}) - k$. 
+
+Indeed, suppose for contradiction that there is an unsatisfied rectangle with corner points $p,q \in Y'$. Suppose $p$ is to the upper-left of $q$ (the other cases are symmetric). Let $R_p$ and $R_q$ be the regions before the contraction that were mapped to $p$, respectively $q$. Since $Y^* \cap R_p$ is nonempty, we can consider $p'$ to be the lowest point in $Y^* \cap R_p$ and if there are several such points, we take $p'$ to be the rightmost. Similarly, since $Y^* \cap R_q$ is nonempty, we can take $q'$ to be the topmost point in $Y^* \cap R_q$ and if there are several such points, we take $q'$ to be the leftmost. Now, if the rectangle with corners $p$ and $q$ is unsatisfied in $Y'$, then the rectangle with corners $p'$ and $q'$ is unsatisfied in $Y^*$, contradicting the claim that $Y^*$ is a feasible solution.
+%%Now consider a non-leaf block $P$ and its skeleton $\tilde P$.
+%%It is enough to show that a natural mapping $Y'_P$ of $Y^*_P$ onto $[k] \times [k]$ is feasible for $\tilde P$: Suppose not, then there must be two points $q, q' \in [k] \times [k]$ that are not satisfied. 
+%%Suppose $q$ is on the upper-left side of $q'$ (the other case is symmetric).  
+%%These two points must correspond to some other points $\phi(q), \phi(q') \in Y^*_P \cup P$; if there are many points, we choose $\phi(q)$ to as close to the bottom-right corner of region $R_q$ as possible. Also we choose $\phi(q')$ to be as close to the upper-left corner of region $R_{q'}$ as possible.
+%%Then there must be another point $r$ that satisfies rectangle $\phi(q) \phi(q')$, and such point cannot be inside $R_q \cup R_{q'}$ (otherwise, it would have contradicted the choice of $q$ and $q'$).    
+\end{proof} 
+
+\paragraph{Application 3: Recursively decomposable permutations.}
+We generalize preorder access sequences to $k$-decomposable permutations, and show that \agreedy has linear access cost for all such permutations.  
+Let $k$ be a constant such that there is a tree decomposition $\tset$ in which each node is a permutation of size at most $k$. Notice that a preorder sequence is $2$-decomposable.
+
+\begin{theorem} 
+The cost of \agreedy on any $k$-decomposable access sequence is at most $O(n \log k)$. %%%\mayank{1) Remove the at most before the $O$. 2) Shouldn't we state this as a $\Theta$ instead of $O$, as we have the lower bound later? In fact, I think Section H.2 should be moved here.} 
+\end{theorem}  
+\begin{proof} 
+Applying Theorem~\ref{lem: main}, we obtain that $\textsc{RGreedy}(P) \leq 4 \sum_{\tilde{P} \in N(\tset)} \textsc{Greedy}(\tilde{P}) + \sum_{P \in L(\tset)} \textsc{Greedy}(P) +O(n)$. 
+First, notice that the elements that belong to the leaf blocks are induced by disjoint intervals, so we have $\sum_{P \in L(\tset)} |P| = n $. 
+For each such leaf block, since \greedy is known to have logarithmic amortized cost, we have $\textsc{Greedy}(P) \leq O(|P| \log |P|) = O(|P| \log k)$. Summing over all leaves, we have $\sum_{P \in L(\tset)} \textsc{Greedy}(P) \leq O(n \log k)$.
+
+Next, we bound the cost of non-leaf blocks. 
+Since the numbers of children of non-leaf blocks add up to at most $2n$, we have $\sum_{\tilde{P} \in N(\tset)} |\tilde{P}| \leq 2n$. %|L(\tset)| \leq n$. 
+Again, using the fact that \greedy has amortized logarithmic cost, it follows that $\sum_{\tilde{P} \in N(\tset)} \textsc{Greedy}(\tilde{P}) \leq \sum_{\tilde{P} \in N(\tset)} O(|\tilde{P}| \log k) \leq O(n \log k)$.
+This completes the proof.      
+\end{proof} 
+
+We mention that the logarithmic dependence on $k$ is essentially optimal, since there are simple permutations of size $n$ with optimum cost $\Omega(n \log n)$. In fact, for arbitrary $k$, the bound is tight, as shown in Appendix~\ref{sec:tight-block}. In Theorem~\ref{thm:main-noinitial} we proved that for arbitrary constant $k$, the linear upper bound for $k$-decomposable permutations is asymptotically matched by {\sc Greedy}.
+
+
+
+\subsection{Proof of Theorem~\ref{lem: main}}
+
+\input{Proof-Theorem4.2.tex}
+
+
+\iffalse
+We use the notion of {\em hidden set} to bound the contributions from the first points. 
+%Let $\rho(a,t)$ denote a last touched time of $a$ on or before time $t$.
+Let $R(i,j)$ be a region that has coordinates $[v,w] \times [t',t'']$. 
+A (touched) point $p \in R(i,j)$ is said to belong to $hidden(P)$ if $P_j$ was already processed, and there are points inside the vertical strip $[t', t'']$ on the same horizontal line as $p$ on both left and right sides of $p$. 
+We remark that the notion of hidden is defined with respect to points, not elements, so it could be possible that each element has many corresponding hidden points.  
+The next lemma shows that this is not possible.  
+\fi
+
+\iffalse
+\begin{figure}
+\begin{center}  
+\includegraphics[trim = 0mm 5cm 1cm 0mm, scale=0.5]{hidden.pdf}
+\end{center}
+\caption{Hidden point $p$ in $hidden(P)$ in the vertical strip embracing $P_j$} 
+\end{figure} 
+\fi
+
+\iffalse
+\begin{claim} 
+On each vertical line $\ell$, there is at most one point in $\bigcup_{P \in N(\tset)} hidden(P)$. 
+\end{claim} 
+
+\begin{proof} 
+Suppose $p$ is the hidden point on line $\ell$ with lowest $y$-coordinate. We claim that there can be no point above $p$ on $\ell$.
+This is true because $p.x$ becomes $[p.y, \infty]$-hidden via range $[v,w]$, and by Lemma~\ref{lem: hidden lemma}, the element $p.x$ cannot be touched from access points outside of the range.  
+
+\end{proof} 
+
+\begin{corollary} 
+$\sum_{P \in \bset} |hidden(P)| \leq n$ 
+\end{corollary} 
+
+
+The following lemma bounds the cost of $Y_P^1$ by the total size of hidden sets of the children. 
+ 
+
+\begin{lemma}[First elements]  
+$|Y_P^1| \leq 4 \cdot \greedy(\tilde P) + \sum_{j=1}^k |hidden(P_j)|$ 
+\end{lemma}
+
+
+Now we prove the lemma. 
+
+
+
+\subsubsection*{Bounding $Y_P^2$}
+
+Here we bound the cost of $Y^2_P$.
+In this case, we use the notion of wings, which will be slightly different from the previously defined wings, but they play the same role.  
+If $P'$ is a child block of $P$, we define a right wing $wing_R(P')$
+of a block $P'$ (with respect to parent $P$)\footnote{Since we always define a wing w.r.t. parent, we do not need the index $P$} as follows: $wing_{R}(P')=\emptyset$ if the
+lower right region of $P'$ is empty in $P$; otherwise, $wing_{R}(P')=\{a\in P'\mid a$
+is not a first accessed element in $P'$ and the lower right region 
+of $a$ is empty in $P'\}$. A left wing $wing_{L}(P')$ of
+$P'$ is defined symmetrically.
+
+The following observation is crucial in our analysis. 
+
+\begin{observation} 
+%For any two blocks $P_1, P_2 \in \bset$ and their children $P'_1, P'_2$, the wings $wing_R(P'_1, P_1)$ and $wing_R(P'_2, P_2)$ are disjoint.
+The wings $\{wing_R(P')\}_{P' \in \bset}$ and $\{wing_L(P')\}_{P' \in \bset}$ are disjoint.   
+%are disjoint. 
+This implies that, $\sum_{P \in \bset} (|wing_{R}(P)|+|wing_{L}(P)|) \le n$.
+\end{observation}
+ 
+\begin{proof} 
+If $P_{1}$ and $P_{2}$ are disjoint, then their wings are trivially
+disjoint. 
+So we can assume that $P_{1}$ intersects $P_{2}$. 
+This means further that one of them is contained in another, say $P_{1}\supseteq P_{2}$. 
+
+We have two cases to consider (actually four cases but the other two are similar): 
+\begin{itemize} 
+\item Suppose that there is $a\in wing_{R}(P_{1})\cap wing_{L}(P_{2})$.
+Let $b$ be the first accessed element in $P_{2}$. 
+Since the lower-left region of $a$ in $P_2$ is empty, $b$ must be on the lower-right region of $a$.  
+This would contradict the fact that $a$ is in the right wing of $P_1$. 
+%The lower right
+%rectangle of $a$ in $P_{2}$ is not empty because of $b$, and hence
+%not empty in $P_{1}$ as well. So $a\notin wing_{R}(P_{1})$ which
+%is a contradiction.
+
+\item Suppose that there is $a\in wing_{R}(P_{1})\cap wing_{R}(P_{2})$. 
+Since $wing_{R}(P_{2})\neq\emptyset$, then
+there is an element $b$ in the lower right region of $P_{2}$
+in $P_{1}$. 
+But then $a\notin wing_{R}(P_{1})$ because the lower
+rectangle of $a$ in $P_{1}$ is not empty.
+\end{itemize} 
+Thus, all wings are disjoint. 
+\end{proof} 
+
+
+Intuitively, we can use the wings as our ``potential'' to bound the cost of $Y_P^2$.
+The idea is that, when accessing elements in $P'$ (after the second elements until the last one), most elements will be hidden except for only two elements, so we only need to count the number of times these two elements are touched over all execution.  
+The elements in the wings $wing_R(P') \cup wing_L(P')$ are those that can potentially touch points in $P \setminus P'$, so we can upper bound the cost by the number of elements in the wings.  
+Now we discuss the formal proof of this idea. 
+
+\begin{lemma}[Non-first elements]
+For all non-leaf block $P= \tilde P[P_1,\ldots, P_k]$, we have  
+$$|Y_P^2| \leq \sum_{i=1}^k (|wing_R(P_i)| + |wing_L(P_i)|) $$ 
+\end{lemma} 
+\begin{proof}
+We will analyze the cost of $Y_P^2$ due to accessing the access points in each block $P_i$ and argue that it is at most $|wing_L(P_i)| + |wing_R(P_i)|$.
+
+Now consider each child $P_i$. 
+Let $a_{i}^{*}$ be the first access elements in $P_{i}$. 
+For each non-first element $a \in P_i$, assume that $a > a_i^*$ (the other case is symmetric). 
+If $a\notin wing_{R}(P_{i})$, then there are two possibilities: In the first case, $wing_R(P_i)$ is empty because the lower right region of $P_i$ in $P$ is empty. Then the access point $a$ will not touch any point (therefore not incurring any cost in $Y_P^2$); otherwise, it means that there is another point $b$ in the lower right region of $a$ inside $P_i$. 
+In such case, accessing $a$ would add no cost in $Y_P^2$ (Recall that $Y_P^2$ is defined as the cost outside of $P_i$ and inside $P$. In this case \greedy would not touch anything outside of $P_i$).  
+
+If $a\in wing_{R}(P_{i})$, we claim that accessing element $a$ only incurs the cost of $1$ in $P$ outside of $P_i$. 
+Suppose the timespan of block $P_i$ is $1,\ldots, T$. 
+The cost at $t=1$ is already taken into account by $Y_P^1$. Let $W$ be the set of elements touched at time $t=1$.  
+We prove by induction that at any time $t\geq 2$, \greedy touches at most one point, and if it does, it touches the minimum element   
+%add one point in $P$ outside of $P_i$.
+
+===== 
+
+
+Assume for contradiction that \greedy adds two points, says, $b, c$ when querying $a$ such that $b.x < c.x$ (i.e. the value of $b$ is less than that of $c$). Choose $b$ and $c$ to be consecutive points added by \greedy.  
+This means that there are two points on the staircase seen by $a$, says $b', c'$ such that $b'.x = b.x$ and $c'.x = c.x$, and $b'.y < c'.y$ (see the figure).  
+Now consider the time $c'.y$ for which \greedy adds $c'$ but not $b'$, which can only happen if there is another point $b''$ in the upper-left region of $b'$, contradicting the fact that $b'$ and $c'$ belong to the staircase seen by $a$.   
+
+
+\end{proof}
+
+
+From this, we can conclude the following.
+
+\begin{theorem}
+When accessing first elements in each $P_{i}$, greedy pay at most
+$2\cdot greedy(\tilde{P})+\sum_{i=1}^{k}|hidden(P_{i})|$ for touching
+the elements outside the blocks.\end{theorem}
+\begin{corollary}
+$greedy(P)\le\sum_{i=1}^{k}greedy(P_{i})+2\cdot greedy(\tilde{P})+\sum_{i=1}^{k}(|wing_{R}(P_{i})|+|wing_{L}(P_{i})|+|hidden(P_{i})|)$.\end{corollary}
+\begin{proof}
+$\sum_{i=1}^{k}greedy(P_{i})$ is the cost for satisfying the rectangles
+in the blocks. For satisfying the rectangles outside the blocks, $2\cdot greedy(\tilde{P})+\sum_{i=1}^{k}|hidden(P_{i})|$
+is the cost when accessing the first elements of the blocks. $\sum_{i=1}^{k}(|wing_{R}(P_{i})|+|wing_{L}(P_{i})|)$
+is the cost when accessing the non-first elements of each blocks.
+\end{proof}
+
+\fi
+
+
+
+

@@ -28,13 +28,13 @@ private lemma ancestor_condition_iff_intervalGood {n : ℕ} (j k : Fin n)
   · intro h i hi hne
     have hmem := (Finset.mem_Icc.mp hi)
     have hlo : j ≤ i ∨ k ≤ i := by
-      simpa [min_le_iff] using hmem.1
+      simpa only [inf_le_iff] using hmem.1
     have hhi : i ≤ j ∨ i ≤ k := by
-      simpa [le_max_iff] using hmem.2
+      simpa only [le_sup_iff] using hmem.2
     exact h i hlo hhi hne
   · intro h i hlo hhi hne
     have hi : i ∈ Finset.Icc (min j k) (max j k) := by
-      simpa [Finset.mem_Icc, min_le_iff, le_max_iff] using And.intro hlo hhi
+      simpa only [Finset.mem_Icc, inf_le_iff, le_sup_iff] using And.intro hlo hhi
     exact h i hi hne
 
 private lemma interval_argmax_existsUnique {n : ℕ} (j k : Fin n)
@@ -44,11 +44,11 @@ private lemma interval_argmax_existsUnique {n : ℕ} (j k : Fin n)
   let s : Finset (Fin n) := Finset.Icc (min j k) (max j k)
   have hj : j ∈ s := by
     dsimp [s]
-    simp [Finset.mem_Icc]
+    simp only [Finset.mem_Icc, inf_le_left, le_sup_left, and_self]
   obtain ⟨a, ha, hmax⟩ := Finset.exists_max_image s (fun i => ω i) ⟨j, hj⟩
-  refine ⟨a, ⟨by simpa [s] using ha, ?_⟩, ?_⟩
+  refine ⟨a, ⟨ha, ?_⟩, ?_⟩
   · intro i hi hne
-    have hi' : i ∈ s := by simpa [s] using hi
+    have hi' : i ∈ s := hi
     have hle : ω i ≤ ω a := hmax i hi'
     have hne_img : ω i ≠ ω a := by
       intro heq
@@ -57,8 +57,8 @@ private lemma interval_argmax_existsUnique {n : ℕ} (j k : Fin n)
   · intro b hb
     rcases hb with ⟨hbmem, hbmax⟩
     by_contra hne
-    have hbmem' : b ∈ s := by simpa [s] using hbmem
-    have hamem : a ∈ Finset.Icc (min j k) (max j k) := by simpa [s] using ha
+    have hbmem' : b ∈ s := hbmem
+    have hamem : a ∈ Finset.Icc (min j k) (max j k) := ha
     have hba : ω b < ω a := by
       have hle : ω b ≤ ω a := hmax b hbmem'
       have hne_img : ω b ≠ ω a := by
@@ -83,10 +83,10 @@ private lemma interval_argmax_weight_sum {n : ℕ} (j k : Fin n)
             have hnot : ¬ intervalGood j k b ω := by
               intro hbmax
               exact hba (huniq b ⟨hb, hbmax⟩)
-            simp [goodWeight, hnot]
+            simp only [goodWeight, hnot, ↓reduceIte]
           · intro hnotmem
             exact (hnotmem ha_mem).elim
-    _ = c := by simp [goodWeight, ha_max]
+    _ = c := by simp only [goodWeight, ha_max, ↓reduceIte]
 
 private def precomposeSwapEquiv {n : ℕ} (j a : Fin n) :
     Equiv.Perm (Fin n) ≃ Equiv.Perm (Fin n) where
@@ -95,11 +95,11 @@ private def precomposeSwapEquiv {n : ℕ} (j a : Fin n) :
   left_inv := by
     intro ω
     ext x
-    simp
+    simp only [Equiv.trans_apply, Equiv.swap_apply_self]
   right_inv := by
     intro ω
     ext x
-    simp
+    simp only [Equiv.trans_apply, Equiv.swap_apply_self]
 
 private lemma swap_mem_interval {n : ℕ} {j k a i : Fin n}
     (ha : a ∈ Finset.Icc (min j k) (max j k))
@@ -108,14 +108,14 @@ private lemma swap_mem_interval {n : ℕ} {j k a i : Fin n}
   classical
   by_cases hij : i = j
   · subst i
-    simpa [Equiv.swap_apply_left] using ha
+    simpa only [Equiv.swap_apply_left, Finset.mem_Icc, inf_le_iff, le_sup_iff] using ha
   · by_cases hia : i = a
     · subst i
       have hj : j ∈ Finset.Icc (min j k) (max j k) := by
-        simp [Finset.mem_Icc]
-      simp [Equiv.swap_apply_right, hj]
+        simp only [Finset.mem_Icc, inf_le_left, le_sup_left, and_self]
+      simp only [Equiv.swap_apply_right, hj]
     · have hswap : Equiv.swap j a i = i := Equiv.swap_apply_of_ne_of_ne hij hia
-      simpa [hswap] using hi
+      simpa only [hswap, Finset.mem_Icc, inf_le_iff, le_sup_iff] using hi
 
 private lemma intervalGood_swap {n : ℕ} (j k a : Fin n)
     (ha : a ∈ Finset.Icc (min j k) (max j k))
@@ -129,18 +129,18 @@ private lemma intervalGood_swap {n : ℕ} (j k a : Fin n)
     have hne : Equiv.swap j a i ≠ a := by
       intro hs
       rw [Equiv.swap_apply_eq_iff] at hs
-      exact hinej (by simpa [Equiv.swap_apply_right] using hs)
+      exact hinej (by simpa only [Equiv.swap_apply_right] using hs)
     have hlt := h (Equiv.swap j a i) hmem hne
-    simpa using hlt
+    simpa only [gt_iff_lt, Equiv.trans_apply, Equiv.swap_apply_self, Equiv.swap_apply_right] using hlt
   · intro h i hi hinea
     have hmem : Equiv.swap j a i ∈ Finset.Icc (min j k) (max j k) :=
       swap_mem_interval (j := j) (k := k) (a := a) ha hi
     have hne : Equiv.swap j a i ≠ j := by
       intro hs
       rw [Equiv.swap_apply_eq_iff] at hs
-      exact hinea (by simpa [Equiv.swap_apply_left] using hs)
+      exact hinea (by simpa only [Equiv.swap_apply_left] using hs)
     have hlt := h (Equiv.swap j a i) hmem hne
-    simpa using hlt
+    simpa only [Equiv.trans_apply, Equiv.swap_apply_right, gt_iff_lt] using hlt
 
 private lemma intervalGood_weight_sum_eq {n : ℕ} (j k a : Fin n)
     (ha : a ∈ Finset.Icc (min j k) (max j k)) (c : ℝ) :
@@ -158,11 +158,11 @@ private lemma intervalGood_weight_sum_eq {n : ℕ} (j k a : Fin n)
     by_cases hgood : intervalGood j k j ω
     · have hg2 : intervalGood j k a ((Equiv.swap j a).trans ω) :=
         (intervalGood_swap j k a ha ω).mpr hgood
-      simp [goodWeight, hgood, hg2]
+      simp only [goodWeight, hgood, ↓reduceIte, hg2]
     · have hg2 : ¬ intervalGood j k a ((Equiv.swap j a).trans ω) := by
         intro hg
         exact hgood ((intervalGood_swap j k a ha ω).mp hg)
-      simp [goodWeight, hgood, hg2]
+      simp only [goodWeight, hgood, ↓reduceIte, hg2]
   exact hsum.symm
 
 theorem prob_is_ancestor (j k : Fin n) :
@@ -184,13 +184,13 @@ theorem prob_is_ancestor (j k : Fin n) :
         dsimp [c]
         have hcard : (Fintype.card (Equiv.Perm (Fin n)) : ℝ) ≠ 0 := by
           exact_mod_cast (Fintype.card_ne_zero : Fintype.card (Equiv.Perm (Fin n)) ≠ 0)
-        simp [hcard]
+        simp only [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, ne_eq, hcard, not_false_eq_true, mul_inv_cancel₀]
   have hjmem : j ∈ s := by
     dsimp [s]
-    simp [Finset.mem_Icc]
+    simp only [Finset.mem_Icc, inf_le_left, le_sup_left, and_self]
   have hcollapse : (s.card : ℝ) * p j = 1 := by
     have hconst : s.sum (fun _ : Fin n => p j) = (s.card : ℝ) * p j := by
-      simp [nsmul_eq_mul]
+      simp only [Finset.sum_const, nsmul_eq_mul]
     calc
       (s.card : ℝ) * p j = s.sum (fun _ : Fin n => p j) := hconst.symm
       _ = s.sum p := by
@@ -205,5 +205,7 @@ theorem prob_is_ancestor (j k : Fin n) :
   have hpj : p j = 1 / (s.card : ℝ) := by
     rw [← hcollapse]
     field_simp [hcard_s]
-  simpa [isAncestor, P, permPMF, perm_prob, PMF.integral_eq_sum,
-    ancestor_condition_iff_intervalGood, goodWeight, s, p, c, one_div] using hpj
+  simpa only [P, permPMF, isAncestor, Finset.mem_Icc, inf_le_iff, le_sup_iff, ne_eq, gt_iff_lt, and_imp,
+    ancestor_condition_iff_intervalGood, PMF.integral_eq_sum, PMF.ofFintype_apply, perm_prob, one_div, toReal_inv,
+    toReal_natCast, smul_eq_mul, mul_ite, mul_one, mul_zero, Fin.card_Icc, Fin.coe_max, Fin.coe_min, goodWeight,
+    s, p, c] using hpj

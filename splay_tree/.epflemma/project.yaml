@@ -1,8 +1,8 @@
 schema_version: 1
-name: icml-splay-tree
+name: splay_tree
 kind: lean4
 lean_root: .
-created_at: '2026-06-02T00:00:00+00:00'
+created_at: '2026-06-02T05:14:23+00:00'
 paths:
   runtime: .epflemma/runtime
   cache: .epflemma/cache

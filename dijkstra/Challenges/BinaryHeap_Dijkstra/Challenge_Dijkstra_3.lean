@@ -32,16 +32,17 @@ lemma contains_insert_iff {α : Type u} [DecidableEq α] :
       exact eq_comm
   | node l v r ihl ihr =>
       by_cases h : f y ≤ f v
-      · simp [insert, contains, h, ihl]
+      · simp only [insert, h, ↓reduceIte, contains, ihl]
         grind
-      · simp [insert, contains, h, ihl]
+      · simp only [insert, h, ↓reduceIte, contains, ihl]
         grind
 
 lemma contains_merge_iff {α : Type u} :
     ∀ (t₁ t₂ : BinaryTree α) (x : α) (f : α → ENat),
       contains (merge t₁ t₂ f) x ↔ contains t₁ x ∨ contains t₂ x := by
   intro t₁ t₂ x f
-  fun_induction merge t₁ t₂ f <;> simp [merge, contains, *] <;> grind
+  fun_induction merge t₁ t₂ f <;>
+    simp only [contains, Bool.false_eq_true, false_or, or_false, *] <;> grind
 
 lemma contains_remove_subset {α : Type u} [DecidableEq α] :
     ∀ (t : BinaryTree α) (x y : α) (f : α → ENat),
@@ -52,10 +53,10 @@ lemma contains_remove_subset {α : Type u} [DecidableEq α] :
   | node l v r ihl ihr =>
       by_cases h : y = v
       · subst h
-        simp [remove, contains, contains_merge_iff]
+        simp only [remove, ↓reduceIte, contains_merge_iff, contains]
         intro hcase
         exact Or.inr hcase
-      · simp [remove, contains, h]
+      · simp only [remove, h, ↓reduceIte, contains]
         intro hcase
         rcases hcase with hroot | hl | hr
         · exact Or.inl hroot
@@ -77,7 +78,7 @@ lemma contains_remove_of_ne {α : Type u} [DecidableEq α] :
         · exact False.elim (hne hvx.symm)
         · exact Or.inl hl
         · exact Or.inr hr
-      · simp [remove, h, contains]
+      · simp only [remove, h, ↓reduceIte, contains]
         rcases hmem with hvx | hl | hr
         · exact Or.inl hvx
         · exact Or.inr (Or.inl (ihl y f hl hne))
@@ -105,7 +106,8 @@ lemma contains_heapify_iff {α : Type u} :
     ∀ (t : BinaryTree α) (x : α) (f : α → ENat),
       contains (heapify t f) x ↔ contains t x := by
   intro t x f
-  fun_induction heapify t f <;> simp [heapify, contains, *] <;> grind
+  fun_induction heapify t f <;>
+    simp only [contains, Bool.false_eq_true, or_self, or_false, false_or, *] <;> grind
 
 lemma get_last_fst_isSome {α : Type u} :
     ∀ t : BinaryTree α, t ≠ leaf → (get_last t).1.isSome := by
@@ -127,18 +129,23 @@ lemma get_last_fst_isSome {α : Type u} :
 lemma get_last_value_contains {α : Type u} :
     ∀ (t : BinaryTree α) (x : α), (get_last t).1 = some x → contains t x := by
   intro t x h
-  fun_induction get_last t <;> simp [get_last, contains] at h ⊢ <;> grind
+  fun_induction get_last t <;>
+    simp only [reduceCtorEq, Option.some.injEq, contains, Bool.false_eq_true, or_self,
+      or_false, false_or] at h ⊢ <;> grind
 
 lemma get_last_tree_subset {α : Type u} :
     ∀ (t : BinaryTree α) (x : α), contains (get_last t).2 x → contains t x := by
   intro t x h
-  fun_induction get_last t <;> simp [get_last, contains] at h ⊢ <;> grind
+  fun_induction get_last t <;>
+    simp only [contains, Bool.false_eq_true, false_or] at h ⊢ <;> grind
 
 lemma get_last_value_or_tree {α : Type u} :
     ∀ (t : BinaryTree α) (x : α),
       contains t x → (get_last t).1 = some x ∨ contains (get_last t).2 x := by
   intro t x h
-  fun_induction get_last t <;> simp [get_last, contains] at h ⊢ <;> grind
+  fun_induction get_last t <;>
+    simp only [contains, Bool.false_eq_true, or_self, or_false, Option.some.injEq,
+      false_or] at h ⊢ <;> grind
 
 lemma get_last_node_leaf_fst {α : Type u} :
     ∀ (l r : BinaryTree α) (v : α),
@@ -281,13 +288,13 @@ lemma strongHeap_insert {α : Type u} [DecidableEq α] :
   intro t y f hheap
   induction t generalizing y with
   | leaf =>
-      simp [insert, StrongHeap]
+      simp only [insert, StrongHeap, and_self, and_true]
       intro x hx
       cases hx
   | node l v r ihl ihr =>
       rcases hheap with ⟨hl, hr, hhl, hhr⟩
       by_cases h : f y ≤ f v
-      · simp [insert, h, StrongHeap]
+      · simp only [insert, h, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hx' := (contains_insert_iff l x v f).mp hx
@@ -300,7 +307,7 @@ lemma strongHeap_insert {α : Type u} [DecidableEq α] :
           · constructor
             · exact ihl v hhl
             · exact hhr
-      · simp [insert, h, StrongHeap]
+      · simp only [insert, h, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hx' := (contains_insert_iff l x y f).mp hx
@@ -326,7 +333,7 @@ lemma strongHeap_merge {α : Type u} :
       have h₂root : ∀ x, contains (node l2 v2 r2) x → f v2 ≤ f x := by
         intro x hx
         exact strongHeap_root_le h₂ hx
-      simp [merge, hle, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         have hx' := (contains_merge_iff l1 (node l2 v2 r2) x f).mp hx
@@ -344,7 +351,7 @@ lemma strongHeap_merge {α : Type u} :
       have h₁root : ∀ x, contains (node l1 v1 r1) x → f v1 ≤ f x := by
         intro x hx
         exact strongHeap_root_le h₁ hx
-      simp [merge, hnot, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         have hx' := (contains_merge_iff (node l1 v1 r1) l2 x f).mp hx
@@ -364,13 +371,13 @@ lemma strongHeap_heapify {α : Type u} :
   fun_induction heapify t f with
   | case1 => simp [StrongHeap]
   | case2 v =>
-      simp [heapify, StrongHeap]
+      simp only [StrongHeap, and_self, and_true]
       intro x hx
       cases hx
   | case3 v rl rv rr h ih =>
       rcases hch with ⟨_, hright⟩
       rcases hright with ⟨hrl, hrr, hhrl, hhrr⟩
-      simp [heapify, h, StrongHeap]
+      simp only [StrongHeap, true_and]
       constructor
       · intro x hx; cases hx
       · constructor
@@ -385,7 +392,7 @@ lemma strongHeap_heapify {α : Type u} :
       rcases hch with ⟨_, hright⟩
       rcases hright with ⟨hrl, hrr, hhrl, hhrr⟩
       have hvle : f v ≤ f rv := le_of_not_gt h
-      simp [heapify, h, StrongHeap]
+      simp only [StrongHeap, true_and]
       constructor
       · intro x hx; cases hx
       · constructor
@@ -399,7 +406,7 @@ lemma strongHeap_heapify {α : Type u} :
   | case5 v ll lv lr h ih =>
       rcases hch with ⟨hleft, _⟩
       rcases hleft with ⟨hll, hlr, hhll, hhlr⟩
-      simp [heapify, h, StrongHeap]
+      simp only [StrongHeap, and_true]
       constructor
       · intro x hx
         have hxold := (contains_heapify_iff (node ll v lr) x f).mp hx
@@ -414,7 +421,7 @@ lemma strongHeap_heapify {α : Type u} :
       rcases hch with ⟨hleft, _⟩
       rcases hleft with ⟨hll, hlr, hhll, hhlr⟩
       have hvle : f v ≤ f lv := le_of_not_gt h
-      simp [heapify, h, StrongHeap]
+      simp only [StrongHeap, and_true]
       constructor
       · intro x hx
         rcases hx with hvx | hrest
@@ -427,7 +434,7 @@ lemma strongHeap_heapify {α : Type u} :
         · exact ⟨hll, hlr, hhll, hhlr⟩
   | case7 v ll lv lr rl rv rr hlerv hvle =>
       rcases hch with ⟨hl, hr⟩
-      simp [heapify, hlerv, hvle, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         exact le_trans hvle (strongHeap_root_le hl hx)
@@ -438,7 +445,7 @@ lemma strongHeap_heapify {α : Type u} :
   | case8 v ll lv lr rl rv rr hlerv hlt ih =>
       rcases hch with ⟨hl, hr⟩
       rcases hl with ⟨hll, hlr, hhll, hhlr⟩
-      simp [heapify, hlerv, hlt, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         have hxold := (contains_heapify_iff (node ll v lr) x f).mp hx
@@ -455,7 +462,7 @@ lemma strongHeap_heapify {α : Type u} :
   | case9 v ll lv lr rl rv rr hnot hvle =>
       rcases hch with ⟨hl, hr⟩
       have hrvlelv : f rv ≤ f lv := le_of_lt (lt_of_not_ge hnot)
-      simp [heapify, hnot, hvle, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         exact le_trans (le_trans hvle hrvlelv) (strongHeap_root_le hl hx)
@@ -467,7 +474,7 @@ lemma strongHeap_heapify {α : Type u} :
       rcases hch with ⟨hl, hr⟩
       rcases hr with ⟨hrl, hrr, hhrl, hhrr⟩
       have hrvlelv : f rv ≤ f lv := le_of_lt (lt_of_not_ge hnot)
-      simp [heapify, hnot, hrvvlt, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         exact le_trans hrvlelv (strongHeap_root_le hl hx)
@@ -486,7 +493,8 @@ lemma strongHeap_get_last_tree {α : Type u} :
     ∀ (t : BinaryTree α) (f : α → ENat),
       StrongHeap t f → StrongHeap (get_last t).2 f := by
   intro t f hheap
-  fun_induction get_last t <;> simp [get_last, StrongHeap] at * <;>
+  fun_induction get_last t <;>
+    simp only [StrongHeap, and_self, and_true, imp_false, true_and] at * <;>
     grind [get_last_tree_subset]
 
 lemma strongHeap_extract_min {α : Type u} :
@@ -547,7 +555,7 @@ lemma strongHeap_remove {α : Type u} [DecidableEq α] :
       · subst hy
         simp [remove]
         exact strongHeap_merge l r f hhl hhr
-      · simp [remove, hy, StrongHeap]
+      · simp only [remove, hy, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           exact hl x (contains_remove_subset l x y f hx)
@@ -569,14 +577,14 @@ lemma noDup_insert {α : Type u} [DecidableEq α] :
       NoDupTree t → ¬ contains t y → NoDupTree (insert t y f) := by
   intro t y f hnd hnot
   induction t generalizing y with
-  | leaf => simp [insert, NoDupTree, contains]
+  | leaf => simp only [insert, NoDupTree, contains, Bool.false_eq_true, not_false_eq_true, imp_self, implies_true, and_self]
   | node l v r ihl ihr =>
       rcases hnd with ⟨hndl, hndr, hnlv, hnrv, hdisj⟩
       have hnyv : y ≠ v := by intro h; exact hnot (Or.inl h.symm)
       have hnly : ¬ contains l y := by intro h; exact hnot (Or.inr (Or.inl h))
       have hnry : ¬ contains r y := by intro h; exact hnot (Or.inr (Or.inr h))
       by_cases hle : f y ≤ f v
-      · simp [insert, hle, NoDupTree]
+      · simp only [insert, hle, ↓reduceIte, NoDupTree, imp_false]
         constructor
         · exact ihl v hndl hnlv
         · constructor
@@ -594,7 +602,7 @@ lemma noDup_insert {α : Type u} [DecidableEq α] :
                 rcases hxold with hxl | hxv
                 · exact hdisj x hxl hrx
                 · exact hnrv (by simpa [hxv] using hrx)
-      · simp [insert, hle, NoDupTree]
+      · simp only [insert, hle, ↓reduceIte, NoDupTree, imp_false]
         constructor
         · exact ihl y hndl hnly
         · constructor
@@ -628,7 +636,7 @@ lemma noDup_merge {α : Type u} :
         apply ih hndl1 hnd₂
         intro x hx1 hx2
         exact hdisj12 x (Or.inr (Or.inl hx1)) hx2
-      simp [merge, hle, NoDupTree]
+      simp only [NoDupTree, imp_false]
       constructor
       · exact hnd_left
       · constructor
@@ -652,7 +660,7 @@ lemma noDup_merge {α : Type u} :
         apply ih hnd₁ hndl2
         intro x hx1 hx2
         exact hdisj12 x hx1 (Or.inr (Or.inl hx2))
-      simp [merge, hnot, NoDupTree]
+      simp only [NoDupTree, imp_false]
       constructor
       · exact hnd_left
       · constructor
@@ -683,7 +691,7 @@ lemma noDup_remove {α : Type u} [DecidableEq α] :
       · subst hy
         simp [remove]
         exact noDup_merge l r f hndl hndr hdisj
-      · simp [remove, hy, NoDupTree]
+      · simp only [remove, hy, ↓reduceIte, NoDupTree, imp_false]
         constructor
         · exact ihl y f hndl
         · constructor
@@ -710,7 +718,7 @@ lemma remove_not_contains_of_noDup {α : Type u} [DecidableEq α] :
       · subst hy
         simp [remove, contains_merge_iff]
         exact ⟨hnlv, hnrv⟩
-      · simp [remove, hy, contains]
+      · simp only [remove, hy, ↓reduceIte, contains, not_or]
         constructor
         · exact fun hvy => hy hvy.symm
         · constructor
@@ -721,20 +729,27 @@ lemma noDup_heapify {α : Type u} :
     ∀ (t : BinaryTree α) (f : α → ENat),
       NoDupTree t → NoDupTree (heapify t f) := by
   intro t f hnd
-  fun_induction heapify t f <;> simp [heapify, NoDupTree, contains] at *
+  fun_induction heapify t f <;>
+    simp only [NoDupTree, contains, Bool.false_eq_true, not_false_eq_true, imp_self,
+      implies_true, and_self, imp_false, and_imp, not_or, IsEmpty.forall_iff, and_true,
+      true_and, not_lt, not_le] at *
   all_goals grind [contains_heapify_iff, contains]
 
 lemma noDup_get_last_tree {α : Type u} :
     ∀ (t : BinaryTree α), NoDupTree t → NoDupTree (get_last t).2 := by
   intro t hnd
-  fun_induction get_last t <;> simp [get_last, NoDupTree] at * <;>
+  fun_induction get_last t <;>
+    simp only [NoDupTree, imp_false, imp_not_self, and_self_left, true_and] at * <;>
     grind [get_last_tree_subset]
 
 lemma get_last_value_not_in_tree {α : Type u} :
     ∀ (t : BinaryTree α) (x : α),
       NoDupTree t → (get_last t).1 = some x → ¬ contains (get_last t).2 x := by
   intro t x hnd hval hmem
-  fun_induction get_last t <;> simp [get_last, NoDupTree, contains] at * <;>
+  fun_induction get_last t <;>
+    simp only [NoDupTree, reduceCtorEq, contains, Bool.false_eq_true, not_false_eq_true,
+      imp_self, implies_true, and_self, Option.some.injEq, imp_false, IsEmpty.forall_iff,
+      and_true, true_and, false_or] at * <;>
     grind [get_last_value_contains, get_last_tree_subset]
 
 lemma noDup_extract_min {α : Type u} :
@@ -799,7 +814,7 @@ lemma strongHeap_remove_changed {α : Type u} [DecidableEq α] :
           · exact hhr
         exact strongHeap_merge l r new hlnew hrnew
       · have hvagree : new v = old v := hagree v (by intro h; exact hy h.symm)
-        simp [remove, hy, StrongHeap]
+        simp only [remove, hy, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hxoldmem := contains_remove_subset l x y new hx
@@ -1380,8 +1395,8 @@ lemma fold_add_mem_iff (xs : List V) (dist : V → ENat) (q : BinaryHeap V)
   | nil => simp
   | cons v xs ih =>
       rw [List.foldl_cons]
-      simp [ih, BinaryHeap.mem_add_iff, List.mem_cons]
-      aesop
+      simp only [ih, BinaryHeap.mem_add_iff, List.mem_cons]
+      grind
 
 lemma fold_add_strong (xs : List V) (dist : V → ENat) (q : BinaryHeap V) :
     BinaryHeap.Strong q dist →

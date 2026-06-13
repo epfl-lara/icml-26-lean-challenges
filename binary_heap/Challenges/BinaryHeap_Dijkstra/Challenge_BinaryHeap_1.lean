@@ -24,7 +24,7 @@ private lemma contains_heapify_iff {α : Type u} :
     ∀ (t : BinaryTree α) (x : α) (f : α → ENat),
       contains (heapify t f) x ↔ contains t x := by
   intro t x f
-  fun_induction heapify t f <;> simp [heapify, contains, *] <;> grind
+  fun_induction heapify t f <;> simp only [contains, *] <;> aesop
 
 
 private def StrongHeap : BinaryTree α → (α → ENat) → Prop

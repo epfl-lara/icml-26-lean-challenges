@@ -1,0 +1,419 @@
+
+\section{Access sequences with initial trees} 
+\label{sec:forbidden} 
+
+\iffalse
+Recall that a sequence $X = (x_1, \dots, x_m)$ \emph{avoids} a permutation $\sigma: [k] \rightarrow [k]$, if there are no indices $1 \leq i_1 < i_2 < \cdots < i_k \leq m$, such that the sequence $x_{i_1}, \dots, x_{i_k}$ is order-isomorphic to $(\sigma(1), \dots, \sigma(k))$. 
+
+In this section we prove that the cost of {\sc Greedy} on an arbitrary access sequence (not necessarily a permutation) that avoids a permutation of size $k$ is quasilinear. The result holds for arbitrary initial tree, therefore, it also holds for the cost of {\sc Greedy} restricted to an arbitrary contiguous subsequence of the input. Since preorder sequences avoid 231, as a special case we obtain a quasilinear bound for the {\sc Greedy} analogue of the traversal conjecture for splay trees. Furthermore, we show that the maximum independent rectangle lower bound (or equivalently the cost of {\sc SignedGreedy}) is linear on any such access sequence. We prove the following theorem.
+\fi
+
+\subsection{Initial trees.}
+\label{sec:initial-tree}
+In the BST model, the \emph{initial tree} is the state of the BST before the first element is accessed. In the tree-view of BST execution, we know the 
+structure of the tree exactly in every time step, and hence the structure of
+the initial tree as well. This is less obvious, however, in the geometric
+view. In fact, according to the reduction of DHIKP, the
+initial tree is always a \emph{split tree }\cite{DHIKP09}, hidden from us
+in geometric view. We show how to ``force'' an arbitrary initial tree into the geometric view of BST execution.
+
+First, we observe a simple fact. Given a binary search tree $T$, we
+denote the search path of an element $a$ in $T$ as ${\sf path}(a,T)$. It is easy to show that two BSTs $T_{1}$ and $T_{2}$,
+containing $[n]$, have the same structure iff ${\sf path}(a,T_{1})={\sf path}(a,T_{2})$
+as a set, for all $a\in[n]$.
+
+
+The stair of an element is, in some sense, the geometric view of the
+search path. Indeed, ${\sf path}(a,T)=\{b\mid b$ is touched if $a$ is
+accessed in $T\}$. Similarly, ${\sf stair}_t(a)=\{b\mid b$
+is touched if $a$ is accessed at time $t\}$. Thus, to model an initial
+tree $T$ into the geometric view, %by Proposition \ref{same tree=same paths},
+it is enough to enforce that ${\sf stair}_1(a)={\sf path}(a,T)$.
+
+We can achieve this in a straightforward way, by putting stacks of points in each column below the first row, corresponding to the structure of the initial tree $T$. More precisely, in column $x$ we put a stack of height $d-d(x)+1$, where $d(x)$ is the depth of element $x$ in $T$, and $d$ is the maximum depth of an element (Figure \ref{fig:geo init tree}). One can easily show that ${\sf stair_1(a)}={\sf path(a,T)}$ for all $a\in[n]$.
+
+We remark that the points representing the initial tree are not counted in the cost.
+
+
+\iffalse
+\paragraph{Traversal conjecture.}
+The traversal conjecture for splay trees, asked in 1985 by Sleator and Tarjan~\cite{ST85} states that the cost of running the splay tree algorithm on an input $X \in {\sf PreOrd}_n$ with arbitrary initial tree $T$ is $O(n)$. Only the special cases when $X$ is a monotone sequence~\cite{tarjan_sequential, pettie_DS}, or when $T$ is the unique BST underlying $X$~\cite{chaudhuri} are known. The analogous conjecture for {\sc Greedy} can be stated as follows. 
+
+\begin{conjecture}[Traversal for {\sc Greedy}] 
+For any input sequence $X \in {\sf PreOrd}_n$, and any initial tree $T$, we have that {\sc Greedy}$(X) = O(n)$.   
+\end{conjecture} 
+
+In \S\,\ref{sec:warmup} we prove the special case of this conjecture without initial tree. The initial tree in our proof will be the split-tree created by the reduction of DHIKP, independent of the input sequence $X$. In \S\,\ref{sec:forbidden} we prove a quasilinear upper bound for {\sc Greedy} that applies to preorder sequences with arbitrary initial tree.
+
+\begin{theorem}
+\label{thm:pseudo}
+Let $T$ be an initial tree. 
+Let $S = (x_1, \dots, x_m) \in [n]^m$ be an arbitrary access sequence that avoids a permutation $\sigma$ of size $k$. The cost of {\sc Greedy}, starting with initial tree $T$, on $X = \pset_S$ is $O\left(m \cdot 2^{({\alpha(m)})^{f(k)}}\right)$, for a fixed function $f$ (to be specified later), and $\alpha$ the inverse Ackermann function. 
+\end{theorem}
+
+
+
+\subsection{Preliminaries}
+
+In this section and in \S\,\ref{sec:block_linear} we use tools from the theory of forbidden matrices. In order to apply these tools, it will be fruitful to encode both the input and the output of {\sc Greedy} in the form of a matrix. All matrices considered in this paper have entries from $\{0,1\}$.
+
+
+Let $X$ be a {\sc MinASS} input, corresponding to an access sequence $S = (x_1,\dots, x_m)$, where $x_i \in [n]$, and let $Y$ be the output of {\sc Greedy} on $X$ (note that $Y \supseteq X$). It is easy to see that $Y$ consists of points with integral coordinates from the set $[n] \times [m]$. %Thus, a natural encoding of the {\sc Greedy} execution is a matrix with $m$ rows and $n$ columns. More precisely, 
+Let us define the \emph{access matrix} $M^X$ as a matrix with $m$ rows and $n$ columns, such that $M^X(i,j) = 1$, iff $(i,j) \in X$, and 0 otherwise. Similarly, let us define the \emph{touch matrix} $T^X$ as a matrix with $m$ rows and $n$ columns, such that $T^X(i,j) = 1$, iff $(i,j) \in Y$, and 0 otherwise. We call the number of ones in a matrix $M$ the \emph{weight} of $M$, denoted as $w(M)$. Observe that the cost of \greedy on $X$ is $w(T^X)$.
+
+%%Equivalently, 
+Given $I \subseteq [n]$ and $J \subseteq [m]$, a \emph{submatrix} $M|_{I,J}$ is obtained by removing columns in $[n] \setminus I$ and rows in $[m] \setminus J$ from $M$.   
+%contains the rows and columns indexed by $I$ and $J$ respectively. 
+%%When $I$ and $J$ contain consecutive numbers, i.e. $I = \{r,\ldots, s\}$, we say that $M|_{I,J}$ is a {\em consecutive submatrix} of $M$.\\
+%
+We define the \emph{tensor product} between matrices as follows: $M \otimes G$ is the matrix obtained by replacing each one-entry of $M$ by a copy of $G$, and replacing each zero-entry of $M$ by an all-zero matrix equal in size with $G$ (for permutation matrices, in the notation of \S\,\ref{subsec:decomp} we have: $M \otimes G = M[G,G,\dots]$).
+
+\subsection{Forbidden Submatrices}
+%%For a matrix $M$, we say that $M'$ is a submatrix of $M$ if $M'$ can be obtained by removing a collection of rows and columns of $M$. %Let $M$ and $P$ be matrices with entries in $\{0,1\}$. 
+
+We say that a matrix $M$ \emph{contains} a matrix $P$ if there is a submatrix $M'$ of $M$ that has the same size as $P$, and $M'(i,j)=1$ whenever $P(i,j)=1$. In words, a 1-entry in $P$ has to be matched with a 1-entry in $M$, and a 0-entry in $P$ can be matched to anything. If $M$ does not contain $P$, we say that $M$ is $P$-\emph{free}, or that $P$ is a \emph{forbidden submatrix} of $M$.
+
+A permutation matrix $M_\sigma$ of a permutation $\sigma$ is defined as: $M(i,j) = 1$, if $\sigma(j) = i$, and 0 otherwise. We observe the following obvious connection between permutation-avoidance and forbidden submatrices. Let $M^X$ be the access matrix corresponding to an access sequence $X$ that avoids permutation $P$. Then $M^X$ is $M_P$-free. Permutation matrices have a single one in every row and in every column. Relaxing this condition slightly, a matrix that has a single one in every column is called a \emph{light} matrix.
+ 
+
+The theory of forbidden submatrices is mostly concerned with questions of the following type: given an $m$-by-$n$ matrix $M$ with entries $\{0,1\}$, how large can $w(M)$ be, assuming that $M$ is $P$-free, for a fixed matrix $P$. Of the many results of this flavor found in the literature, we collect in the following lemma three that are relevant in this paper.
+
+\begin{lemma}[Forbidden Submatrix Bounds~\cite{furedi_hajnal, marcus_tardos, jfox, klazar, keszegh}]
+\label{lem: forbidden}
+Let $M$ be an $m$-by-$n$ matrix with entries $\{0,1\}$, $m \geq n$. 
+
+\begin{enumerate}
+\item (F\"{u}redi, Hajnal~\cite[Cor.\ 2.7]{furedi_hajnal})~~ if $M$ is $\left( \begin{matrix}
+  1 & 0 & 0 \\
+  0 & 0 & 1 \\
+  0 & 1 & 0
+ \end{matrix}\right)$-free, then $w(M) \leq 2(m+n)$.
+\item (Marcus, Tardos~\cite{marcus_tardos})~~ if $M$ is $P$-free, for a $k$-by-$k$ permutation matrix $P$, then $w(M) \leq m \cdot f(k)$, for a fixed function $f$.
+\item (Klazar~\cite{klazar})~~ if $M$ is $P$-free, for a $k$-by-$k$ light matrix $P$, then $w(M) \leq m \cdot 2^{O(({\alpha(m)})^{g(k)})}$, for a fixed function $g$. 
+\end{enumerate} 
+\end{lemma}
+
+Statement (ii) of Lemma~\ref{lem: forbidden} was proven by Marcus and Tardos~\cite{marcus_tardos}, answering a question by F\"{u}redi and Hajnal~\cite{furedi_hajnal}. They obtain the function $f(k) = 2k^4\binom{\,k^2}{k} = 2^{O(k \log k)}$. Recently Fox~\cite{jfox} obtained the improved bound $f(k) = 2^{O(k)}$.
+
+Statement (iii) of Lemma~\ref{lem: forbidden} follows from results of Klazar~\cite{klazar}. The proof can also be found in the work of Keszegh~\cite{keszegh}, where the function $g(k) = 2k^2 - 4$ is obtained.
+
+\fi
+\iffalse
+
+\begin{proof} 
+Let us call the three access points $(a,t_a), (b,t_b), (c,t_c)$ where $t_a < t_b < t_c$. 
+There are two cases to consider: First if $b \in \tset_a$, then it is impossible that $c \in \tset_a$ because all points on the left are accessed before the right. This means that there is $d \not \in \set{a,b,c}$ where $d = lca(a,c)$, so in particular, $d$ is accessed before both $a$ and $c$. 
+Now we reach a contradiction because the element $c$ in the left-subtree of $d$ is accessed after the element $a$ on the right. 
+
+\lk{cursor}
+
+Otherwise, if $b \not \in \tset_a$, there is an element $d = lca(a,b)$, where $a$ and $b$ are in the left- and right-subtrees of $d$ respectively. 
+Element $c$ cannot be in $\tset_d$ for otherwise, the accesses would have alternated from $a$ to $b$ and then back to $c$, so this means that $lca(c,d)$ exists, again contradiction because elements on the right subtrees are accessed before those on the left.     
+\end{proof} 
+\subsection{Complexity of Access Sequence} 
+ 
+\begin{theorem}
+Let $X$ be an input sequence of size $n$ that does not contain a permutation pattern $\rho$ of size $k$. Then $Greedy(X) \leq O_k(n)$ where the $O_k$ notation hides $k$ as constant.  
+%If $X$ is $P$-free, then $|{\sc Greedy}(X)| < f(k)(m+n)$, in particular, for any constant $k$, we have $|{\sc Greedy}(X)| = \Theta(m+n)$.
+\end{theorem}
+
+\lk{Maybe we could give the exact expressions, since it is interesting in the whole $k=o(loglogn)$ range, and discuss in one sentence as special case the $k$ constant case.}
+
+We remark that our technique allows us to prove this theorem even without the permutation assumption of $X$, i.e. if $X$ is an access sequence of length $m$ on $[n]$, then the cost of {\sc Greedy} on $X$ is $O(m+n)$. 
+
+\fi
+
+
+\iffalse
+\subsection{Proof of Theorem~\ref{thm:pseudo}}
+\label{pseudoproof}
+Let $M^X$ and $T^X$ be the access, respectively touch matrices corresponding to the execution of \greedy on an input sequence $X$ that avoids a permutation $P$.
+
+We mention that in the case when $P = 231$, a relatively simple argument shows that $T^X$ is $M_P$-free. In words, if the input is $231$-free, then the output of \greedy is also $231$-free. The proof of this claim is simple and we leave it as an exercise for the interested reader. Observe that together with Lemma~\ref{lem: forbidden}(i), this yields an alternative proof of Theorem~\ref{thm:greedy-traversal}, with a matching constant.
+
+For a general avoided permutation $P$, we have to work harder. We define the matrix $G = \left( \begin{matrix}
+  0 & 1 & 0 \\
+  1 & 0 & 1 
+ \end{matrix}\right)$, and call it the \emph{forcing gadget}. We make the following claim.
+ \begin{lemma}
+ \label{lem:forcing1}
+ If $X$ avoids $P$, then $T^X$ is $(M_P \otimes G)$-free.
+ \end{lemma}
+
+Observe that Lemma~\ref{lem:forcing1} immediately implies Theorem~\ref{thm:pseudo}(i) via Lemma~\ref{lem: forbidden}(iii), and by the observation that if $P$ is a permutation of size $k$, then $M_P \otimes G$ is a $3k$-by-$2k$ light matrix. (To apply Lemma~\ref{lem: forbidden} we can pad $M_P \otimes G$ with zeros to make it a square matrix). Now we prove Lemma~\ref{lem:forcing1}.
+
+The key idea of our proof is the observation that for every occurrence of the forcing gadget $G$ in the \greedy execution, the bounding box around the gadget must have an access point inside. More precisely:
+
+\begin{lemma}
+\label{forcing2}
+Let $M' = T^{X}|_{I,J}$ be a submatrix of the touch matrix $T^X$, such that $M'$ contains $G$. Let $I', J'$ denote the coordinates of the smallest bounding box around $M'$, i.e.\ $I' = [\min(I), \max(I)]$, and $J' = [\min(J), \max(J)]$ Then $w(M^{X}|_{I',J'}) \geq 1$.
+\end{lemma}
+
+\begin{proof}
+Let $(x,t)$ and $(y,t)$ be the two entries in $T^X$ matched with the lower left, respectively lower right 1-entry of $G$. Let $t'$ be the coordinate of the topmost row of $M'$, i.e.\ $t' = \max{(J)}$. The top 1-entry of $G$ needs to match an element in the interval $[x+1, y-1]$ touched in the time interval $[t+1,t']$. Such a touched point, however, cannot exist due to Lemma~\ref{lem: hidden lemma}: if there are no 1-entries inside $M^X|_{I',J'}$, then during the \greedy execution all elements in the interval $[x+1, y-1]$ were $[t+1,t']$-hidden via $[x+1, y-1]$.
+\end{proof}
+
+To finish the proof, notice that if $T^X$ were to contain $(M_P \otimes G)$, then we could surround ``each copy'' of $G$ inside $(M_P \otimes G)$ with pairwise non-overlapping bounding boxes. Due to Lemma~\ref{forcing2}, each of these boxes must contain an access point, furthermore the relative positions of these access points is the same as that of the one-entries of $M_P$, contradicting that the input was $P$-free.
+\fi
+\subsection{$k$-increasing sequences}
+\label{sub:k inc seq}
+We prove Lemma~\ref{lem:input-revealing} (iii) and (iv).   
+
+\begin{lemma}[Lemma~\ref{lem:input-revealing}(iii)]
+$\inc_{k+1}$ ($\dec_{k+1})$ is a $k$-increasing ($k$-decreasing)
+		gadget for \greedy where $\inc_{k}=(k,\dots,1)$ and \textup{$\dec_{k}=(1,2,\dots,k)$}. 
+\end{lemma}
+
+\begin{proof}
+
+We only prove that $\inc_{k+1}$ is a $k$-increasing gadget. Let $q_{0},\dots,q_{k}$ be
+	touch points in $\Greedy_{T}(X)$ such that $q_{i}.y<q_{i+1}.y$
+	for all $i$ and form $\inc_{k+1}$ with bounding box $B$. 
+	Note that, for all $1\le i\le k$, we can assume that there is no touch point $q'_i$ where $q'_i.x = q_i.x$ and $q_{i-1}.y<q'_i.y<q_i.y$, otherwise we can choose $q'_i$ instead of $q_i$.
+	So, for any $t \in [q_{i-1}.y,q_i.y)$ we have that $\tau(q_{i-1}.x,t)\ge\tau(q_{i}.x,t)$ 
+	for all $1\le i\le k$. Suppose that there is no access point in $B$.
+	
+	By \Cref{prop:hidden}~(ii), $q_{1}.x$ is hidden in $[1,q_{0}.x)$ after $q_0.y$. 
+	So there must be an access point $p_1 \in[1,B.\xmin)\times(q_{0}.y,q_{1}.y]$, otherwise $q_1$ cannot be touched.
+	We choose such $p_{1}$ where $p_{1}.x$ is maximized. If $p_{1}.y<q_{1}.y$,
+	then $\tau(p_{1}.x,p_{1}.y),\tau(q_{0}.x,p_{1}.y)\ge\tau(q_{1}.x,p_{1}.y)$.
+	So by \Cref{prop:hidden}~(iii), $q_{1}.x$ is hidden in $(p_{1}.x,q_{0}.x)$ after $p_1.y$ and hence $q_{1}$ cannot be touched, which is a contradiction.
+	So we have $p_{1}.y=q_{1}.y$ and $p_{1}.x<B.\xmin$.
+	
+	Next, we prove by induction from $i=2$ to $k$ that, given the
+	access point $p_{i-1}$ where $p_{i-1}.y=q_{i-1}.y$ and $p_{i-1}.x<B.\xmin$,
+	there must be an access point $p_{i}$ where $p_{i}.y=q_{i}.y$ and
+	$p_{i-1}.x<p_{i}.x<B.\xmin$. Again, by \Cref{prop:hidden}~(iii), there
+	must be an access point $p_{i}\in(p_{i-1}.x,q_{i-1}.x)\times(q_{i-1}.y,q_{i}.y]$
+	otherwise $q_{i}$ cannot be touched. We choose the point $p_{i}$
+	where $p_{i}.x$ is maximized. If $p_{i}.y<q_{i}.y$, then $\tau(p_{i}.x,p_{i}.y),\tau(q_{i-1}.x,p_{i}.y)\ge\tau(q_{i}.x,p_{i}.y)$.
+	So by \Cref{prop:hidden}~(iii), $q_{i}.x$ is hidden in $(p_{i}.x,q_{i-1}.x)$ after $p_i.y$ and hence $q_{i}$ cannot be touched.
+	So we have $p_{i}.y=q_{i}.y$ and $p_{i-1}.x<p_{i}.x<B.\xmin$. Therefore,
+	we get $p_{1}.x<\dots<p_{k}.x<B.\xmin$ which concludes the proof.
+\end{proof}
+
+\begin{lemma}[Lemma~\ref{lem:input-revealing}(iv)]
+ $\dec_{k+1}$ ($\inc_{k+1})$ is a capture gadget for \greedy that
+		runs on $k$-increasing $(k$-decreasing$)$ sequence.
+\end{lemma}
+\begin{proof}
+We only prove that $\inc_{k+1}$ is a capture gadget for \greedy
+	running on $k$-decreasing sequence $X$. Since $\inc_{k+1}$ is an
+	increasing gadget, if $\inc_{k+1}$ appears in $\Greedy_{T}(X)$ with
+	bounding box $B$, then either there is an access point in $B$ or
+	there are access points forming $(1,2,\dots,k)$. The latter case
+	cannot happen because $X$ avoids $(1,2,\dots,k)$.
+	So $\inc_{k+1}$ is a capture gadget.
+\end{proof}	
+	\iffalse
+\subsection{Signed Greedy Result}
+
+We can restrict {\sc Greedy} in a way that it satisfies only rectangles of one of the two types (.. and ..). The two outputs thus obtained might not be a feasible {\sc MinASS} solution. However, the sum of the two output-sizes (plus the input size) is a constant-approximation for the \emph{independent rectangle lower bound}, a bound that subsumes all other known lower bounds for $\opt$~\cite{DHIKP09, Harmon}. 
+
+\begin{theorem} 
+The cost of {\sc SignedGreedy} on $X = \pset_S$ is $O(m \cdot g(k))$, for a fixed function $g$ (to be specified later).
+\end{theorem} 
+\begin{proof} 
+We prove the theorem in a similar way. Let $\textsc{Greedy}_{+}$ and $\textsc{Greedy}_{-}$ denote the variants of {\sc SignedGreedy} that satisfy rectangles of type (..), resp.\ (..), and let $T^X_{+}$, resp.\ $T^X_{-}$ be the corresponding touch matrices. Then {\sc SignedGreedy}$(X) = w(T^X_{+}) + w(T^X_{-}) + |X|$.
+
+
+We define the forcing gadgets $G_{+} = \left( \begin{matrix}
+  0 & 1 \\
+  1 & 0 
+ \end{matrix}\right)$, and $G_{-} = \left( \begin{matrix}
+  1 & 0 \\
+  0 & 1 
+ \end{matrix}\right)$. We make the following claim.
+ \begin{lemma}
+ \label{lem:forcing_signed}
+ If $X$ avoids $P$, then $T^X_{+}$ is $(M_P \otimes G_{+})$-free, and $T^X_{-}$ is $(M_P \otimes G_{-})$-free.
+ \end{lemma}
+ 
+The proof is analogous (but simpler) to the proof of Lemma~\ref{lem:forcing1}. This implies Theorem~\ref{thm:pseudo}(ii) via Lemma~\ref{lem: forbidden}(ii), and by the observation that if $P$ is a permutation of size $k$, then $M_P \otimes G_i$ is a $2k$-by-$2k$ permutation matrix, for $i \in \{+,-\}$. 
+\end{proof}  
+
+\begin{proof}
+Consider a pattern $\sigma$ and name four points that appear in $M$ by $(a,t_a), (b,t_b), (c,t_c)$ and $(d, t_d)$ respectively such that $t_a < t_d< t_b < t_c$ (so we have $a < c < d <b$.) 
+Assume for contradiction that during the time interval $I = (s_I, t_I)$, entries in $J$ are never accessed.    
+
+Define the time points $t'_a, t'_b, t'_c, t'_d$ before time interval $I$ for which $a,b,c,d$ are touched for the last time before entering $I$. 
+In our earlier notation, $t'_a, t'_b, t'_c, t'_d$ are  $\tau(a, s_I), \tau(b,s_I), \tau(c,s_I), \tau(d,s_I)$, respectively.  
+
+
+\begin{lemma} 
+Let $q$ be any elements in $J$ such that there are two other elements $p$ and $r$ where $p < q <r$ and $t_q > \max (t_p,t_r)$. Then  
+$t'_q > \max_{z \in J: z \neq q} t'_z$. 
+\end{lemma} 
+\begin{proof} 
+There are two cases to consider. 
+If both $t'_p$ and  $t'_r$ are at least $t'_q$, we are immediately done because $q$ is $(J, I)$-hidden and so would have never been touched at time $t'_q$. 
+
+
+ 
+Now assume that $t'_p < t'_q \leq t'_r$ (the other case when $t'_r < t'_q \leq t'_p$ is very similar). 
+Let $\tilde t$ be the first time we access on the left-side of $J$ (this time must exist before $t_p$ because otherwise $p$ is never touched. 
+First, we claim that $\tau(q, \tilde t+1) \leq \tau(r',\tilde t+1)$ for some $r': q<r' \leq r$. This is because, from time $s_I$ to $\tilde t -1$, the element $q$ is never touched ($r$ blocks it).   
+At time $\tilde t$, if $q$ is touched, some $q < r' \leq r$ would have been touched too ($r'$ could be the same as $r$).
+
+Next, we claim also that $\tau(q, \tilde t+1) \leq \tau(p', \tilde t +1)$ for some $p': p \leq p' <q$. This is because $\tau(p, s_I) < \tau(q,s_I)$, and during $[s_I, \tilde t - 1]$, no access was from the left side. 
+So we have maintained $\tau(p, \tilde t) < \tau(q, \tilde t)$.   
+This means that either $p$ or some other $p'$ on the left of $p$ is in $stair_{\tilde t}(x_{\tilde t})$ and would have been touched.  
+The previous reasoning implies that $q$ is hidden.  
+
+\end{proof} 
+\lk{we should define "hidden" in the preliminary}\ \\
+We now apply the lemma twice: First on $\{a, c, b\}$ to say that $t'_c$ is the (strictly) maximum among $\{t'_z\}$, and then on $\{a,d,b\}$ to say that $t'_d$ is also the maximum, a contradiction.  
+\end{proof} 
+
+
+---------------------------------------------------------------   Kurt ---------------------------------------------------
+
+I do not understand this proof. I tried to do my own and got stuck. Consider the following scenario.
+
+\[ \begin{array}{cccc}
+a & c & d & b \\ \hline
+0 & 1 & 0 & 0 \\
+1 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+\end{array}\]
+
+The table illustrates the situation before time $t_a$. The 1 indicates the time of the last access and time flows upwards. 
+
+At time $t_a$ we access an item to the left of $a$ and obtain: 
+\[ \begin{array}{cccc}
+a & c & d & b \\ \hline
+{\bf 1}& 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+\end{array}\]
+The top row now corresponds to time $t_a$. 
+
+Between time $t_a$ and $t_b$ we access an element to the right of $b$. This element sees $c$ and $d$, but does not see $b$. We obtain. 
+
+\[ \begin{array}{cccc}
+a & c & d & b \\ \hline
+0 & 1 & 1& 0 \\
+1 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+\end{array}\]
+
+The access at time $t_b$ sees $b$ and $d$. We obtain:
+\[ \begin{array}{cccc}
+a & c & d & b \\ \hline
+0 & 0 & 1 & {\bf 1} \\
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 \\
+\end{array}\]
+The next access is to the left of $a$. It sees $d$ and $c$ and maybe also $a$. We obtain:
+
+\[ \begin{array}{cccc}
+a & c & d & b \\ \hline
+1 & {\bf 1} & 1 & 0 \\
+0 & 0 & 0 & 1 \\  \end{array} \]
+The next access is to the right of $b$. It sees $d$ and maybe also $b$. We obtain.
+
+\[ \begin{array}{cccc}
+a & c & d & b \\ \hline
+0 & 0 & {\bf 1} & 1\\
+1 & 1 & 0 & 0\\  \end{array} \]
+The bold ones indicate the forbidden pattern. 
+
+Next comes the standard view. Time flows up. I indicate the accessed element with a $*$ and the touched elements with a 1. The forbidden pattern is indicated in boldface.
+
+\[\begin{array}{l | ccccccc}
+& & a & c & d & b & & \\ \hline
+t_d & 0 & 0 & 0 & {\bf 1} & 1 & * & 0  \\
+t_c & * & 1 & {\bf 1}  & 1 & 0 & 0 & 0  \\
+t_b & 0 & 0 & 0 & 1 & {\bf 1}& * & 1  \\
+& 0 & 0 & 1 & 1 & 0  & 1 & *    \\
+t_a &* & {\bf 1}& 1 & 0 & 0  & 0 & 0    \\
+& 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+& 0 & 1 & 0 & 1 & 0 & 0 & 0 \\
+& 0 & 0 & 0 & 0 & 1 & 1 & 0 \\
+\end{array}\]
+Isn't this a counterexample to our proof? \bigskip
+
+It is not necessarily a counterexample to the theorem. The counterexample crucially rests on the fact that the access at the time between $t_a$ and $t_b$ sees $c$ and $d$, but does not see $b$. I constructed this situation by putting a 1 right of $b$ in row corresponding to $\tau(b,t_a)$. A remedy might be to ask for another one in column $c$. Then we would need an access between times $t_b$ and $t_c$ that sees $c$ and $d$, but does not see $a$. No, it is not a remedy. Add one more column on the left and put an access into this column at a time between $t_b$ and $t_c$.The access will touch $b$ and $c$, but not $a$. 
+
+
+
+\end{proof}
+
+\begin{theorem}[Theorem 4.3, Forcing Gadget] Assume $G^X$ contains pattern $\sigma$. Let $I$ and $J$ be any minimal time and element intervals such that $G^X |_{I,J}$ contains $\sigma$. Then $M^X |_{I,J}$ contains a 1, i.e., some element of $J$ is accessed in time interval $I$. 
+\end{theorem}
+\begin{proof}
+Let $(a,t_a)$, $(b,t_b)$, $(c,t_c)$, and $(d,t_d)$ be the four points in $G^X |_{I,J}$ that are required by $\sigma$ such that $a < c < d < b$, $t_a < t_b < t_c < t_d$, and $I = [t_a,t_d]$ and $J = [a,b]$. 
+
+There is no touch in $[a] \times (t_a,t_b)$ and no touch in $(a,c) \times [t_a,t_b)$ as otherwise, we could use this element instead of $a$, contradicting minimality of $I$ and $J$. Similarly, there is no touch in $[b] \times (t_a,t_b)$ and no touch in $(d,b) \times (t_a, t_c)$. MORE PROPERTIES.
+$c$ is not touched in $(t_b,t_c)$ and $d$ is not touched in $(t_c,t_d)$. 
+
+If two non-consecutive points in $\sset{a,b,c,d}$ are touched at time $t_a$, then either $c$ or $d$ is $[t_a+1,t_d]$-hidden via $J$ and we have a contradiction. 
+
+%%\marginpar{TODO: check definition of hidden; check definition of $\tau$. should it latest touch before $t$ or before or at $t$?}
+
+So at time $t_a$, $a$ is touched and $c$ may be touched. $d$ and $b$ are not touched. If there is an $x \in (c,b]$ with $\tau(x,t_a) \ge \tau(c,t_a)$ or an $x \in (d,b]$ with $\tau(x,t_a) \ge \tau(d,t_a)$ then $c$ or $d$ is $I$-hidden via $J$, a contradiction. Thus $\tau(c,t_a) > \tau(x,t_a)$ for all $x \in (c,b]$ and $\tau(d,t_a) > \tau(x,t_a)$ for all $x \in (d,b]$. In other words, $\tau(x,t_a)$ is a non-increasing function of $x$ in $[a,b]$ with proper decreases after $c$ and $d$. Accesses left of $a$ maintain this invariant. 
+
+Consider accesses right of $b$ before and up to $t_b$. They do not lead to a touch in $J$ left of $c$, by minimality. 
+If $c$ is not touched, the invariant is maintained. If anything right of $c$ and in $J$ is touched, $c$ is also touched. 
+If the first touch of $c$ is at $t_b$, then the last touch time of $c$, $d$, and $b$ becomes $t_b$ and $d$ is hidden afterwards, a contradiction. 
+
+At $t_b$, $b$ is touched. In $(t_a,t_b)$, all touched elements of $J$ must be contained in $[c,d]$ by minimality. 
+
+We must have $t_a = \tau(a,t_b) < \tau(c,t_b) < \tau(d,t_b) \le \tau(b,t_b)$ at time $t_b$ as otherwise either $c$ or $d$ is $(t_b,t_d]$-hidden via $J$.   \textcolor{red}{here I use $\tau(x,t) = $ time of latest touch at or before $t$}
+
+Consider the first access $(y,t_y)$ after $t_a$ which causes a touch of $c$. Then $y > b$. After this access $\tau(x,\ )$ is a non-increasing function on $[c,b]$. This invariant is maintained by accesses left of $a$. 
+
+Consider now the first access after $t_y$ and before and including $t_b$ that touches $d$. 
+\end{proof}
+\fi
+
+
+\iffalse
+\subsubsection{Initial Trees}
+
+An initial tree is a structure of BST before the first access in access
+sequence comes. In the tree view of BST execution, we know the structure
+of the tree exactly in every time step, and hence the structure of
+the initial tree as well. This is not clear, however, in geometric
+view what is our initial tree. In fact, in all above discussion, the
+initial tree is always \emph{split tree }\cite{DHIKP09} which is invisible
+to us in geometric view because of its very property. In this section,
+we show how to model any initial tree into the geometric view of BST
+execution.
+
+First, we need one simple fact. Given a binary search tree $T$, we
+denote the search path of element $a$ in $T$ as $path(a,T)$. 
+\begin{proposition}
+\label{same tree=same paths}Two BSTs $T_{1}$ and $T_{2}$,
+containing $[n]$, have the same structure iff $path(a,T_{1})=path(a,T_{2})$
+as a set, for all $a\in[n]$.\end{proposition}
+\begin{proof}
+If $T_{1}$ and $T_{2}$ share the same structure, then clearly $path(a,T_{1})=path(a,T_{2})$
+for any element $a$. Conversely, we prove by induction on the depth
+of the trees. Let $r$ be the root of $T_{1}$, and hence the root
+of $T_{2}$ as $path(r,T_{1})=path(r,T_{2})$. By induction hypothesis,
+left subtrees of the root $r$ in $T_{1}$ and $T_{2}$ have the same
+structure. Similarly for right subtrees of the root in $T_{1}$ and
+$T_{2}$. Altogether, $T_{1}$ and $T_{2}$ have the same structure.
+\end{proof}
+The stair of element is, in some sense, the geometric view of the
+search path. Indeed, $path(a,T)=\{b\mid b$ is touched if $a$ is
+touched in $T\}$. Similarly, we know that $stair(a,t)=\{b\mid b$
+is touched if $a$ is touched at time $t\}$. Thus, to model the initial
+tree $T$ into our geometric view, by Proposition \ref{same tree=same paths},
+it is enough make it such that $stair(a,1)=path(a,T)$.
+
+We can achieve this in a very straightforward way: below row 1, we
+put the stacks of points in each columns with different height, see
+Figure \ref{fig:geo init tree}. The exact height of stack will not
+matter; what matters is comparative height between stacks. Given a
+tree $T$ rooted at $r$, then the height of stack at column $r$
+is the highest among other columns corresponding to elements in $T$.
+The height of stack in other columns is recursively described by the
+left and right subtrees of $r$.
+\begin{lemma}
+With above construction, $stair(a,1)=path(a,T)$ for all $a\in[n]$.\end{lemma}
+\begin{proof}
+Induction.
+\end{proof}
+\fi

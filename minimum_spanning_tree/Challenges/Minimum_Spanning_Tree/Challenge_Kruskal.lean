@@ -111,7 +111,7 @@ lemma fromEdgeSet_edgeFinset_eq_of_forall_not_isDiag
   · intro h
     exact h.1
   · intro h
-    exact ⟨h, by simpa [Sym2.mem_diagSet] using hnd e h⟩
+    exact ⟨h, by simpa only [Sym2.mem_diagSet] using hnd e h⟩
 
 omit [LinearOrder V] in
 lemma fromEdgeSet_insert_erase_connected_of_path
@@ -128,15 +128,18 @@ lemma fromEdgeSet_insert_erase_connected_of_path
     exact SimpleGraph.Connected.mono hT_le_H hT_conn
   have he_adj_H : H.Adj u v := by
     dsimp [H]
-    simp [SimpleGraph.fromEdgeSet_adj, he, huv]
+    simp only [he, SimpleGraph.sup_adj, SimpleGraph.fromEdgeSet_adj, Set.mem_singleton_iff, ne_eq, huv,
+      not_false_eq_true, and_self, or_true]
   let pH : H.Path u v := ⟨p.mapLe hT_le_H, hp.mapLe hT_le_H⟩
   let pRev : H.Path v u := pH.reverse
   have he_not_pRev : s(u, v) ∉ (pRev : H.Walk v u).edges := by
     intro hmem
     have hmem_p : e ∈ p.edges := by
       have hmem_p' : s(u, v) ∈ p.edges := by
-        simpa [pRev, pH, SimpleGraph.Walk.edges_reverse, List.mem_reverse] using hmem
-      simpa [he] using hmem_p'
+        simpa only [pRev, pH, SimpleGraph.Path.reverse_coe, SimpleGraph.Walk.reverse_map, SimpleGraph.Walk.edges_map,
+          SimpleGraph.Hom.coe_ofLE, Sym2.map_id, SimpleGraph.Walk.edges_reverse, List.map_reverse, List.map_id_fun, id_eq,
+          List.mem_reverse] using hmem
+      simpa only [he] using hmem_p'
     have he_T : e ∈ T.edgeFinset := by
       rw [SimpleGraph.mem_edgeFinset]
       exact SimpleGraph.Walk.edges_subset_edgeSet p hmem_p
@@ -144,11 +147,13 @@ lemma fromEdgeSet_insert_erase_connected_of_path
   have hcycle : (SimpleGraph.Walk.cons he_adj_H (pRev : H.Walk v u)).IsCycle :=
     SimpleGraph.Path.cons_isCycle pRev he_adj_H he_not_pRev
   have hf_path_list : f ∈ p.edges := by
-    simpa using hf_path
+    exact List.mem_toFinset.mp hf_path
   have hf_cycle : f ∈ (SimpleGraph.Walk.cons he_adj_H (pRev : H.Walk v u)).edges := by
     have hf_pRev : f ∈ (pRev : H.Walk v u).edges := by
-      simpa [pRev, pH, SimpleGraph.Walk.edges_reverse, List.mem_reverse] using hf_path_list
-    simp [hf_pRev]
+      simpa only [pRev, pH, SimpleGraph.Path.reverse_coe, SimpleGraph.Walk.reverse_map, SimpleGraph.Walk.edges_map,
+        SimpleGraph.Hom.coe_ofLE, Sym2.map_id, SimpleGraph.Walk.edges_reverse, List.map_reverse, List.map_id_fun, id_eq,
+        List.mem_reverse] using hf_path_list
+    simp only [SimpleGraph.Walk.edges_cons, List.mem_cons, hf_pRev, or_true]
   have h_not_bridge_f : ¬ H.IsBridge f := by
     intro hb
     have hb' := (SimpleGraph.isBridge_iff_mem_and_forall_cycle_notMem (G := H) (e := f)).mp hb
@@ -551,7 +556,8 @@ lemma preserve_inv_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2 
     have h_eq1 : (uf.union u v).find x = (uf.union u v).find b := ih
     have h_eq2 : (uf.union u v).find b = (uf.union u v).find c := by
       have h_adj' : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Adj b c := h_adj
-      simp [SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff] at h_adj'
+      simp only [Set.singleton_union, SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff, SetLike.mem_coe,
+        ne_eq] at h_adj'
       rcases h_adj' with ⟨h_mem, h_neq⟩
       rcases h_mem with h_mem | h_mem
       . -- s(b, c) = e = s(u, v)
@@ -572,7 +578,8 @@ lemma preserve_inv_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2 
           exact (union_find_same uf u v).symm
       . -- s(b, c) ∈ forest
         have h_adj_old : (SimpleGraph.fromEdgeSet forest).Adj b c := by
-          simp [SimpleGraph.fromEdgeSet, h_mem, h_neq]
+          simp only [SimpleGraph.fromEdgeSet, Pi.inf_apply, Sym2.toRel_prop, SetLike.mem_coe, h_mem, ne_eq, h_neq,
+            not_false_eq_true, min_self]
         have h_reach_old : (SimpleGraph.fromEdgeSet forest).Reachable b c := by
           apply SimpleGraph.Adj.reachable h_adj_old
         have h_find_eq : uf.find b = uf.find c := hinv b c h_reach_old
@@ -602,7 +609,7 @@ lemma kruskalAux_maintain_inv {n: ℕ} {G : WeightedGraph (Fin n)}
     . have he : e = s(u, v) := (Quot.out_eq e).symm
       intro x y h_reach
       have h' : (SimpleGraph.fromEdgeSet ({e} ∪ ↑forest_1)).Reachable x y := by
-        simpa [newforest] using h_reach
+        simpa only [newforest, Set.singleton_union, Finset.singleton_union, Finset.coe_insert] using h_reach
       exact preserve_inv_add_edge uf_1 forest_1 e u v he h hinv x y h'
   . -- skip edge case
     apply ih1
@@ -613,7 +620,7 @@ lemma kruskalAux_maintain_inv {n: ℕ} {G : WeightedGraph (Fin n)}
 lemma FromEdgeSubset_IsAcyclic_eq {n : ℕ} {G : WeightedGraph (Fin n)} {s : Finset (Sym2 (Fin n))}
   (h : s ⊆ G.edgeFinset) :
   (G.FromEdgeSubset s h).IsAcyclic = SimpleGraph.IsAcyclic (SimpleGraph.fromEdgeSet (s : Set (Sym2 (Fin n)))) := by
-  simp [IsAcyclic, FromEdgeSubset]
+  simp only [IsAcyclic, FromEdgeSubset, SimpleGraph.fromEdgeSet_adj, SetLike.mem_coe, ne_eq, dite_eq_ite]
 
 lemma kruskalAux_IsAcyclic {n: ℕ} {G : WeightedGraph (Fin n)}
   {es : List (Sym2 (Fin n))}
@@ -626,13 +633,13 @@ lemma kruskalAux_IsAcyclic {n: ℕ} {G : WeightedGraph (Fin n)}
   rw [FromEdgeSubset_IsAcyclic_eq]
   fun_induction kruskalAux
   case case1 =>
-    simp
+    simp only
     rw [←FromEdgeSubset_IsAcyclic_eq]
     exact hacyc
   case case2 =>
     refine ih1 ?_ ?_ ?_ ?_
     . -- Show newforest ⊆ edgeFinset
-      simp [newforest]
+      simp only [Finset.singleton_union, newforest]
       rw [Finset.insert_subset_iff]
       constructor
       . rw [List.toFinset_cons] at hes
@@ -650,10 +657,11 @@ lemma kruskalAux_IsAcyclic {n: ℕ} {G : WeightedGraph (Fin n)}
         (SimpleGraph.fromEdgeSet (forest_1 : Set (Sym2 (Fin n)))).IsAcyclic := by
         have h_eq : SimpleGraph.fromEdgeSet (↑newforest : Set (Sym2 (Fin n))) =
           SimpleGraph.fromEdgeSet (forest_1 : Set (Sym2 (Fin n))) ⊔ SimpleGraph.fromEdgeSet {e} := by
-          simp [newforest]
+          simp only [Finset.singleton_union, Finset.coe_insert, newforest]
           ext a b
-          simp [SimpleGraph.fromEdgeSet]
-          tauto
+          simp only [SimpleGraph.fromEdgeSet, Pi.inf_apply, Sym2.toRel_prop, Set.mem_insert_iff, SetLike.mem_coe, ne_eq,
+            inf_Prop_eq, SimpleGraph.sup_adj, Set.mem_singleton_iff]
+          rw [or_and_right, or_comm]
         rw [h_eq, he]
         apply SimpleGraph.isAcyclic_add_edge_iff_of_not_reachable
         exact h_not_reach
@@ -662,7 +670,7 @@ lemma kruskalAux_IsAcyclic {n: ℕ} {G : WeightedGraph (Fin n)}
       have he : e = s(u, v) := (Quot.out_eq e).symm
       intro x y h_reach
       have h' : (SimpleGraph.fromEdgeSet ({e} ∪ (forest_1 : Set (Sym2 (Fin n))))).Reachable x y := by
-        simpa [newforest] using h_reach
+        simpa only [newforest, Set.singleton_union, Finset.singleton_union, Finset.coe_insert] using h_reach
       exact preserve_inv_add_edge uf_1 forest_1 e u v he h hinv x y h'
   case case3 =>
     refine ih1 ?_ ?_ ?_ ?_
@@ -681,11 +689,11 @@ lemma kruskal_IsAcyclic {n : ℕ} (G : WeightedGraph (Fin n)) :
   case hes => rw [Finset.sort_toFinset]
   case hacyc =>
     rw [FromEdgeSubset_IsAcyclic_eq]
-    simp [SimpleGraph.isAcyclic_bot]
+    simp only [Finset.coe_empty, SimpleGraph.fromEdgeSet_empty, SimpleGraph.isAcyclic_bot]
   case hinv =>
     intro u v h_reach
     have h_eq : u = v := by
-      simp [Finset.coe_empty, SimpleGraph.fromEdgeSet_empty] at h_reach
+      simp only [Finset.coe_empty, SimpleGraph.fromEdgeSet_empty, SimpleGraph.reachable_bot] at h_reach
       exact h_reach
     rw [h_eq]
 
@@ -759,7 +767,7 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
       have h_reach_b_u : (SimpleGraph.fromEdgeSet forest).Reachable b u := hsync b u h_bu
       have h_reach_a_b : (SimpleGraph.fromEdgeSet forest).Reachable a b :=
         h_reach_a_u.trans h_reach_b_u.symm
-      exact reachable_mono (by simp) h_reach_a_b
+      exact reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_a_b
     · by_cases h_bv : uf.find b = uf.find v
       · have h2 : (uf.union u v).find b = (uf.union u v).find v := union_find_merged_y uf u v b h_bv
         rw [h1] at h_eq
@@ -767,7 +775,8 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
         have h_reach_a_u : (SimpleGraph.fromEdgeSet forest).Reachable a u := hsync a u h_au
         have h_reach_b_v : (SimpleGraph.fromEdgeSet forest).Reachable b v := hsync b v h_bv
         have h_uv_adj : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Adj u v := by
-          simp [SimpleGraph.fromEdgeSet_adj, he]
+          simp only [he, Set.singleton_union, SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff, SetLike.mem_coe, true_or,
+            ne_eq, true_and]
           intro h_eq_uv
           rw [h_eq_uv] at h_diff
           contradiction
@@ -775,9 +784,9 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
           SimpleGraph.Adj.reachable h_uv_adj
         have h_reach_a_b : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable a b := by
           have h1 : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable a u :=
-            reachable_mono (by simp) h_reach_a_u
+            reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_a_u
           have h2 : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable v b :=
-            reachable_mono (by simp) h_reach_b_v.symm
+            reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_b_v.symm
           exact h1.trans (h_reach_u_v.trans h2)
         exact h_reach_a_b
       · have h_bu' : uf.find b ≠ uf.find u := by intro h; apply h_bu; exact h
@@ -805,7 +814,8 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
         have h_reach_a_v : (SimpleGraph.fromEdgeSet forest).Reachable a v := hsync a v h_av
         have h_reach_b_u : (SimpleGraph.fromEdgeSet forest).Reachable b u := hsync b u h_bu
         have h_uv_adj : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Adj u v := by
-          simp [SimpleGraph.fromEdgeSet_adj, he]
+          simp only [he, Set.singleton_union, SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff, SetLike.mem_coe, true_or,
+            ne_eq, true_and]
           intro h_eq_uv
           rw [h_eq_uv] at h_diff
           contradiction
@@ -813,9 +823,9 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
           SimpleGraph.Adj.reachable h_uv_adj
         have h_reach_a_b : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable a b := by
           have h1 : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable a v :=
-            reachable_mono (by simp) h_reach_a_v
+            reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_a_v
           have h2 : (SimpleGraph.fromEdgeSet ({e} ∪ forest)).Reachable u b :=
-            reachable_mono (by simp) h_reach_b_u.symm
+            reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_b_u.symm
           exact h1.trans (h_reach_u_v.symm.trans h2)
         exact h_reach_a_b
       · by_cases h_bv : uf.find b = uf.find v
@@ -825,7 +835,7 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
           have h_reach_b_v : (SimpleGraph.fromEdgeSet forest).Reachable b v := hsync b v h_bv
           have h_reach_a_b : (SimpleGraph.fromEdgeSet forest).Reachable a b :=
             h_reach_a_v.trans h_reach_b_v.symm
-          exact reachable_mono (by simp) h_reach_a_b
+          exact reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_a_b
         · have h_bu' : uf.find b ≠ uf.find u := by intro h; apply h_bu; exact h
           have h_bv' : uf.find b ≠ uf.find v := by intro h; apply h_bv; exact h
           have h2 : (uf.union u v).find b = uf.find b := union_find_preserve uf u v b h_bu' h_bv'
@@ -884,7 +894,7 @@ lemma sync_preserve_add_edge {n : ℕ} (uf : UnionFind n) (forest : Finset (Sym2
           have h2 : (uf.union u v).find b = uf.find b := union_find_preserve uf u v b h_bu' h_bv'
           rw [h1, h2] at h_eq
           have h_reach_a_b : (SimpleGraph.fromEdgeSet forest).Reachable a b := hsync a b h_eq
-          exact reachable_mono (by simp) h_reach_a_b
+          exact reachable_mono (by simp only [Set.singleton_union, Set.subset_insert]) h_reach_a_b
 
 -- Helper lemma: if two vertices have the same find, they still have the same find after kruskalAux
 lemma find_eq_preserved {n : ℕ} {G : WeightedGraph (Fin n)}
@@ -930,7 +940,7 @@ lemma kruskalAux_sync {n: ℕ} {G : WeightedGraph (Fin n)}
       intro a b h_eq
       convert sync_preserve_add_edge uf_1 forest_1 e u v he h hsync a b h_eq
       ext x
-      simp
+      simp only [Finset.coe_insert, Set.mem_insert_iff, SetLike.mem_coe, Set.singleton_union]
     exact ih1 h1 h2 h3 a b h_eq
   case case3 =>
     exact ih1 hf (subsetList hes) hsync
@@ -949,25 +959,26 @@ lemma kruskalAux_edge_reachable {n: ℕ} {G : WeightedGraph (Fin n)}
   (SimpleGraph.fromEdgeSet (kruskalAux G es uf forest).1).Reachable u v := by
   fun_induction kruskalAux
   case case1 =>
-    simp at he
+    simp only [List.not_mem_nil] at he
   case case2 =>
     by_cases h_eq : e = e_1
     · rw [h_eq]
       have he1 : e_1 = s(u, v) := (Quot.out_eq e_1).symm
       have h_uv_adj : (SimpleGraph.fromEdgeSet ({e_1} ∪ forest_1)).Adj u v := by
         rw [he1]
-        simp [SimpleGraph.fromEdgeSet_adj]
+        simp only [Set.singleton_union, SimpleGraph.fromEdgeSet_adj, Set.mem_insert_iff, SetLike.mem_coe, true_or,
+          ne_eq, true_and]
         intro h_eq_uv
         rw [h_eq_uv] at h
         contradiction
       have h_uv_reach : (SimpleGraph.fromEdgeSet ({e_1} ∪ forest_1)).Reachable u v :=
         SimpleGraph.Adj.reachable h_uv_adj
       have h_sub : ({e_1} ∪ ↑forest_1 : Set (Sym2 (Fin n))) ⊆ ↑(kruskalAux G es_1 newuf newforest).1 := by
-        simp
+        simp only [Set.singleton_union]
         exact_mod_cast kruskalAux_forest_mono
       exact reachable_mono h_sub h_uv_reach
     · have h_mem : e ∈ es_1 := by
-        simp [h_eq] at he
+        simp only [List.mem_cons, h_eq, false_or] at he
         exact he
       have h1 : newforest ⊆ G.edgeFinset := by
         dsimp [newforest]
@@ -980,13 +991,13 @@ lemma kruskalAux_edge_reachable {n: ℕ} {G : WeightedGraph (Fin n)}
       have h_sync : ∀ (a b : Fin n), newuf.find a = newuf.find b → (SimpleGraph.fromEdgeSet ↑newforest).Reachable a b := by
         dsimp [newuf, newforest]
         convert sync_preserve_add_edge uf_1 forest_1 e_1 u v (Quot.out_eq e_1).symm h hsync
-        simp
+        simp only [Finset.coe_insert, Set.singleton_union]
       exact ih1 h1 (subsetList hes) h_sync h_mem
   case case3 =>
     by_cases h_eq : e = e_1
     · rw [h_eq]
       have h_find_eq : uf_1.find u = uf_1.find v := by
-        simp at h
+        simp only [ne_eq, Decidable.not_not] at h
         exact h
       have h_final_eq : (kruskalAux G es_1 uf_1 forest_1).2.find u = (kruskalAux G es_1 uf_1 forest_1).2.find v :=
         find_eq_preserved u v h_find_eq
@@ -995,7 +1006,7 @@ lemma kruskalAux_edge_reachable {n: ℕ} {G : WeightedGraph (Fin n)}
         exact h_final_eq
       exact h_reach
     · have h_mem : e ∈ es_1 := by
-        simp [h_eq] at he
+        simp only [List.mem_cons, h_eq, false_or] at he
         exact he
       exact ih1 hf (subsetList hes) hsync h_mem
 
@@ -1019,11 +1030,11 @@ lemma kruskal_edge_reachable {n : ℕ} (G : WeightedGraph (Fin n)) (e : Sym2 (Fi
       have h1 : UnionFind.empty.find a = a := by
         rw [UnionFind.find]
         rw [find_eq]
-        simp [UnionFindStructure.make, Forest.make, ArrayN.get, Array.getElem_ofFn]
+        simp only [ArrayN.get, UnionFindStructure.make, Forest.make, Fin.getElem_fin, Array.getElem_ofFn]
       have h2 : UnionFind.empty.find b = b := by
         rw [UnionFind.find]
         rw [find_eq]
-        simp [UnionFindStructure.make, Forest.make, ArrayN.get, Array.getElem_ofFn]
+        simp only [ArrayN.get, UnionFindStructure.make, Forest.make, Fin.getElem_fin, Array.getElem_ofFn]
       rw [h1, h2] at h_eq
       rw [h_eq]
     · exact h_mem
@@ -1151,7 +1162,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
         (SimpleGraph.fromEdgeSet (newforest : Set (Sym2 (Fin n)))).Reachable a b := by
       intro a b
       have hset_eq : (newforest : Set (Sym2 (Fin n))) = {e} ∪ (forest_1 : Set (Sym2 (Fin n))) := by
-        simp [newforest]
+        simp only [Finset.singleton_union, Finset.coe_insert, Set.singleton_union, newforest]
       constructor
       · -- Forward: newuf.find a = newuf.find b → Reachable a b
         intro h_eq
@@ -1184,7 +1195,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
         constructor
         · -- Show newforest ⊆ M.edgeFinset
           intro x hx
-          simp [newforest] at hx
+          simp only [Finset.singleton_union, Finset.mem_insert, newforest] at hx
           rcases hx with hxe | hxf
           · rw [hxe]; exact heM
           · exact hsub hxf
@@ -1219,7 +1230,8 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                   · -- Edge is not in forest_1, so by hp, it's not in (e :: es_1).toFinset
                     have h_not_es : s(a, b) ∉ (e :: es_1).toFinset := by
                       apply hp s(a, b)
-                      · simp [SimpleGraph.Walk.edges]
+                      · simp only [SimpleGraph.Walk.edges, SimpleGraph.Walk.darts_cons, List.map_cons, SimpleGraph.Dart.edge_mk,
+                          List.toFinset_cons, Finset.mem_insert, List.mem_toFinset, List.mem_map, true_or]
                       · exact h_forest
                     -- Apply hproc
                     have h_G : s(a, b) ∈ G.edgeFinset := by
@@ -1236,8 +1248,9 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                   apply ih
                   intro f hf h_forest
                   have hf' : f ∈ (SimpleGraph.Walk.cons h_ab p_bc).edges.toFinset := by
-                    simp [SimpleGraph.Walk.edges] at hf ⊢
-                    tauto
+                    simp only [SimpleGraph.Walk.edges, List.mem_toFinset, List.mem_map, SimpleGraph.Walk.darts_cons,
+                      List.map_cons, SimpleGraph.Dart.edge_mk, List.toFinset_cons, Finset.mem_insert] at hf ⊢
+                    exact Or.inr hf
                   apply hp f hf' h_forest
                 exact h_reach_ab.trans h_reach_bc
             apply h_ind pM h_all
@@ -1247,8 +1260,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
         have hfM : f ∈ M.edgeFinset := by
           have h1 : f ∈ pM.edges := by
             have h2 : f ∈ pM.edges.toFinset := hf_path
-            simp at h2
-            exact h2
+            exact List.mem_toFinset.mp h2
           have h2 : f ∈ M.edgeSet := SimpleGraph.Walk.edges_subset_edgeSet pM h1
           rw [SimpleGraph.mem_edgeFinset]
           exact h2
@@ -1266,17 +1278,16 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
             rcases Finset.mem_insert.mp hf_proc with hfe' | hf_es
             · -- f = e, but we know f ≠ e
               exfalso
-              exact hfe (by simpa using hfe')
+              exact hfe hfe'
             · exact hf_es
           have hpairwise : List.Pairwise G.byWeight (e :: es_1) := hsorted
           have hmem : f ∈ e :: es_1 := by
             have h : f ∈ es_1 := by
               have h' : f ∈ es_1.toFinset := hf_in_es
-              simp at h'
-              exact h'
-            simp [h]
+              exact List.mem_toFinset.mp h'
+            exact List.mem_cons_of_mem e h
           have hf_rel : G.byWeight e f := List.Pairwise.rel_head hpairwise hmem
-          simp [WeightedGraph.byWeight] at hf_rel
+          simp only [byWeight] at hf_rel
           cases hf_rel with
           | inl hlt => exact Nat.le_of_lt hlt
           | inr heq => exact Nat.le_of_eq heq.1
@@ -1310,7 +1321,8 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
             ext x
             rw [show x ∈ M'.edgeFinset ↔
                 x ∈ (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).edgeFinset by
-              simp [M', FromEdgeSubset, WeightedGraph.edgeFinset]]
+              simp only [edgeFinset, FromEdgeSubset, SetLike.mem_coe, dite_eq_ite,
+                SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet, Set.mem_diff, Sym2.mem_diagSet, M']]
             rw [h_s'_edgeFinset_outer]
           use M'
           constructor
@@ -1320,10 +1332,10 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
               exact FromEdgeSubset_IsSubgraph hs'_sub
             · -- Show M' is a tree
               have h1 : M'.toSimpleGraph = SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n))) := by
-                simp [M', FromEdgeSubset]
+                simp only [FromEdgeSubset, SimpleGraph.fromEdgeSet_adj, SetLike.mem_coe, ne_eq, dite_eq_ite, M']
               have h3 : s'.card = M.edgeFinset.card := by
                 have h4 : e ∉ M.edgeFinset.erase f := by
-                  simp [Finset.mem_erase, heM]
+                  simp only [Finset.mem_erase, ne_eq, heM, and_false, not_false_eq_true]
                 have h5 : (M.edgeFinset.erase f).card + 1 = M.edgeFinset.card := by
                   rw [Finset.card_erase_add_one hfM]
                 have h6 : s'.card = (insert e (M.edgeFinset.erase f)).card := rfl
@@ -1352,7 +1364,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                       rw [he] at heG
                       exact SimpleGraph.mem_edgeFinset.mp heG
                     exact h_adj.ne
-                  simpa [s'] using
+                  simpa only [s', Finset.coe_insert, Finset.coe_erase, SimpleGraph.coe_edgeFinset] using
                     fromEdgeSet_insert_erase_connected_of_path
                       (T := M) (u := u) (v := v) (e := e) (f := f) (p := pM)
                       hM_conn hpM_path he huv_ne heM hf_path hfe
@@ -1372,7 +1384,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
           · -- Show newforest ⊆ M'.edgeFinset
             intro x hx
             rw [hM'_edgeFinset_outer]
-            simp [newforest] at hx
+            simp only [Finset.singleton_union, Finset.mem_insert, newforest] at hx
             rcases hx with hx_e | hx
             · rw [hx_e]
               exact Finset.mem_insert_self e (M.edgeFinset.erase f)
@@ -1399,13 +1411,15 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                 have hx_adj :
                     (SimpleGraph.fromEdgeSet (s' : Set (Sym2 (Fin n)))).Adj x.out.1 x.out.2 := by
                   rw [← SimpleGraph.mem_edgeSet]
-                  simpa [Quot.out_eq x] using hx_edge
+                  simpa only [SimpleGraph.edgeSet_fromEdgeSet, Prod.mk.eta, Quot.out_eq x, Set.mem_diff, SetLike.mem_coe,
+                    Sym2.mem_diagSet] using hx_edge
                 have hx_adj' : x ∈ s' ∧ ¬x.out.1 = x.out.2 := by
-                  simpa [SimpleGraph.fromEdgeSet_adj, Quot.out_eq x] using hx_adj
-                simp [M', FromEdgeSubset, hx_adj']
+                  simpa only [SimpleGraph.fromEdgeSet_adj, Prod.mk.eta, Quot.out_eq x, SetLike.mem_coe, ne_eq] using hx_adj
+                simp only [FromEdgeSubset, SimpleGraph.fromEdgeSet_adj, SetLike.mem_coe, ne_eq, dite_eq_ite, Prod.mk.eta,
+                  Quot.out_eq, hx_adj', not_false_eq_true, and_self, ↓reduceIte, M']
             have h2 : M.weightSum = ∑ e ∈ M.edgeFinset, G.weight e.out.1 e.out.2 := by
               have h3 : M.IsSubgraph G := hM_sub
-              simp [weightSum]
+              simp only [weightSum]
               apply Finset.sum_congr
               · rfl
               · intro e he
@@ -1415,13 +1429,13 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                     rw [SimpleGraph.mem_edgeFinset] at h5
                     exact h5
                   rw [← SimpleGraph.mem_edgeSet]
-                  simpa [Quot.out_eq e] using h6
+                  simpa only [Prod.mk.eta, Quot.out_eq e] using h6
                 exact h3.2 e.out.1 e.out.2 h4
             rw [h1, h2]
             have h3 : s' = insert e (M.edgeFinset.erase f) := rfl
             rw [h3]
             have h4 : e ∉ M.edgeFinset.erase f := by
-              simp [Finset.mem_erase, heM]
+              simp only [Finset.mem_erase, ne_eq, heM, and_false, not_false_eq_true]
             have h5 : ∑ e ∈ insert e (M.edgeFinset.erase f), G.weight e.out.1 e.out.2 =
               G.weight e.out.1 e.out.2 + ∑ e ∈ M.edgeFinset.erase f, G.weight e.out.1 e.out.2 := by
               rw [Finset.sum_insert h4]
@@ -1432,7 +1446,8 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
                 rw [Finset.insert_erase]
                 exact hfM
               rw [h7]
-              rw [Finset.sum_insert (by simp [Finset.mem_erase])]
+              rw [Finset.sum_insert (by simp only [Finset.mem_erase, ne_eq, not_true_eq_false, SimpleGraph.mem_edgeFinset, false_and,
+                not_false_eq_true])]
             rw [h5, h6]
             exact Nat.add_le_add_right hweight _
         rcases hM' with ⟨M', hM'_tree, hM'_sub, hM'_le⟩
@@ -1441,7 +1456,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
         · exact hM'_tree
         constructor
         · exact hM'_sub
-        · linarith [hM'_le, hle]
+        · exact le_trans hM'_le hle
     exact ih1 hf' hes' hproc' hsorted' hsync' hinv' T' hT'
   · -- Case: non-empty edge list, endpoints in same component (skip edge)
     intro T' hT'
@@ -1454,8 +1469,7 @@ lemma kruskalAux_weight_invariant {n : ℕ} {G : WeightedGraph (Fin n)}
         have h_eq : s(a, b) = s(u, v) := by rw [h, he]
         have h_eq' : uf_1.find u = uf_1.find v := by
           have hne : ¬uf_1.find u ≠ uf_1.find v := by assumption
-          simp at hne
-          exact hne
+          exact not_not.mp hne
         have hreach_uv : (SimpleGraph.fromEdgeSet (forest_1 : Set (Sym2 (Fin n)))).Reachable u v := (hsync u v).mp h_eq'
         have hreach_ab : (SimpleGraph.fromEdgeSet (forest_1 : Set (Sym2 (Fin n)))).Reachable a b := by
           rw [Sym2.eq_iff] at h_eq
@@ -1496,7 +1510,7 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
     · -- Show kruskal G is a tree: connected and acyclic
       have h1 : (kruskal G).Connected := kruskal_Connected G hn hG
       have h2 : (kruskal G).IsAcyclic := kruskal_IsAcyclic G
-      simp [IsTree, SimpleGraph.isTree_iff]
+      simp only [IsTree, SimpleGraph.isTree_iff]
       constructor <;> assumption
   · -- Show kruskal G has minimum weight among all spanning trees
     intro T' hT'
@@ -1511,29 +1525,30 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
         have h1 : UnionFind.empty.find a = a := by
           rw [UnionFind.find]
           rw [find_eq]
-          simp [UnionFindStructure.make, Forest.make, ArrayN.get, Array.getElem_ofFn]
+          simp only [ArrayN.get, UnionFindStructure.make, Forest.make, Fin.getElem_fin, Array.getElem_ofFn]
         have h2 : UnionFind.empty.find b = b := by
           rw [UnionFind.find]
           rw [find_eq]
-          simp [UnionFindStructure.make, Forest.make, ArrayN.get, Array.getElem_ofFn]
+          simp only [ArrayN.get, UnionFindStructure.make, Forest.make, Fin.getElem_fin, Array.getElem_ofFn]
         rw [h1, h2] at h
         rw [h]
       · intro h
         have h1 : UnionFind.empty.find a = a := by
           rw [UnionFind.find]
           rw [find_eq]
-          simp [UnionFindStructure.make, Forest.make, ArrayN.get, Array.getElem_ofFn]
+          simp only [ArrayN.get, UnionFindStructure.make, Forest.make, Fin.getElem_fin, Array.getElem_ofFn]
         have h2 : UnionFind.empty.find b = b := by
           rw [UnionFind.find]
           rw [find_eq]
-          simp [UnionFindStructure.make, Forest.make, ArrayN.get, Array.getElem_ofFn]
+          simp only [ArrayN.get, UnionFindStructure.make, Forest.make, Fin.getElem_fin, Array.getElem_ofFn]
         have h3 : a = b := by
           rcases h with ⟨w⟩
           induction w with
           | nil => rfl
           | cons h_adj p' ih =>
             exfalso
-            simp [SimpleGraph.fromEdgeSet] at h_adj
+            simp only [SimpleGraph.fromEdgeSet, Finset.coe_empty, Pi.inf_apply, Sym2.toRel_prop, Set.mem_empty_iff_false,
+              ne_eq, le_Prop_eq, IsEmpty.forall_iff, inf_of_le_left] at h_adj
         rw [h3]
     have hproc : ∀ a b, s(a,b) ∈ G.edgeFinset → s(a,b) ∉ es.toFinset →
         (SimpleGraph.fromEdgeSet (∅ : Finset (Sym2 (Fin n)))).Reachable a b := by
@@ -1558,11 +1573,13 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
       have h_kruskal_edges : (kruskal G).edgeFinset = (kruskalAux G es UnionFind.empty (∅ : Finset (Sym2 (Fin n)))).1 := by
         have h1 : (kruskal G).edgeFinset ⊆ (kruskalAux G es UnionFind.empty (∅ : Finset (Sym2 (Fin n)))).1 := by
           intro e he
-          simp [kruskal, FromEdgeSubset, WeightedGraph.edgeFinset] at he
+          simp only [edgeFinset, kruskal, FromEdgeSubset, SetLike.mem_coe,
+            dite_eq_ite, SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet, Set.mem_diff, Sym2.mem_diagSet] at he
           exact he.1
         have h2 : (kruskalAux G es UnionFind.empty (∅ : Finset (Sym2 (Fin n)))).1 ⊆ (kruskal G).edgeFinset := by
           intro e he
-          simp [kruskal, FromEdgeSubset, WeightedGraph.edgeFinset]
+          simp only [edgeFinset, kruskal, FromEdgeSubset, SetLike.mem_coe,
+            dite_eq_ite, SimpleGraph.mem_edgeFinset, SimpleGraph.edgeSet_fromEdgeSet, Set.mem_diff, Sym2.mem_diagSet]
           constructor
           · exact he
           · have hne : e ∈ G.edgeFinset := by
@@ -1583,7 +1600,7 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
         exact hsub
       have h2 : (kruskal G).edgeFinset.card = T.edgeFinset.card := by
         have h_kruskal : ((kruskal G).toSimpleGraph).IsTree := by
-          simp [SimpleGraph.isTree_iff]
+          simp only [SimpleGraph.isTree_iff]
           constructor
           · exact kruskal_Connected G hn hG
           · exact kruskal_IsAcyclic G
@@ -1612,7 +1629,7 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
               rw [show (kruskal G).edgeFinset = T.edgeFinset by rw [h_eq]]
               exact he
             have h2 : s(e.out.1, e.out.2) ∈ (kruskal G).toSimpleGraph.edgeSet := by
-              simpa using h1
+              exact SimpleGraph.mem_edgeFinset.mp h1
             rw [SimpleGraph.mem_edgeSet] at h2
             exact h2
           apply (kruskal_IsSubgraph G).2
@@ -1625,7 +1642,7 @@ theorem kruskal_computes_MST {n : ℕ} (G: WeightedGraph (Fin n)) (hn: n > 0)
               rw [h_eq_e]
               exact he
             have h2 : s(e.out.1, e.out.2) ∈ T.toSimpleGraph.edgeSet := by
-              simpa using h1
+              exact SimpleGraph.mem_edgeFinset.mp h1
             rw [SimpleGraph.mem_edgeSet] at h2
             exact h2
           apply hT.1.2

@@ -1,0 +1,19 @@
+\section{Random permutation is hard}
+\label{sec:random-hard}
+
+We prove that the cost of most permutations is $\Omega(n\log n)$ for \emph{all} BST algorithm. A similar result has been shown by Wilber~\cite{wilber} for random access sequences (that might not be permutations).
+% Note that the straightforward information-theoretic argument will not work since it will only say that there exists a permutation of cost $\Omega(n \log n)$. 
+More formally, we prove the following theorem. 
+
+\begin{theorem} 
+\label{thm:random-perm-hard}
+There is a positive constant $c$ such that for any $L > 0$ only a fraction $1/2^L$ of the permutations $X$ have
+$\opt(X) \le (\log n! - L -n -1)/c$. 
+\end{theorem}   
+\begin{proof}
+We use Kolmogorov complexity. Observe that the shape of a tree on $k$ nodes can be encoded by $O(k)$ bits, e.g., by the preorder traversal. If the keys stored in the tree are clear from the context, the assignment of the keys to the nodes is unique. Let $T$ be the initial tree, let $X$ be any (permutation) access sequence, and let $C_X$ be the total cost of $\opt$ on $X$. We encode the shape of the initial tree with $O(n)$ bits.  Consider now an access of cost $k$. It replaces an initial segment of the current search tree, the before-tree, by another tree on the same set of nodes, the after-tree. The before-tree must include the element accessed and has size $O(k)$. We encode the before-tree and the after-tree with $O(k)$ bits and use a special marker to designate the accessed element in the before-tree. In total, we need $c \cdot (n + C_X)$ bits for the encoding for some small constant $c$. Note that $X$ can be reconstructed from the encoding. We first reconstruct the shape of the initial tree. Its labelling by keys is unique. 
+Consider now any access. Since the position of the accessed element in the before-tree is marked and since the before- and the after-tree are on the same set of keys, the search tree after the access is determined. We conclude that we have an injective mapping from permutations $X$ to bitstrings of length $c \cdot (n + C_X)$. 
+Assume $C_x \le (\log n! - L - n - 1)/c$. Then the encoding of $X$ has at most $\log n! - L - 1$ bits and hence $X$ is in a set of at most $n!/2^L$ permutations.
+\end{proof}
+
+

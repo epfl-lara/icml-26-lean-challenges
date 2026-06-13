@@ -1,0 +1,8 @@
+
+## F_one
+- Status: compiled successfully
+- Axioms: none
+
+## F_succ_succ
+- Status: compiled successfully
+- Axioms: none

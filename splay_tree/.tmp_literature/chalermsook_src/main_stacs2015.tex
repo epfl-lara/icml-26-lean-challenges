@@ -1,0 +1,680 @@
+\documentclass[english]{article}
+
+%\usepackage[left=1in,top=1in,right=1in,bottom=1in]{geometry} % Does NOT work right now
+
+\usepackage{fontenc}
+%\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,lmargin=0.05\paperwidth,rmargin=0.05\paperwidth}
+\usepackage{array}
+
+
+
+\usepackage{fullpage}
+\usepackage{multirow} 
+\usepackage{cite}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{mathtools}
+%\usepackage{smallmatrix}
+\usepackage{paralist}
+\renewcommand{\labelenumi}{\theenumi}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes,arrows,positioning,shadows,snakes}
+
+\usepackage{footmisc}
+
+% ---------------------------------------------------------------------------------------
+% ----- from http://mirrors.ibiblio.org/CTAN/macros/latex/exptl/thmtools/thmtools.pdf
+\usepackage{amsthm} % NEED TO REMOVE amsthm in ACM EC Format
+
+
+
+\usepackage{pifont}
+\usepackage[hang,small,bf]{caption}
+\usepackage{subcaption}
+
+ \providecommand{\tabularnewline}{\\}
+
+%\usepackage{ 
+%nameref,%\nameref
+%hyperref,%\autoref
+%% n.b. \Autoref is defined by thmtools
+%cleveref,% \cref
+%% n.b. cleveref after! hyperref
+%}
+
+\usepackage{nameref}
+\usepackage[linktocpage=true,pagebackref=true]{hyperref}
+\usepackage{cleveref}
+% \usepackage{hyperref}
+
+\usepackage{thmtools,thm-restate} % See section 1.4 of the pdf above
+
+%%%%%%%%% EDP Macros %%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% ---------------------------------------------------------------------------------------
+
+% \usepackage{theorem}
+\usepackage{graphicx}
+%\usepackage{fullpage}
+\usepackage{graphics}
+\usepackage{colordvi}
+%\usepackage{eepic}
+\usepackage{xspace}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{authblk}
+
+%\usepackage[small,compact]{titlesec}
+
+%\usepackage{ulem}
+
+% \textheight 9in \advance \topmargin by -0.5in \textwidth 6.5in
+% \advance \oddsidemargin by -0.8in
+% \newcommand{\myparskip}{3pt}
+%\parskip \myparskip
+
+
+%\newcommand{\geq}{\ge} 
+%\newcommand{\leq}{\le} 
+
+
+
+\newcommand{\greedy}{{\sc Greedy}\xspace} 
+\newcommand{\signedgreedy}{{\sc SignedGreedy}\xspace} 
+\newcommand{\sgreedy}{{\sc SGreedy}\xspace} 
+\newcommand{\greedyleft}{{\sc GreedyLeft}\xspace} 
+\newcommand{\greedyright}{{\sc GreedyRight}\xspace} 
+\newcommand{\stair}{{\sf stair}\xspace} 
+\newcommand{\stairleft}{{\textsf{stairLeft}}\xspace} 
+\newcommand{\stairright}{{\textsf{stairRight}}\xspace} 
+
+\newcommand{\agreedy}{{\sc RGreedy}\xspace} 
+\newcommand{\cfm}{\ensuremath{m^*}\xspace} 
+\newcommand{\dfa}{\ensuremath{{\sf dfa}}\xspace} 
+\newcommand{\nfa}{\ensuremath{{\sf nfa}}\xspace} 
+\newcommand{\cnf}{\ensuremath{{\sf cnf}}\xspace} 
+
+\newcommand{\CFM}{\ensuremath{m^*}\xspace} 
+\newcommand{\DFA}{\ensuremath{{\sf DFA}}\xspace} 
+\newcommand{\NFA}{\ensuremath{{\sf NFA}}\xspace} 
+\newcommand{\CNF}{\ensuremath{{\sf CNF}}\xspace} 
+
+
+\newenvironment{proofof}[1]{\noindent{\bf Proof of #1.}}%
+        {\hspace*{\fill}$\Box$\par\vspace{4mm}}
+
+%\documentstyle[12pt,fullpage,graphics,colordvi,amssymb,amsmath,amsthm,eepic]{report}
+
+\newcommand\TombStone{\rule{1ex}{1.6ex}}
+
+\newcommand{\enc}[1]{\langle #1 \rangle}
+\renewcommand\qedsymbol{$\TombStone$}
+
+%\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+%\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+%\newcommand{\expect}[1]{\ensuremath{\text{{\bf E}$[#1]$}}}
+%\newcommand{\MSTop}{\operatorname{MST}}
+%\newcommand{\MST}{\ensuremath{\MSTop}\xspace}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Space saver: reduce the space between the author block and paper text? sig-alternate.cls
+% http://tex.stackexchange.com/questions/57505/how-to-reduce-the-space-between-the-author-block-and-paper-text-sig-alternate-c
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%\def\@maketitle{\newpage
+% \null
+% \setbox\@acmtitlebox\vbox{%
+%\baselineskip 20pt
+%\vskip 2em                   % Vertical space above title.
+%   \begin{center}
+%    {\ttlfnt \@title\par}       % Title set in 18pt Helvetica (Arial) bold size.
+%    \vskip 1.5em                % Vertical space after title.
+%%This should be the subtitle.
+%{\subttlfnt \the\subtitletext\par}\vskip 1.25em%\fi
+%    {\baselineskip 16pt\aufnt   % each author set in \12 pt Arial, in a
+%     \lineskip .5em             % tabular environment
+%     \begin{tabular}[t]{c}\@author
+%     \end{tabular}\par}
+%    \vskip 1.5em               % Vertical space after author.
+%   \end{center}}
+% \dimen0=\ht\@acmtitlebox
+%% \advance\dimen0 by -12.75pc\relax % comment by Marco Daniel
+% \unvbox\@acmtitlebox
+% \ifdim\dimen0<0.0pt\relax\vskip-\dimen0\fi}
+%
+%
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Theorems and such
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+
+%---- The code below is needed to make many refname commands work ----
+%---- See http://tex.stackexchange.com/questions/49937/a-problem-with-thmtools-and-cleveref ----
+
+\makeatletter
+\def\thmt@refnamewithcomma #1#2#3,#4,#5\@nil{%
+  \@xa\def\csname\thmt@envname #1utorefname\endcsname{#3}%
+  \ifcsname #2refname\endcsname
+    \csname #2refname\expandafter\endcsname\expandafter{\thmt@envname}{#3}{#4}%
+  \fi
+}
+\makeatother
+
+\declaretheorem[numberwithin=section,refname={Theorem,Theorems},Refname={Theorem,Theorems}]{theorem}
+\declaretheorem[numberlike=theorem,refname={Lemma,Lemmas},Refname={Lemma,Lemmas}]{lemma}
+\declaretheorem[numberlike=theorem,refname={Fact,Facts},Refname={Fact,Facts}]{fact}
+\declaretheorem[numberlike=theorem,refname={Corollary,Corollaries},Refname={Corollary,Corollaries}]{corollary}
+\declaretheorem[numberlike=theorem,refname={Proposition,Propositions},Refname={Proposition,Propositions}]{proposition}
+\declaretheorem[numberlike=theorem,refname={property,properties},Refname={Property,Properties}]{property}
+\declaretheorem[numberlike=theorem,refname={observation,observations},Refname={Observation,Observations}]{observation}
+\declaretheorem[numberlike=theorem,refname={assumption,assumptions},Refname={Assumption,Assumptions}]{assumption}
+\declaretheorem[numberlike=theorem,refname={Claim, Claims},Refname={Claim, Claims}]{claim}
+\declaretheorem[numberlike=theorem,refname={hypothesis,hypothesis},Refname={Hypothesis,Hypothesis}]{hypothesis}
+\declaretheorem[numberlike=theorem]{definition}
+\declaretheorem[style=remark]{remark}
+
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{observation}{Observation}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{claim}[theorem]{Claim}
+%\newtheorem{proposition}[theorem]{Proposition}
+%\newtheorem{assumption}{Assumption}
+%\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{question}{Question}
+\newtheorem{conjecture}{Conjecture}
+%\newtheorem{hypothesis}{Hypothesis}
+%
+%
+%% %\newenvironment{definition}{\underline{\bf Definition}: }{}
+%% \newenvironment{proof}{\par \smallskip{\bf Proof:}}{\hfill\stopproof}
+%% \def\stopproof{\square}
+%% \def\square{\vbox{\hrule height.2pt\hbox{\vrule width.2pt height5pt \kern5pt
+%% \vrule width.2pt} \hrule height.2pt}}
+
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Problem names
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\newcommand{\BBIS}{{\sf BBIS}\xspace}
+\newcommand{\MS}{{\sf Machine Scheduling}\xspace}
+\newcommand{\RMS}{{\sf Restricted Mac\dfrac{h}{den}ine Scheduling}\xspace}
+\newcommand{\CM}{{\sf Congestion Minimization}\xspace}
+\newcommand{\ST}{{\sf Steiner Tree}\xspace}
+\newcommand{\CD}{{\sf Cost-Distance}\xspace}
+\newcommand{\PST}{{\sf Priority Steiner Tree}\xspace}
+\newcommand{\FCNF}{{\sf FCNF}\xspace}
+\newcommand{\AC}{{\sf Asymmetric $k$-Center}\xspace}
+\newcommand{\kC}{{\sf $k$-Center}\xspace}
+\newcommand{\dH}{{\sf $d$-Hypergraph-Cover}\xspace}
+\newcommand{\kH}{{\sf $k$-Hypergraph-Cover}\xspace}
+\newcommand{\GS}{{\sf Group-Steiner-Tree}\xspace}
+\newcommand{\SC}{{\sf Set-Cover}\xspace}
+\newcommand{\GAPSAT}{{\sf Gap-3SAT(5)}\xspace}
+\newcommand{\clique}{{\sf Max-Clique}\xspace}
+\newcommand{\ML}{{\sf Metric Labeling}\xspace}
+\newcommand{\ZE}{{\sf 0-extension}\xspace}
+\newcommand{\ZIE}{{\sf $(0,\infty)$-extension}\xspace}
+\newcommand{\sat}{{\sf SAT}\xspace}
+\newcommand{\mdc}{{\sf MDC}\xspace}
+\newcommand{\csp}{{\sf HA-CSP}\xspace}
+
+\newcommand{\yi}{{\sc Yes-Instance}\xspace}
+\renewcommand{\ni}{{\sc No-Instance}\xspace}
+
+
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Protocol names
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\newcommand{\RP}{{\sc 1R2P}\xspace}
+\newcommand{\RV}{{\sc Raz Verifier}\xspace}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Math operators
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\Dexp}[1]{\dexp\{#1\}}
+\newcommand{\Tower}[2]{\operatorname{tower}^{(#1)}\{#2\}}
+\newcommand{\logi}[2]{\operatorname{log}^{(#1)}{#2}}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+\newcommand{\abs}[1]{\lvert #1\rvert}
+\newcommand{\paren}[1]{\left ( #1 \right ) }
+\newcommand{\union}{\cup}
+\newcommand{\band}{\wedge}
+\newcommand{\bor}{\vee}
+\newcommand{\prof}{\ensuremath{\operatorname{profit}}}
+\newcommand{\pay}{\ensuremath{\operatorname{pay}}}
+
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Complexity Classes
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+
+\renewcommand{\P}{\mbox{\sf P}}
+\newcommand{\NP}{\mbox{\sf NP}}
+\newcommand{\OPT}{\mbox{\sf OPT}}
+\newcommand{\BPP}{\mbox{\sf BPP}}
+\newcommand{\PCP}{\mbox{\sf PCP}}
+\newcommand{\ZPP}{\mbox{\sf ZPP}}
+\newcommand{\polylog}[1]{\mathrm{polylog}(#1)}
+\newcommand{\DTIME}{\mbox{\sf DTIME}}
+\newcommand{\BPTIME}{\mbox{\sf BPTIME}}
+\newcommand{\ZPTIME}{\mbox{\sf ZPTIME}}
+
+
+\newcommand{\opt}{\mbox{\sf OPT}}
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Sets
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\newcommand{\set}[1]{\left\{ #1 \right\}}
+\newcommand{\sse}{\subseteq}
+
+\newcommand{\B}{{\mathcal{B}}}
+\newcommand{\tset}{{\mathcal T}}
+\newcommand{\iset}{{\mathcal{I}}}
+\newcommand{\pset}{{\mathcal{P}}}
+\newcommand{\qset}{{\mathcal{Q}}}
+\newcommand{\lset}{{\mathcal{L}}}
+\newcommand{\bset}{{\mathcal{B}}}
+\newcommand{\aset}{{\mathcal{A}}} \newcommand{\cA}{{\mathcal{A}}} \newcommand{\cB}{{\mathcal{B}}}
+\newcommand{\cset}{{\mathcal{C}}}
+\newcommand{\gset}{{\mathcal{G}}}
+\newcommand{\mset}{{\mathcal M}}
+\newcommand{\jset}{{\mathcal{J}}}
+\newcommand{\xset}{{\mathcal{X}}}
+\newcommand{\yset}{{\mathcal{Y}}}
+\newcommand{\rset}{{\mathcal{R}}}
+\newcommand{\eset}{{\mathcal{E}}}
+\newcommand{\dset}{{\mathcal{D}}}
+\newcommand{\G}{\mathbf{G}}
+
+%\renewcommand{\H}{\mathbf{H}}
+
+\newcommand{\I}{{\mathcal I}}
+\newcommand{\hset}{{\mathcal{H}}}
+%\newcommand{\pset}{{\mathcal{P}}}
+\newcommand{\nset}{{\mathcal{N}}}
+\newcommand{\fset}{{\mathcal{F}}}
+\newcommand{\sset}{{\mathcal{S}}}
+\newcommand{\uset}{{\mathcal{U}}}
+\newcommand{\notu}{\overline U}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%General Environments
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\bd}{\begin{description}}
+\newcommand{\ed}{\end{description}}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\bip}{\mbox{B}\xspace}
+\newcommand{\bipm}{\ensuremath{\bip}}
+\newcommand{\bipp}{\ensuremath{\bip}}
+
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Figures and such
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\newcommand{\scale}[2]{\scalebox{#1}{#2}}
+
+\newcommand{\fig}[1]{
+\begin{figure}[h]
+\rotatebox{0}{\includegraphics{#1}}
+\end{figure}}
+
+\newcommand{\figcap}[2]
+{
+\begin{figure}[h]
+\rotatebox{270}{\includegraphics{#1}} \caption{#2}
+\end{figure}
+}
+
+\newcommand{\scalefig}[2]{
+\begin{figure}[h]
+\scalebox{#1}{\includegraphics{#2}}
+\end{figure}}
+
+\newcommand{\scalefigcap}[3]{
+\begin{figure}[h]
+\scalebox{#1}{\rotatebox{0}{\includegraphics{#2}}} \caption{#3}
+\end{figure}}
+
+\newcommand{\scalefigcaplabel}[4]{
+\begin{figure}[h]
+\begin{center}
+\label{#4} \scalebox{#1}{\includegraphics{#2}}\caption{#3}
+\end{center}
+\end{figure}}
+
+%-----------------------------------------------------
+%Programs
+%-----------------------------------------------------
+\newenvironment{prog}[1]{
+\begin{minipage}{5.8 in}
+{\sc\bf #1}
+\begin{enumerate}}
+{
+\end{enumerate}
+\end{minipage}
+}
+
+% \newcommand{\program}[2]{\vspace{2mm}\fbox{\vspace{2mm}\begin{prog}{#1} #2 \end{prog}\vspace{2mm}}\vspace{2mm}}
+%-----------------------------------------------------------
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+%Other - Math
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+\renewcommand{\phi}{\varphi}
+\newcommand{\eps}{\epsilon}
+\newcommand{\Sum}{\displaystyle\sum}
+\newcommand{\half}{\ensuremath{\frac{1}{2}}}
+
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\dist}{\mbox{\sf dist}}
+
+\newcommand{\reals}{{\mathbb R}}
+
+\newcommand{\rn}{\reals^n}
+\newcommand{\rk}{\reals^k}
+\newcommand{\newsigma}{\Sigma^{d^{\ceil{t/2}}}}
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathbb F}}
+\newcommand{\fm}{\enshuremath{\mathbb F}^m}
+\newcommand{\func}{:{\mathbb F}^m\rightarrow {\mathbb F}}
+
+\newcommand{\expct}[1]{\text{\bf E}_\left [#1\right]}
+\newcommand{\expect}[2]{\text{\bf E}_{#1}\left [#2\right]}
+\newcommand{\prob}[1]{\text{\bf Pr}\left [#1\right]}
+\newcommand{\pr}[2]{\text{\bf Pr}_{#1}\left [#2\right ]}
+
+%\setlength{\parskip}{2mm} \setlength{\parindent}{0mm}
+
+
+\newcommand{\notsat}[1]{\overline{\text{SAT}(#1)}}
+\newcommand{\notsats}[2]{\overline{\text{SAT}_{#1}(#2)}}
+
+\newcommand{\sndp}{\mbox{\sf SNDP}}
+\newcommand{\ecsndp}{\mbox{\sf EC-SNDP}}
+\newcommand{\vcsndp}{\mbox{\sf VC-SNDP}}
+\newcommand{\kec}{k\mbox{\sf -edge connectivity}}
+\newcommand{\kvc}{k\mbox{\sf -vertex connectivity}}
+\newcommand{\sskec}{\mbox{\sf single-source}~k\mbox{\sf -edge connectivity}}
+\newcommand{\sskvc}{\mbox{\sf single-source}~k\mbox{\sf -vertex connectivity}}
+\newcommand{\subkvc}{\mbox{\sf subset}~k\mbox{\sf -vertex connectivity}}
+\newcommand{\oneec}{1\mbox{\sf -edge connectivity}}
+\newcommand{\onevc}{1\mbox{\sf -vertex connectivity}}
+\newcommand{\kvcssp}{k\mbox{\sf -vertex-connected spanning subgraph problem}}
+\newcommand{\BLM}{{\sf Bounded-Length Multicut}\xspace}
+\newcommand{\bydef}{\stackrel{{\triangle}}{=}}
+\newcommand{\eblue}{E^{\mbox{\scriptsize{blue}}}}
+\newcommand{\ered}{E^{\mbox{\scriptsize{red}}}}
+
+\newcommand{\induce}[1]{\ensuremath{{\sf im}(#1)}\xspace}
+\newcommand{\sinduce}[1]{\ensuremath{{\sf sim}(#1)}\xspace}
+\newcommand{\sinducesigma}[2]{\ensuremath{{\sf sim}_{#1}(#2)}\xspace}
+
+% BUN MACROES %
+\newcommand{\SMP}{{\sf SMP}\xspace}
+\newcommand{\UDP}{{\sf UDP}\xspace}
+\newcommand{\semiind}{{\sf Semi-Induced Matching}\xspace}
+\newcommand{\LSMP}{{\sf Limit-SMP}\xspace}
+\newcommand{\LUDP}{{\sf Limit-UDP}\xspace}
+\newcommand{\ETH}{{\sf ETH}\xspace}
+\newcommand{\SAT}{{\sf SAT}\xspace}
+% \newcommand{\MAX3SAT}{{\sf Max-3SAT}}
+\newcommand{\p}{{\bf p}}
+\newcommand{\e}{{\sc e}}
+
+\newcommand{\wall}{\overrightarrow{R}}
+\newcommand{\awall}{\widehat{R}}
+\newcommand{\pairs}{\mathcal{S}}
+
+\newcommand{\edp}{{\sf edp}\xspace}
+\newcommand{\tildeEDP}{\widetilde{\sf edp}\xspace}
+\newcommand{\vdp}{{\sf vdp}\xspace}
+\newcommand{\mis}{{\sf mis}\xspace}
+\newcommand{\NDP}{{\sf VDP}\xspace}
+\newcommand{\VDP}{{\sf VDP}\xspace}
+\newcommand{\EDP}{{\sf EDP}\xspace}
+\newcommand{\wing}{\mathit{wing}}
+\newcommand{\child}{\mathit{child}}
+
+\newcommand{\inc}{\texttt{Inc}}
+\newcommand{\dec}{\texttt{Dec}}
+\newcommand{\capture}{\texttt{Cap}}
+\newcommand{\alt}{\texttt{Alt}}
+\newcommand{\Greedy}{\textsc{Greedy}} \newcommand{\Agreedy}{\textsc{RGreedy}}
+\newcommand{\GreedyL}{\textsc{GreedyLeft}} \newcommand{\GreedyR}{\textsc{GreedyRight}}
+\newcommand{\merge}{\mathit{merge}}
+\newcommand{\Split}{\mathit{split}}
+\newcommand{\tP}{\tilde{P}}
+\newcommand{\tY}{Y_{\tP}} 
+\newcommand{\topwing}{\mathit{topwing}}
+\newcommand{\ymin}{\mathit{ymin}}
+\newcommand{\ymax}{\mathit{ymax}}
+\newcommand{\xmin}{\mathit{xmin}}
+\newcommand{\xmax}{\mathit{xmax}}
+\newcommand{\junk}{\mathit{junk}}
+\newcommand{\mleft}{\mathit{left}}
+\newcommand{\mright}{\mathit{right}}
+\newcommand{\degree}{\mathit{degree}}
+\newcommand{\parent}{\mathit{parent}} 
+\newcommand{\mtop}{\mathit{top}}
+\newcommand{\mbottom}{\mathit{bottom}}
+
+
+\def\QED{\ensuremath{{\blacksquare}}}
+\def\markatright#1{\leavevmode\unskip\nobreak\quad\hspace*{\fill}{#1}}
+\renewenvironment{proof}
+  {\begin{trivlist}\item[\hskip\labelsep{\emph{Proof}.}]}
+  {\markatright{\qed}\end{trivlist}}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Comments
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+
+
+\def\ShowComment{True}
+
+\ifdefined\ShowComment
+
+
+\def\parinya#1{\marginpar{$\leftarrow$\fbox{P}}\footnote{$\Rightarrow$~{\sf #1 --Parinya}}}
+
+\else
+
+\def\parinya#1{}
+
+\fi
+
+\ifdefined\ShowComment
+
+
+\def\kurt#1{\marginpar{$\leftarrow$\fbox{K}}\footnote{$\Rightarrow$~{\sf #1 --Kurt}}}
+
+\else
+
+\def\kurt#1{}
+
+\fi
+
+
+\ifdefined\ShowComment
+
+
+\def\thatchaphol#1{\marginpar{$\leftarrow$\fbox{T}}\footnote{$\Rightarrow$~{\sf #1 --Thatchaphol}}}
+
+\else
+
+\def\thatchaphol#1{}
+
+\fi
+
+\ifdefined\ShowComment
+
+
+\def\laszlo#1{\marginpar{$\leftarrow$\fbox{L}}\footnote{$\Rightarrow$~{\sf #1 --LK}}}
+
+\else
+
+\def\laszlo#1{}
+
+\fi
+
+\ifdefined\ShowComment
+
+
+\def\mayank#1{\marginpar{$\leftarrow$\fbox{M}}\footnote{$\Rightarrow$~{\sf #1 --MG}}}
+
+\else
+
+\def\laszlo#1{}
+
+\fi
+
+\newcommand{\Kurt}[1]{\textcolor{red}{#1}\marginpar{Kurt}}
+\newcommand{\Kurttwo}[2]{{\tiny \textcolor{green}{#1}}\comment{\textcolor{red}{#2}}}
+
+\newcommand{\comment}[1]{\textcolor{blue}{\textbf{#1}}}
+\newcommand{\lk}[1]{\comment{\textcolor{blue}{[LK:] #1}}}
+\newcommand{\thatchapholadd}[1]{\textcolor{purple}{#1}\marginpar{$\leftarrow$\fbox{\textcolor{purple}{T}}}}
+
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+% Title etc.
+%--------------------------------------------------------------
+%--------------------------------------------------------------
+
+
+\title{Pattern-avoiding access in binary search trees} 
+\date{}
+
+
+\author[1]{Parinya Chalermsook} 
+\author[1]{Mayank Goswami}  
+\author[2]{L\'{a}szl\'{o} Kozma} 
+\author[1]{Kurt Mehlhorn} 
+\author[3]{Thatchaphol Saranurak\thanks{Work partly done while at Saarland University.}}  
+
+\affil[1]{{\footnotesize Max-Planck Institute for Informatics, Germany.}  
+{\footnotesize \tt \{parinya,gmayank,mehlhorn\}@mpi-inf.mpg.de} }
+\affil[2]{{\footnotesize Saarland University, Germany. } {\footnotesize \tt kozma@cs.uni-saarland.de}} 
+\affil[3]{{\footnotesize KTH Royal Institute of Technology, Sweden.} {\footnotesize \tt thasar@kth.se} } 
+
+\begin{document}
+
+
+
+\begin{titlepage}
+\maketitle
+\pagenumbering{roman}
+
+
+\begin{abstract}
+\input{abstract-focs3} 
+\end{abstract} 
+
+\newpage
+\end{titlepage}
+
+
+\newpage
+\pagenumbering{arabic}
+
+\input{intro} 
+\input{prelim_short_version}
+\input{input-revealing}
+\input{decomposable_short_version}
+
+\newpage 
+\section{Discussion and open questions} 
+
+\label{sec:conclusions}
+
+Besides the long-standing open question of resolving dynamic optimality, our work raises several new ones in the context of pattern avoidance. We list some that are most interesting to us.  
+
+Can the bound of Theorem~\ref{thm:pattern-avoidance} be improved? While our input-revealing techniques are unlikely to yield a linear bound (Appendix~\ref{sec:bad-example2}), a slight improvement could come from strengthening Lemma~\ref{lem:forbidden}(ii) for the special kind of light matrices that arise in our proof.
+
+An intriguing question is whether there is a natural characterization of all sequences with linear optimum. How big is the overlap between ``easy inputs'' and inputs with pattern avoidance properties? We have shown that avoidance of a small pattern makes sequences easy.  
+The converse does not hold: There is a permutation $X \in S_n$ with $k(X) = \sqrt{n}$ but for which $\textsc{Greedy}(X) = O(n)$; see Appendix~\ref{sec:comparisons}.
+Note that our pattern-avoiding properties are incomparable with the earlier parametrizations (e.g.\ dynamic finger); see Appendix~\ref{sec:comparisons}.  
+Is there a parameter that subsumes both pattern-avoidance and dynamic finger? 
+
+A question directly related to our work is to close the gap between $\opt = O(n \log k)$ and $n 2^{O(k^2)}$ by \greedy on $k$-decomposable sequences (when $k = \omega(1)$). Matching the optimum (if at all possible) likely requires novel techniques: splay is not even known to be linear on preorder sequences with preprocessing, and with forbidden-submatrix-arguments it seems impossible to obtain bounds beyond\footnote{An $n$-by-$n$ matrix avoiding \emph{all} permutations of size at least $k$ can contain $\Omega(nk)$ ones.} $O(n k)$. 
+
+We proved that if {\sc Greedy} is optimal on simple permutations, then {\sc RGreedy} is optimal on all access sequences. Can some property of simple permutations\footnote{Note that simple permutations can have linear cost. In Appendix~\ref{sec:comparisons} we show such an example.} be algorithmically exploited? %%Can one design, analogously to {\sc RGreedy}, ``robust'' variants of other BST algorithms (e.g.\ splay)? 
+Can {\sc RGreedy} be made online? 
+Can our application for Cole's showcase sequence be extended in order to prove the dynamic finger property for {\sc Greedy}? 
+
+Finally, making further progress on the traversal conjecture will likely require novel ideas. 
+We propose a simpler question that captures the barrier for three famous conjectures: {\em traversal}, {\em deque}, and {\em split} (Appendix~\ref{sec:path-all}). 
+Given any initial tree $T$, access a preorder sequence defined by a path $P$ (a BST where each non-leaf node has a single child). 
+Prove a linear bound for your favorite online BST! 
+
+
+\newpage 
+\bibliographystyle{plain}
+\bibliography{ref}
+
+\newpage 
+\appendix 
+\clearpage
+
+\input{warmup}
+\input{forbidden} 
+\input{block_linear} 
+\input{block} 
+
+\input{permutation-lemma-new} 
+\input{random-hard} 
+\input{others}
+
+\end{document}

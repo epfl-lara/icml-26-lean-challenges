@@ -13,7 +13,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
   classical
   have hnpos : 0 < n := by
     haveI : Nonempty (Fin n) := hG.nonempty
-    simpa using (Fintype.card_pos : 0 < Fintype.card (Fin n))
+    simpa only [gt_iff_lt, Fintype.card_fin] using (Fintype.card_pos : 0 < Fintype.card (Fin n))
   have hDenseSubgraph : ∀ (G0 : SimpleGraph (Fin n)) (d : ℕ),
       Nat.card G0.support * d < G0.numEdges →
       ∃ K : SimpleGraph (Fin n), K ≤ G0 ∧
@@ -22,7 +22,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
     intro G0 d hdense
     let P : Set (SimpleGraph (Fin n)) :=
       {K | K ≤ G0 ∧ Nat.card K.support * d < K.numEdges}
-    have hfin : P.Finite := Set.finite_univ.subset (by intro K hK; simp)
+    have hfin : P.Finite := Set.finite_univ.subset (by intro K hK; exact Set.mem_univ _)
     have hnon : P.Nonempty := ⟨G0, ⟨le_rfl, hdense⟩⟩
     obtain ⟨K, hKP, hmin⟩ :=
       Set.exists_min_image P (fun K : SimpleGraph (Fin n) => Nat.card K.support) hfin hnon
@@ -32,17 +32,18 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
     by_contra hdeg_not
     have hdeg_le : Nat.card (K.neighborSet v) ≤ d := Nat.le_of_not_gt hdeg_not
     have hdeg_le' : K.degree v ≤ d := by
-      simpa [Nat.card_eq_fintype_card, SimpleGraph.degree, SimpleGraph.neighborFinset_def,
-        Set.toFinset_card] using hdeg_le
+      simpa only [SimpleGraph.degree, SimpleGraph.neighborFinset_def, Set.toFinset_card,
+        Fintype.card_ofFinset, SimpleGraph.mem_neighborSet, Nat.card_eq_fintype_card] using hdeg_le
     let K' : SimpleGraph (Fin n) := K.deleteIncidenceSet v
     have hK'leG : K' ≤ G0 := (SimpleGraph.deleteIncidenceSet_le K v).trans hKP.1
     have hsupp_le : Nat.card K'.support ≤ Nat.card K.support - 1 := by
-      simpa [K', Nat.card_eq_fintype_card] using
+      simpa only [Nat.card_eq_fintype_card, Fintype.card_ofFinset] using
         SimpleGraph.card_support_deleteIncidenceSet K hv
     have hedge_eq : K'.numEdges = K.numEdges - K.degree v := by
       dsimp [K']
       unfold SimpleGraph.numEdges SimpleGraph.edgeFinset
-      simp [SimpleGraph.edgeSet_deleteIncidenceSet, Set.toFinset_diff, Finset.card_sdiff]
+      simp only [SimpleGraph.edgeSet_deleteIncidenceSet, Set.toFinset_diff, Finset.card_sdiff,
+        Set.toFinset_card, Fintype.card_ofFinset]
       have hcard : ((K.incidenceSet v).toFinset ∩ K.edgeSet.toFinset).card = K.degree v := by
         have hsub : (K.incidenceSet v).toFinset ⊆ K.edgeSet.toFinset := by
           rw [Set.toFinset_subset_toFinset]
@@ -116,7 +117,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
               by_cases hmem : s(u, x) ∈ (SimpleGraph.Walk.cons hq0 qtail).edges
               · have hxy : x = y := by
                   have hxeq := hq.eq_snd_of_mem_edges hmem
-                  simpa [SimpleGraph.Walk.snd_cons] using hxeq
+                  simpa only [SimpleGraph.Walk.getVert_cons_succ, SimpleGraph.Walk.getVert_zero] using hxeq
                 subst y
                 have htail_len : p.length + qtail.length ≤ 2 * t := by
                   rw [SimpleGraph.Walk.length_cons, SimpleGraph.Walk.length_cons] at hlen
@@ -181,7 +182,8 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         rcases hv with ⟨p, hp, hlen⟩
         exact SimpleGraph.Walk.adj_of_length_eq_one hlen
       · intro hv
-        exact ⟨hv.toWalk, SimpleGraph.Walk.IsPath.of_adj hv, by simp⟩
+        exact ⟨hv.toWalk, SimpleGraph.Walk.IsPath.of_adj hv,
+          by simp only [SimpleGraph.Walk.length_cons, SimpleGraph.Walk.length_nil, zero_add]⟩
     have hL1card : d < Nat.card (L 1) := by
       rw [hL1]
       exact hmin r hr
@@ -216,15 +218,16 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
           · by_cases hb : b.1 = parent v
             · apply Subtype.ext
               exact ha.trans hb.symm
-            · simp [ha, hb] at hab
+            · simp only [ha, ↓reduceDIte, hb, reduceCtorEq] at hab
           · by_cases hb : b.1 = parent v
-            · simp [ha, hb] at hab
-            · simp [ha, hb] at hab
+            · simp only [ha, ↓reduceDIte, hb, reduceCtorEq] at hab
+            · simp only [ha, ↓reduceDIte, hb, Option.some.injEq] at hab
               have hval : a.1 = b.1 := congrArg (fun x : Childv => x.1) hab
               exact Subtype.ext hval
         have hle : Nat.card (K.neighborSet v.1) ≤ Nat.card (Option Childv) :=
           Nat.card_le_card_of_injective g hg_inj
-        have hopt : Nat.card (Option Childv) = Nat.card Childv + 1 := by simp
+        have hopt : Nat.card (Option Childv) = Nat.card Childv + 1 := by
+          simp only [Nat.card_eq_fintype_card, Fintype.card_option]
         omega
       let domain := Σ v : L i, Child v
       have hdom_lower : Nat.card (L i) * d ≤ Nat.card domain := by
@@ -234,7 +237,8 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         rw [Nat.card_eq_fintype_card]
         calc
           Fintype.card (L i) * d = ∑ _v : L i, d := by
-            simp [Finset.sum_const, mul_comm]
+            simp only [Fintype.card_ofFinset, mul_comm, Finset.sum_const, Finset.card_univ,
+              smul_eq_mul]
           _ ≤ ∑ v : L i, Nat.card (Child v) := by
             exact Finset.sum_le_sum (fun v hv => hchild v)
       let f : domain → L (i + 1) := fun x =>
@@ -245,7 +249,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
           intro hw
           have hwparent : x.2.1 = p.penultimate := by
             exact hendpoint hp.1 (by omega) x.2.2.1 hw
-          exact x.2.2.2 (by simpa [parent] using hwparent), by
+          exact x.2.2.2 (by simpa only [ne_eq, parent] using hwparent), by
           rw [SimpleGraph.Walk.length_concat, hp.2]⟩⟩
       have hinj : Function.Injective f := by
         intro a b hab
@@ -267,14 +271,14 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
           intro hwmem
           have hwparent : awv = (choosePath av).penultimate :=
             hendpoint hpa.1 (by omega) awprop.1 hwmem
-          exact awprop.2 (by simpa [parent] using hwparent)
+          exact awprop.2 (by simpa only [ne_eq, parent] using hwparent)
         have hqb_path : qb.IsPath := by
           dsimp [qb]
           refine SimpleGraph.Walk.IsPath.concat hpb.1 ?_ bwprop.1
           intro hwmem
           have hwparent : awv = (choosePath bv).penultimate :=
             hendpoint hpb.1 (by omega) bwprop.1 hwmem
-          exact bwprop.2 (by simpa [parent] using hwparent)
+          exact bwprop.2 (by simpa only [ne_eq, parent] using hwparent)
         have hqeq : qa = qb := by
           apply hunique qa qb hqa_path hqb_path
           have hqa_len : qa.length = i + 1 := by
@@ -292,7 +296,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         | mk bvv bvmem =>
         simp only at hv
         subst bvv
-        simp
+        simp only [ne_eq]
       have hle := Nat.card_le_card_of_injective f hinj
       exact hdom_lower.trans hle
     have htpos : 0 < t := NeZero.pos t
@@ -306,7 +310,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
           intro hk hkle
           cases k with
           | zero =>
-              simpa using hL1card
+              simpa only [zero_add, pow_one, Nat.card_eq_fintype_card, Fintype.card_ofFinset] using hL1card
           | succ m =>
               have ih' : d ^ (m + 1) < Nat.card (L (m + 1)) :=
                 ih (Nat.succ_pos m) (by omega)
@@ -318,7 +322,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
               exact hmul.trans_le hrec
     have hlevel_le_n : Nat.card (L t) ≤ n := by
       rw [Nat.card_coe_set_eq]
-      simpa using (Set.ncard_le_card (L t))
+      simpa only [Nat.card_eq_fintype_card, Fintype.card_fin] using (Set.ncard_le_card (L t))
     exact (hpow_lt_level t htpos le_rfl).trans_le hlevel_le_n
   have hNoShortEdgeBound : ∀ H : SimpleGraph (Fin n),
       (∀ u (c : H.Walk u u), c.IsCycle → ¬ c.length ≤ 2 * t) →
@@ -331,7 +335,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
       have hn1 : (1 : NNReal) ≤ (n : NNReal) := by exact_mod_cast hnpos
       have hz : 0 ≤ (1 / (t : ℝ)) := by positivity
       dsimp [rNN]
-      simpa using NNReal.rpow_le_rpow hn1 hz
+      simpa only [one_div, ge_iff_le, NNReal.one_rpow] using NNReal.rpow_le_rpow hn1 hz
     have hdpos : 0 < d := by
       have hd1 : (1 : NNReal) ≤ (d : NNReal) := by
         exact hr1.trans (by dsimp [d]; exact Nat.le_ceil rNN)
@@ -358,17 +362,17 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
       dsimp [d]
       calc
         (Nat.ceil rNN : NNReal) ≤ rNN + 1 := hceil_le
-        _ ≤ rNN + rNN := by simpa [add_comm] using add_le_add_left hr1 rNN
+        _ ≤ rNN + rNN := by simpa only [add_comm, add_le_add_iff_right] using add_le_add_left hr1 rNN
         _ = 2 * rNN := by ring
     have hsupp_le_nat : Nat.card H.support ≤ n := by
       rw [Nat.card_coe_set_eq]
-      simpa using (Set.ncard_le_card H.support)
+      simpa only [Nat.card_eq_fintype_card, Fintype.card_fin] using (Set.ncard_le_card H.support)
     have hsupp_le : (Nat.card H.support : NNReal) ≤ (n : NNReal) := by
       exact_mod_cast hsupp_le_nat
     have hdenseNN : ((Nat.card H.support * d : ℕ) : NNReal) < (H.numEdges : NNReal) := by
       calc
         ((Nat.card H.support * d : ℕ) : NNReal) =
-            (Nat.card H.support : NNReal) * (d : NNReal) := by norm_num
+            (Nat.card H.support : NNReal) * (d : NNReal) := Nat.cast_mul _ _
         _ ≤ (n : NNReal) * (d : NNReal) := by gcongr
         _ ≤ (n : NNReal) * (2 * rNN) := by gcongr
         _ = 2 * (n : NNReal) * rNN := by ring
@@ -378,13 +382,13 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
     obtain ⟨K, hKH, hKdense, hKmin⟩ := hDenseSubgraph H d hdense
     have hKNo : ∀ u (c : K.Walk u u), c.IsCycle → ¬ c.length ≤ 2 * t := by
       intro u c hc hlen
-      exact hHNo u (c.mapLe hKH) (hc.mapLe hKH) (by simpa using hlen)
+      exact hHNo u (c.mapLe hKH) (hc.mapLe hKH) (by simpa only [SimpleGraph.Walk.length_map] using hlen)
     have hsupp_nonempty : K.support.Nonempty := by
       by_contra hempty
       have hsupp_empty : K.support = ∅ := Set.not_nonempty_iff_eq_empty.mp hempty
       have hKbot : K = ⊥ := (SimpleGraph.support_eq_bot_iff K).mp hsupp_empty
       have hedges0 : K.numEdges = 0 := by
-        simp [SimpleGraph.numEdges, hKbot]
+        simp only [SimpleGraph.numEdges, Finset.card_eq_zero, SimpleGraph.edgeFinset_eq_empty, hKbot]
       omega
     rcases hsupp_nonempty with ⟨root, hroot⟩
     have hltMoore : d ^ t < n := hMoore K d hdpos hKNo hKmin root hroot
@@ -396,13 +400,13 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         K.numEdges ≤ H.numEdges := by
     let P : Set (SimpleGraph (Fin n)) :=
       {H | H ≤ G ∧ ∀ u (c : H.Walk u u), c.IsCycle → ¬ c.length ≤ 2 * t}
-    have hfin : P.Finite := Set.finite_univ.subset (by intro H hH; simp)
+    have hfin : P.Finite := Set.finite_univ.subset (by intro H hH; exact Set.mem_univ _)
     have hbotNoShort : ∀ u (c : (⊥ : SimpleGraph (Fin n)).Walk u u),
         c.IsCycle → ¬ c.length ≤ 2 * t := by
       intro u c hc
       cases c with
-      | nil => simp at hc
-      | cons h p => simp at h
+      | nil => simp only [SimpleGraph.Walk.IsCycle.not_of_nil] at hc
+      | cons h p => simp only [SimpleGraph.bot_adj] at h
     have hnon : P.Nonempty := by
       refine ⟨⊥, ?_⟩
       exact ⟨bot_le, hbotNoShort⟩
@@ -434,18 +438,18 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
       have hadjSup : (H ⊔ E).Adj u v := by
         dsimp [E]
         rw [SimpleGraph.sup_adj, SimpleGraph.fromEdgeSet_adj]
-        exact Or.inr ⟨by simp, hne⟩
+        exact Or.inr ⟨by simp only [Set.mem_singleton_iff], hne⟩
       have hneGraph : H ≠ H ⊔ E := by
         intro heq
         exact hnot (heq ▸ hadjSup)
       have hlt : H < H ⊔ E := lt_of_le_of_ne le_sup_left hneGraph
       have hcard : H.edgeFinset.card < (H ⊔ E).edgeFinset.card :=
         Finset.card_lt_card (SimpleGraph.edgeFinset_strict_mono hlt)
-      simpa [SimpleGraph.numEdges, K] using hcard
+      simpa only [SimpleGraph.numEdges, K, SimpleGraph.edgeFinset_sup, gt_iff_lt] using hcard
     by_contra hnone
     have hKNo : ∀ x (c : K.Walk x x), c.IsCycle → ¬ c.length ≤ 2 * t := by
       intro x c hc hle
-      exact hnone ⟨x, by simpa [K] using c, by simpa [K] using hc, hle⟩
+      exact hnone ⟨x, c, hc, hle⟩
     have hle := hmax K hKG hKNo
     exact (Nat.not_lt_of_ge hle) hstrict
   have hCycleToPath : ∀ {u v x : Fin n}
@@ -454,13 +458,13 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
     intro u v x c hc hlen
     let E : SimpleGraph (Fin n) := SimpleGraph.fromEdgeSet ({s(u, v)} : Set (Sym2 (Fin n)))
     let K : SimpleGraph (Fin n) := H ⊔ E
-    let cK : K.Walk x x := by simpa [K, E] using c
+    let cK : K.Walk x x := c
     have hcK : cK.IsCycle := by
       dsimp [cK]
-      simpa [K, E] using hc
+      exact hc
     have hlenK : cK.length ≤ 2 * t := by
       dsimp [cK]
-      simpa [K, E] using hlen
+      exact hlen
     have hnew : s(u, v) ∈ cK.edges := by
       by_contra hnotEdge
       have h_edges_H : ∀ e ∈ cK.edges, e ∈ H.edgeSet := by
@@ -480,7 +484,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         dsimp [cH]
         rw [SimpleGraph.Walk.length_transfer]
       have hlenH : cH.length ≤ 2 * t := by
-        simpa [hlen_eq] using hlenK
+        simpa only [hlen_eq] using hlenK
       exact hHNo x cH hcH hlenH
     have hu : u ∈ cK.support := SimpleGraph.Walk.fst_mem_support_of_mem_edges cK hnew
     let r : K.Walk u u := cK.rotate hu
@@ -502,7 +506,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
       have htailLen : r.tail.length + 1 = r.length := SimpleGraph.Walk.length_tail_add_one hnil
       have htailNoFirst : s(u, r.snd) ∉ r.tail.edges := by
         have hc' : (SimpleGraph.Walk.cons (r.adj_snd hnil) r.tail).IsCycle := by
-          simpa [SimpleGraph.Walk.cons_tail_eq r hnil] using hrCycle
+          simpa only [SimpleGraph.Walk.cons_tail_eq r hnil] using hrCycle
         exact ((SimpleGraph.Walk.cons_isCycle_iff r.tail (r.adj_snd hnil)).mp hc').2
       rw [← SimpleGraph.Walk.cons_tail_eq r hnil,
         SimpleGraph.Walk.edges_cons, List.mem_cons] at hrMem
@@ -517,7 +521,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         let p : K.Walk v u := r.tail.copy hv.symm rfl
         have hpPath : p.IsPath := by
           dsimp [p]
-          simpa [SimpleGraph.Walk.isPath_copy] using htailPath
+          simpa only [SimpleGraph.Walk.isPath_copy] using htailPath
         have hpLen : p.length + 1 = r.length := by
           dsimp [p]
           rw [SimpleGraph.Walk.length_copy]
@@ -525,7 +529,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
         have hpNo : s(u, v) ∉ p.edges := by
           dsimp [p]
           rw [SimpleGraph.Walk.edges_copy]
-          simpa [hv] using htailNoFirst
+          simpa only [hv] using htailNoFirst
         exact ⟨p, hpPath, hpLen, hpNo⟩
       · have hvpen_tail : v = r.tail.penultimate := by
           exact htailPath.eq_penultimate_of_mem_edges htail
@@ -537,17 +541,17 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
           rw [hvpen_tail]
           have hpen :=
             SimpleGraph.Walk.penultimate_cons_of_not_nil (r.adj_snd hnil) r.tail htail_not_nil
-          simpa [SimpleGraph.Walk.cons_tail_eq r hnil] using hpen.symm
+          simpa only [SimpleGraph.Walk.getVert_tail, SimpleGraph.Walk.cons_tail_eq r hnil] using hpen.symm
         let q0 : K.Walk r.reverse.snd u := r.reverse.tail
         let q : K.Walk v u := q0.copy (by rw [SimpleGraph.Walk.snd_reverse, ← hvpen]) rfl
         have hqPath : q.IsPath := by
           dsimp [q, q0]
-          simpa [SimpleGraph.Walk.isPath_copy] using (hrCycle.reverse.isPath_tail)
+          simpa only [SimpleGraph.Walk.isPath_copy] using (hrCycle.reverse.isPath_tail)
         have hqLen : q.length + 1 = r.length := by
           dsimp [q, q0]
           rw [SimpleGraph.Walk.length_copy]
           rw [SimpleGraph.Walk.length_tail_add_one]
-          · simp [SimpleGraph.Walk.length_reverse]
+          · simp only [SimpleGraph.Walk.length_reverse]
           · exact hrCycle.reverse.not_nil
         have hqNo : s(u, v) ∉ q.edges := by
           dsimp [q, q0]
@@ -556,10 +560,11 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
             have hrevnil : ¬ r.reverse.Nil := hrCycle.reverse.not_nil
             have hc' : (SimpleGraph.Walk.cons
                 (r.reverse.adj_snd hrevnil) r.reverse.tail).IsCycle := by
-              simpa [SimpleGraph.Walk.cons_tail_eq r.reverse hrevnil] using hrCycle.reverse
+              simpa only [SimpleGraph.Walk.cons_tail_eq r.reverse hrevnil,
+                SimpleGraph.Walk.isCycle_reverse] using hrCycle.reverse
             exact ((SimpleGraph.Walk.cons_isCycle_iff r.reverse.tail
               (r.reverse.adj_snd hrevnil)).mp hc').2
-          simpa [hvpen, SimpleGraph.Walk.snd_reverse] using hrevNoFirst
+          simpa only [hvpen, SimpleGraph.Walk.snd_reverse] using hrevNoFirst
         exact ⟨q, hqPath, hqLen, hqNo⟩
     rcases h_extract with ⟨pK, hpKPath, hpKLen, hpKNo⟩
     have h_edges_H : ∀ e ∈ pK.edges, e ∈ H.edgeSet := by
@@ -590,21 +595,23 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
     intro a b hGab
     by_cases hHab : H.Adj a b
     · have h1 : H.edist a b ≤ (1 : ℕ∞) := by
-        simpa using (SimpleGraph.edist_le hHab.toWalk)
+        simpa only [SimpleGraph.Walk.length_cons, SimpleGraph.Walk.length_nil, zero_add,
+          Nat.cast_one] using (SimpleGraph.edist_le hHab.toWalk)
       have hfac : (1 : ℕ∞) ≤ (2 * t - 1 : ℕ∞) := by
         have htpos : 0 < t := NeZero.pos t
         exact_mod_cast (by omega : 1 ≤ 2 * t - 1)
       exact h1.trans hfac
     · obtain ⟨p, hp⟩ := hMissingPath hGab hHab
       have hed : H.edist a b ≤ (p.length : ℕ∞) := by
-        simpa [SimpleGraph.Walk.length_reverse] using (SimpleGraph.edist_le p.reverse)
+        simpa only [SimpleGraph.Walk.length_reverse] using (SimpleGraph.edist_le p.reverse)
       exact hed.trans (by exact_mod_cast hp)
   have hSpanner : H.IsSpannerOf G (2 * t - 1) := by
     have hwalk : ∀ ⦃u v : Fin n⦄ (p : G.Walk u v),
         H.edist u v ≤ (2 * t - 1) * (p.length : ℕ∞) := by
       intro u v p
       induction p with
-      | nil => simp
+      | nil => simp only [SimpleGraph.edist_self, SimpleGraph.Walk.length_nil, CharP.cast_eq_zero,
+          mul_zero, le_refl]
       | cons h p ih =>
           calc
             H.edist _ _ ≤ H.edist _ _ + H.edist _ _ := SimpleGraph.edist_triangle
@@ -618,7 +625,7 @@ lemma spanner_exists {n} (G : SimpleGraph (Fin n))
     · exact hHG
     · intro u v
       obtain ⟨p, hp⟩ := hG.exists_walk_length_eq_edist u v
-      simpa [hp] using hwalk p
+      simpa only [ENat.coe_sub, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_one, hp] using hwalk p
   refine ⟨H, hSpanner, ?_⟩
   exact hNoShortEdgeBound H hHNo
 

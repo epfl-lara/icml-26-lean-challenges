@@ -1,0 +1,117 @@
+
+\section{\greedy is input-revealing}
+\label{sec:input-rev}
+In this section, we prove \Cref{thm:pattern-avoidance,thm:main-noinitial,thm:monotone,thm:sgreedy}.
+We refer to \S\,\ref{sec:results} for definitions of pattern-avoiding, $k$-decomposable and $k$-increasing permutations.
+
+To bound the cost of algorithm $\cA$, we show that $\aset_T(X)$ (or $\aset(X)$ if preprocessing is allowed) avoids some pattern.  
+In the following, $\inc_k$, $\dec_k$, and $\alt_k$ are permutation matrices of size $k$, and $\capture$ is a light matrix. These matrices will be defined later.
+\begin{lemma}
+	\label{lem:touch avoid}Let $X$ be an access sequence.
+\begin{compactenum}[(i)]
+		\item If $X$ avoids a permutation $P$ of size $k$, then for any initial
+		tree $T$, $\textsc{GreedyRight}_{T}(X)$, $\textsc{GreedyLeft}_{T}(X)$ and $\Greedy_{T}(X)$
+		avoid $P\otimes(1,2)$, $P\otimes(2,1)$ and $P\otimes\capture$
+		respectively.
+		\item If $X$ is $k$-increasing ($k$-decreasing), then for any initial
+		tree $T$, $\Greedy_{T}(X)$ avoids $(k,\dots,1)\otimes\dec_{k+1}$
+		($(1,\dots,k)\otimes\inc_{k+1}$).
+		\item If $X$ is $k$-decomposable, then $\Greedy(X)$ avoids $P\otimes\alt_{k+4}$
+		for all simple permutations $P$ of size at least $k+1$.
+	\end{compactenum}
+\end{lemma}
+
+The application of Lemma~\ref{lem:forbidden} is sufficient to complete all the proofs, together with the observation that, for any permutation matrix $P$ of size $k \times k$, if $G$ is a permutation (resp.\ light) matrix of size $\ell \times \ell$, then $P \otimes G$ is a permutation (resp.\ light) matrix of size $k \ell \times k \ell$.
+
+The rest of this section is devoted to the proof of \Cref{lem:touch avoid}.
+We need the definition of the \emph{input-revealing gadget} which is a pattern
+whose existence in the touch matrix (where access points are indistinguishable from touch
+points) gives some information about the locations of access points.
+\begin{definition}
+	[Input-revealing gadgets]\label{def:gadget}Let $X$ be an access matrix, $\cA$ be
+	an algorithm and $\cA(X)$ be the touch matrix of $\cA$ running on
+	$X$. 
+	\begin{compactenum}[--]
+		\item {\bf Capture Gadget.} A pattern $P$ is a \emph{capture gadget }for algorithm
+		$\cA$ if, for any bounding box $B$ of $P$ in $\cA(X)$, there is
+		an access point $p\in B$.
+		\item {\bf Monotone Gadget.} A pattern $P$ is a \emph{$k$-increasing ($k$-decreasing)
+			gadget }for algorithm $\cA$ if, for any bounding box $B$ of $P$
+		in $\cA(X)$, either (i) there is an access point $p\in B$ or, (ii)
+		there are $k$ access points $p_{1},\dots,p_{k}$ such that $B.\ymin \le p_{1}.y<\dots<p_{k}.y\le B.\ymax$
+		and $p_{1}.x<\dots<p_{k}.x<B.\xmin$ \emph{(}$p_{1}.x>\dots>p_{k}.x>B.\xmax$\emph{)}.
+		In words, $p_{1},\dots,p_{k}$ form the pattern $(1,\dots,k)$ (resp.\ $(k,\dots,1)$).
+		\item {\bf Alternating Gadget.} A pattern $P$ is a \emph{$k$-alternating gadget
+		}for algorithm $\cA$ if, for any bounding box $B$ of $P$ in $\cA(X)$,
+		either (i) there is an access point $p\in B$ or, (ii) there are $k$
+		access points $p_{1},\dots,p_{k}$ such that $B.\ymin \le p_{1}.y<\dots<p_{k}.y\le B.\ymax$
+		and $B.\xmax<p_{i}.x$ for all odd $i$ and $p_{i}.x<B.\xmin$ for all
+		even $i$.
+	\end{compactenum}
+\end{definition}
+
+Notice that if we had a permutation capture gadget $G$ for algorithm $\aset$, we would be done: If $X$ avoids pattern $Q$, then $\aset_T(X)$ avoids $Q \otimes G$ and forbidden submatrix theory applies. With arbitrary initial tree $T$, it is impossible to construct a permutation capture gadget for \greedy even for $2$-decomposable sequences (see Appendix~\ref{sec:bad-example2}). Instead, we define a \emph{light} capture gadget for \greedy for any sequence $X$ and any initial tree $T$. Additionally, we construct permutation monotone and alternating gadgets. After a preprocessing step, we can use the alternating gadget to construct a permutation capture gadget for $k$-decomposable sequences.
+
+\begin{lemma}
+\label{lem:input-revealing}
+\begin{compactenum}[(i)]
+		\item $(12)$ is a capture gadget for \greedyright and $(21)$ is a capture
+		gadget for \greedyleft.
+		\item $\capture$ is a capture gadget for \greedy where $\capture=\left(\begin{smallmatrix}
+		& \bullet\\
+		\bullet &  & \bullet
+		\end{smallmatrix}\right)$.
+		\item $\inc_{k+1}$ ($\dec_{k+1})$ is a $k$-increasing ($k$-decreasing)
+		gadget for \greedy where $\inc_{k}=(k,\dots,1)$ and \textup{$\dec_{k}=(1,2,\dots,k)$}. 
+		\item $\dec_{k+1}$ ($\inc_{k+1})$ is a capture gadget for \greedy that
+		runs on $k$-increasing $(k$-decreasing$)$ sequence.
+		\item $\alt_{k+1}$ is a $k$-alternating gadget for \greedy where $\alt_{k}=(\left\lfloor (k+1)/2\right\rfloor,k,1,k-1,2,\dots)$.%%\footnote{We mention that the pattern $\alt_k$ is not the
+%%			only possibility for an alternating gadget.} 
+		\item $\alt_{k+4}$ is a capture gadget for \greedy that runs on $k$-decomposable
+		sequence without initial tree.
+	\end{compactenum}
+\end{lemma}
+For example, 
+$
+\alt_{5}=\left(\begin{smallmatrix}
+& \bullet\\
+&  &  & \bullet\\
+\bullet\\
+&  &  &  & \bullet\\
+&  & \bullet
+\end{smallmatrix}\right)
+$. 
+We emphasize that only result (vi) requires a preprocessing. 
+
+Given Lemma~\ref{lem:input-revealing}, and the fact that $k$-increasing, $k$-decreasing, and $k$-decomposable sequences avoid 
+$(k,\dots,1)$, $(1,\dots,k)$, resp.\ all simple permutations of size at least $k+1$, \Cref{lem:touch avoid} follows immediately.
+
+\begin{proof}
+We only show the proofs for (i) and (ii) in order to convey the flavor of the arguments. 
+The other proofs are more involved. See \Cref{sub:k inc seq} for proofs of (iii),(iv), and \Cref{sub:k dec seq} for proofs of (v),(vi).
+
+	(i) We only prove for \GreedyR. Let $a,b$ be touch points
+	in $\GreedyR_{T}(X)$ such that $a.y<b.y$ and form $(1,2)$ with
+	a bounding box $B$. As $a.y=\tau(a.x,a.y)\ge\tau(b.x,a.y)$, by \Cref{prop:hidden}~(i),
+	$b.x$ is hidden in $(a.x,b.x]$ after $a.y$. 
+	Suppose	that there is no access point in $B = \square_{ab}$, then $b$ cannot be touched, which is a contradiction. 
+	
+	(ii) Let $a,b,c$ be touch points in $\Greedy_{T}(X)$ such that $a.x<b.x<c.x$
+	and $a,b,c$ form $\capture$ with bounding box $B$. As $\tau(a.x,a.y),\tau(c.x,a.y)\ge\tau(b.x,a.y)$, by \Cref{prop:hidden}~(iii), 
+	$b.x$ is hidden in $(a.x,c.x)$ after $a.y$.
+	Suppose that there is no access point in $B$, then $b$ cannot be touched, which is a contradiction. 
+\iffalse 	
+	(v),(vi): This proofs are quite involved and we refer to \Cref{sec:block_linear}
+	for the complete proofs. 
+	The idea is of the proof is the following.
+	Suppose that $\Greedy(X)$ contains $\alt_{k+4}$ with bounding box $B$. 
+	Since there	is no initial tree, it can be shown that there exists an access	point $p_{0}$ below $B$. 
+	Suppose that $B$ contains no access point, as $\alt_{k+4}$ is an alternating gadget, 
+	there are access points $p_{1},\dots,p_{k+4}$  that
+	``alternate side'' across $B$, and, in particular, across $p_0$ below.
+	By $k$-decomposability, we an show that this is impossible.
+	So $B$ must contain an access point, and hence $\alt_{k+4}$ is a capture gadget for \greedy running
+	on $k$-decomposable sequence.
+\fi 
+\end{proof}
+

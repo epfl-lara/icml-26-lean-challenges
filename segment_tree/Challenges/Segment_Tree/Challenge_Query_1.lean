@@ -13,19 +13,20 @@ set_option autoImplicit false
 private theorem array_foldl_extract_empty_of_stop_le_start {α β : Type*} (f : β → α → β)
     (xs : Array α) (init : β) {l r : ℕ} (h : r ≤ l) :
     (xs.extract l r).foldl f init = init := by
-  have hx : xs.extract l r = #[] := by grind
+  have hx : xs.extract l r = #[] :=
+    Array.extract_eq_empty_of_le (le_trans (min_le_left r xs.size) h)
   rw [hx]
-  simp
+  rfl
 
 private theorem array_toList_extract_split {α : Type*} (xs : Array α) {l m r : ℕ}
     (hlm : l ≤ m) (hmr : m ≤ r) :
     (xs.extract l r).toList = (xs.extract l m).toList ++ (xs.extract m r).toList := by
-  simp [Array.toList_extract, List.extract]
+  simp only [Array.toList_extract, List.extract]
   rw [← List.take_append_drop (m - l) (List.take (r - l) (List.drop l xs.toList))]
   congr 1
   · rw [List.take_take]
     have hle : m - l ≤ r - l := Nat.sub_le_sub_right hmr l
-    simp [min_eq_left hle]
+    simp only [min_eq_left hle]
   · rw [List.drop_take]
     congr 1
     · omega
@@ -99,21 +100,23 @@ private theorem array_foldl_extract_stop_min {α β : Type*} (f : β → α → 
   · rw [min_eq_right hqm]
   · have hmq : m ≤ q := Nat.le_of_not_ge hqm
     have hleft : xs.extract (m + p) (m + min m q) = xs.extract (m + p) := by
-      rw [min_eq_left hmq]
-      grind
+      rw [min_eq_left hmq, Array.extract_eq_extract_right]
+      omega
     have hright : xs.extract (m + p) (m + q) = xs.extract (m + p) := by
-      grind
+      rw [Array.extract_eq_extract_right]
+      omega
     rw [hleft, hright]
 
 private theorem log2_two_mul (j : ℕ) (h0j : 0 < j) :
     Nat.log2 (2 * j) = Nat.log2 j + 1 := by
   rw [Nat.log2_eq_log_two, Nat.log2_eq_log_two,
-    show 2 * j = Nat.bit false j by simp [Nat.bit], Nat.log_two_bit (Nat.ne_of_gt h0j)]
+    show 2 * j = Nat.bit false j by simp only [Nat.bit, cond_false], Nat.log_two_bit (Nat.ne_of_gt h0j)]
 
 private theorem log2_two_mul_add_one (j : ℕ) (h0j : 0 < j) :
     Nat.log2 (2 * j + 1) = Nat.log2 j + 1 := by
   rw [Nat.log2_eq_log_two, Nat.log2_eq_log_two,
-    show 2 * j + 1 = Nat.bit true j by simp [Nat.bit, Nat.add_comm],
+    show 2 * j + 1 = Nat.bit true j by
+      simp only [Nat.add_comm, Nat.bit, cond_true],
     Nat.log_two_bit (Nat.ne_of_gt h0j)]
 
 private theorem log2_le_of_lt_two_mul_pow {j H : ℕ} (h0j : 0 < j)
@@ -131,7 +134,7 @@ private theorem left_start_eq (H h j : ℕ) (h0j : 0 < j)
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) := by
   let l := Nat.log2 j
   have hpowle : 2 ^ l ≤ j := (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl l)
-  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa [l] using log2_two_mul j h0j
+  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa only [l] using log2_two_mul j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [hlog, hsubH, hsubHparent]
@@ -147,7 +150,7 @@ private theorem left_stop_eq (H h j : ℕ) (h0j : 0 < j)
         2 ^ (H - Nat.log2 (2 * j)) =
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) + 2 ^ h := by
   let l := Nat.log2 j
-  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa [l] using log2_two_mul j h0j
+  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa only [l] using log2_two_mul j h0j
   have hsubH : H - (l + 1) = h := by omega
   rw [left_start_eq H h j h0j hh, hlog, hsubH]
 
@@ -158,7 +161,7 @@ private theorem right_start_eq (H h j : ℕ) (h0j : 0 < j)
   let l := Nat.log2 j
   have hpowle : 2 ^ l ≤ j := (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl l)
   have hlog : Nat.log2 (2 * j + 1) = l + 1 := by
-    simpa [l] using log2_two_mul_add_one j h0j
+    simpa only [l] using log2_two_mul_add_one j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [hlog, hsubH, hsubHparent]
@@ -175,7 +178,7 @@ private theorem right_stop_eq (H h j : ℕ) (h0j : 0 < j)
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) + 2 ^ (H - Nat.log2 j) := by
   let l := Nat.log2 j
   have hlog : Nat.log2 (2 * j + 1) = l + 1 := by
-    simpa [l] using log2_two_mul_add_one j h0j
+    simpa only [l] using log2_two_mul_add_one j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [right_start_eq H h j h0j hh, hlog, hsubH, hsubHparent]
@@ -191,7 +194,7 @@ theorem coverage_left_L {α : Type*} [Monoid α] {n j : ℕ} (st : SegmentTree �
     rw [Nat.log2_eq_log_two]
     exact Nat.log_lt_of_lt_pow (Nat.ne_of_gt h0j) hjm
   have hh : (st.H - (Nat.log2 j + 1)) + 1 = st.H - Nat.log2 j := by omega
-  simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
+  simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
   exact left_start_eq st.H (st.H - (Nat.log2 j + 1)) j h0j hh
 
 theorem coverage_left_R {α : Type*} [Monoid α] {n j : ℕ} (st : SegmentTree α n)
@@ -204,7 +207,7 @@ theorem coverage_left_R {α : Type*} [Monoid α] {n j : ℕ} (st : SegmentTree �
     rw [Nat.log2_eq_log_two]
     exact Nat.log_lt_of_lt_pow (Nat.ne_of_gt h0j) hjm
   have hh : (st.H - (Nat.log2 j + 1)) + 1 = st.H - Nat.log2 j := by omega
-  simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
+  simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
   rw [left_stop_eq st.H (st.H - (Nat.log2 j + 1)) j h0j hh]
   have hparent : st.H - Nat.log2 j = (st.H - (Nat.log2 j + 1)) + 1 := by omega
   rw [hparent, Nat.pow_succ]
@@ -220,7 +223,7 @@ theorem coverage_right_L {α : Type*} [Monoid α] {n j : ℕ} (st : SegmentTree 
     rw [Nat.log2_eq_log_two]
     exact Nat.log_lt_of_lt_pow (Nat.ne_of_gt h0j) hjm
   have hh : (st.H - (Nat.log2 j + 1)) + 1 = st.H - Nat.log2 j := by omega
-  simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
+  simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
   rw [right_start_eq st.H (st.H - (Nat.log2 j + 1)) j h0j hh]
   have hparent : st.H - Nat.log2 j = (st.H - (Nat.log2 j + 1)) + 1 := by omega
   rw [hparent, Nat.pow_succ]
@@ -235,21 +238,22 @@ theorem coverage_right_R {α : Type*} [Monoid α] {n j : ℕ} (st : SegmentTree 
     rw [Nat.log2_eq_log_two]
     exact Nat.log_lt_of_lt_pow (Nat.ne_of_gt h0j) hjm
   have hh : (st.H - (Nat.log2 j + 1)) + 1 = st.H - Nat.log2 j := by omega
-  simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
+  simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
   rw [right_stop_eq st.H (st.H - (Nat.log2 j + 1)) j h0j hh]
 
 private theorem coverage_leaf_width {α : Type*} [Monoid α] {n j : ℕ} (st : SegmentTree α n)
     (h0j : 0 < j) (hmj : st.m ≤ j) (hj2m : j < 2 * st.m) :
     (CoverageIntervalDefs.from_st n j st h0j hj2m).R =
       (CoverageIntervalDefs.from_st n j st h0j hj2m).L + 1 := by
-  have hjpow : j < 2 * 2 ^ st.H := by simpa [st.h_m_pow2H] using hj2m
+  have hjpow : j < 2 * 2 ^ st.H := by simpa only [st.h_m_pow2H] using hj2m
   have hle_log : Nat.log2 j ≤ st.H := log2_le_of_lt_two_mul_pow h0j hjpow
   have hHle_log : st.H ≤ Nat.log2 j := by
     rw [st.h_m_pow2H] at hmj
     rw [Nat.log2_eq_log_two]
     exact Nat.le_log_of_pow_le Nat.one_lt_two hmj
   have hlogH : Nat.log2 j = st.H := le_antisymm hle_log hHle_log
-  simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions, hlogH]
+  simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions, hlogH,
+    tsub_self, pow_zero, one_mul]
 
 theorem split_node_lt_m {α : Type*} [Monoid α] {n j L R p q : ℕ}
     (st : SegmentTree α n) (h0j : 0 < j) (hj2m : j < 2 * st.m)
@@ -296,13 +300,16 @@ private theorem query_aux_correct (α : Type) [inst : Monoid α] (n : ℕ)
   · intro j L R h_j0 hj2m hsub hcov _hempty
     rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
       (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-    simp [hj2m, hsub]
+    simp only [hj2m, ↓reduceDIte, hsub, and_self, bind_pure_comp, ret_map, sup_of_le_left,
+      inf_of_le_left, Array.size_extract, Vector.size_toArray]
     rcases hcov hj2m with ⟨hL, hR⟩
-    simpa [hL, hR] using SegmentTree.coverage_interval n j st h_j0 hj2m
+    simpa only [hL, hR, Array.size_extract, Vector.size_toArray] using
+      SegmentTree.coverage_interval n j st h_j0 hj2m
   · intro j L R h_j0 hj2m hnsub hdisjoint hcov _hempty
     rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
       (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-    simp [hj2m, hnsub, hdisjoint]
+    simp only [hj2m, ↓reduceDIte, hnsub, hdisjoint, bind_pure_comp, ret_map, Array.size_extract,
+      Vector.size_toArray]
     symm
     have hfold :
         (st.a.toArray.extract (st.m + max L p) (st.m + min R q)).foldl
@@ -315,7 +322,7 @@ private theorem query_aux_correct (α : Type) [inst : Monoid α] (n : ℕ)
       · have hminRR : min R q ≤ R := min_le_left R q
         have hpmax : p ≤ max L p := le_max_right L p
         omega
-    simpa [Array.size_extract] using hfold
+    simpa only [Array.size_extract, Vector.size_toArray] using hfold
   · intro j L R h_j0 hj2m hnsub hnotdisjoint C ihLeft ihRight hcov hempty
     have hcovj := hcov hj2m
     have hjm : j < st.m := split_node_lt_m st h_j0 hj2m hcovj hnsub hnotdisjoint
@@ -323,7 +330,8 @@ private theorem query_aux_correct (α : Type) [inst : Monoid α] (n : ℕ)
     have hLR : L ≤ R := by
       rcases hcovj with ⟨hL, hR⟩
       rw [hL, hR]
-      simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
+      simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
+        le_add_iff_nonneg_right, zero_le]
     have hLC : L ≤ C := by
       rw [hC]
       omega
@@ -356,21 +364,22 @@ private theorem query_aux_correct (α : Type) [inst : Monoid α] (n : ℕ)
         omega)
     rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
       (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-    simp [hj2m, hnsub, hnotdisjoint]
+    simp only [hj2m, ↓reduceDIte, hnsub, hnotdisjoint, bind_pure_comp, ret_bind, ret_map,
+      Array.size_extract, Vector.size_toArray]
     rw [hleft, hright]
-    simpa [Array.size_extract] using
+    simpa only [Array.size_extract, Vector.size_toArray] using
       (fold_inter_split st.a.toArray st.m L C R p q hLC hCR).symm
   · intro j L R h_j0 hnot hcov hempty
     rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
       (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-    simp [hnot]
+    simp only [hnot, ↓reduceDIte, bind_pure_comp, ret_map, Array.size_extract, Vector.size_toArray]
     symm
     have hfold :
         (st.a.toArray.extract (st.m + max L p) (st.m + min R q)).foldl
           (fun a b => a * b) 1 = 1 := by
       apply array_foldl_extract_empty_of_stop_le_start
       exact Nat.add_le_add_left (hempty hnot) st.m
-    simpa [Array.size_extract] using hfold
+    simpa only [Array.size_extract, Vector.size_toArray] using hfold
 
 -- QUERY OPERATION:
 -- query function: given an interval [p, q), if we call p1:=max(0, p) and q1:=min(q, st.m)
@@ -390,10 +399,12 @@ theorem query_correctness (α : Type) (inst : Monoid α) (n : ℕ) (st : Segment
     (by
       intro h12m
       constructor
-      · simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
-          Nat.log2_eq_log_two]
-      · simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
-          Nat.log2_eq_log_two, st.h_m_pow2H])
+      · simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
+          Nat.log2_eq_log_two, Nat.log_one_right, pow_zero, tsub_self, tsub_zero, mul_zero,
+          zero_add]
+      · simp only [st.h_m_pow2H, CoverageIntervalDefs.from_st,
+          CoverageIntervalDefs.from_assumptions, Nat.log2_eq_log_two, Nat.log_one_right, pow_zero,
+          tsub_self, tsub_zero, mul_zero, zero_add])
     (by
       intro hnot
       have hm0 := st.h_m0
@@ -402,9 +413,9 @@ theorem query_correctness (α : Type) (inst : Monoid α) (n : ℕ) (st : Segment
       (query.query_aux α n st p q 1 0 st.m (by omega)).ret =
         (st.a.toArray.extract (st.m + p) (st.m + min st.m q)).foldl
           (fun a b => a * b) 1 := by
-    simpa [max_eq_right (Nat.zero_le p), Array.size_extract] using hroot
+    simpa only [Array.size_extract, Vector.size_toArray, zero_le, sup_of_le_right] using hroot
   rw [array_foldl_extract_stop_min (fun a b : α => a * b) st.a.toArray 1 st.m p q
-    (by simp [Vector.size_toArray])] at hroot'
-  simpa [query] using hroot'
+    (by simp only [Vector.size_toArray])] at hroot'
+  simpa only [query, Array.size_extract, Vector.size_toArray] using hroot'
 
 end Cslib.Algorithms.Lean.TimeM

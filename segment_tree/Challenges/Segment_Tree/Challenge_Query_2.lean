@@ -31,12 +31,12 @@ private theorem endpointCount_pos_of_partial (L R p q : ℕ)
 private theorem log2_two_mul (j : ℕ) (h0j : 0 < j) :
     Nat.log2 (2 * j) = Nat.log2 j + 1 := by
   rw [Nat.log2_eq_log_two, Nat.log2_eq_log_two,
-    show 2 * j = Nat.bit false j by simp [Nat.bit], Nat.log_two_bit (Nat.ne_of_gt h0j)]
+    show 2 * j = Nat.bit false j by simp only [Nat.bit, cond_false], Nat.log_two_bit (Nat.ne_of_gt h0j)]
 
 private theorem log2_two_mul_add_one (j : ℕ) (h0j : 0 < j) :
     Nat.log2 (2 * j + 1) = Nat.log2 j + 1 := by
   rw [Nat.log2_eq_log_two, Nat.log2_eq_log_two,
-    show 2 * j + 1 = Nat.bit true j by simp [Nat.bit, Nat.add_comm],
+    show 2 * j + 1 = Nat.bit true j by simp only [Nat.add_comm, Nat.bit, cond_true],
     Nat.log_two_bit (Nat.ne_of_gt h0j)]
 
 private theorem log2_le_of_lt_two_mul_pow {j H : ℕ} (h0j : 0 < j)
@@ -54,15 +54,14 @@ private theorem left_start_eq (H h j : ℕ) (h0j : 0 < j)
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) := by
   let l := Nat.log2 j
   have hpowle : 2 ^ l ≤ j := (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl l)
-  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa [l] using log2_two_mul j h0j
+  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa only [l] using log2_two_mul j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [hlog, hsubH, hsubHparent]
   rw [Nat.pow_succ]
   have hsub : 2 * j - 2 ^ l * 2 = 2 * (j - 2 ^ l) := by omega
   rw [hsub]
-  rw [Nat.pow_succ]
-  ring
+  rw [Nat.pow_succ, Nat.mul_assoc]
 
 private theorem left_stop_eq (H h j : ℕ) (h0j : 0 < j)
     (hh : h + 1 = H - Nat.log2 j) :
@@ -70,7 +69,7 @@ private theorem left_stop_eq (H h j : ℕ) (h0j : 0 < j)
         2 ^ (H - Nat.log2 (2 * j)) =
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) + 2 ^ h := by
   let l := Nat.log2 j
-  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa [l] using log2_two_mul j h0j
+  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa only [l] using log2_two_mul j h0j
   have hsubH : H - (l + 1) = h := by omega
   rw [left_start_eq H h j h0j hh, hlog, hsubH]
 
@@ -81,7 +80,7 @@ private theorem right_start_eq (H h j : ℕ) (h0j : 0 < j)
   let l := Nat.log2 j
   have hpowle : 2 ^ l ≤ j := (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl l)
   have hlog : Nat.log2 (2 * j + 1) = l + 1 := by
-    simpa [l] using log2_two_mul_add_one j h0j
+    simpa only [l] using log2_two_mul_add_one j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [hlog, hsubH, hsubHparent]
@@ -98,7 +97,7 @@ private theorem right_stop_eq (H h j : ℕ) (h0j : 0 < j)
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) + 2 ^ (H - Nat.log2 j) := by
   let l := Nat.log2 j
   have hlog : Nat.log2 (2 * j + 1) = l + 1 := by
-    simpa [l] using log2_two_mul_add_one j h0j
+    simpa only [l] using log2_two_mul_add_one j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [right_start_eq H h j h0j hh, hlog, hsubH, hsubHparent]
@@ -165,14 +164,15 @@ private theorem coverage_leaf_width {α : Type*} [Monoid α] {n j : ℕ} (st : S
     (h0j : 0 < j) (hmj : st.m ≤ j) (hj2m : j < 2 * st.m) :
     (CoverageIntervalDefs.from_st n j st h0j hj2m).R =
       (CoverageIntervalDefs.from_st n j st h0j hj2m).L + 1 := by
-  have hjpow : j < 2 * 2 ^ st.H := by simpa [st.h_m_pow2H] using hj2m
+  have hjpow : j < 2 * 2 ^ st.H := by simpa only [st.h_m_pow2H] using hj2m
   have hle_log : Nat.log2 j ≤ st.H := log2_le_of_lt_two_mul_pow h0j hjpow
   have hHle_log : st.H ≤ Nat.log2 j := by
     rw [st.h_m_pow2H] at hmj
     rw [Nat.log2_eq_log_two]
     exact Nat.le_log_of_pow_le Nat.one_lt_two hmj
   have hlogH : Nat.log2 j = st.H := le_antisymm hle_log hHle_log
-  simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions, hlogH]
+  simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions, hlogH, tsub_self,
+    pow_zero, one_mul]
 
 private theorem split_node_lt_m {α : Type*} [Monoid α] {n j L R p q : ℕ}
     (st : SegmentTree α n) (h0j : 0 < j) (hj2m : j < 2 * st.m)
@@ -248,11 +248,13 @@ theorem query_time (α : Type) (inst : Monoid α) (n : ℕ) (st : SegmentTree α
     · intro j L R h_j0 hj2m hsub hcov
       rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
         (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-      simp [hj2m, hsub]
+      simp only [hj2m, ↓reduceDIte, hsub, and_self, bind_pure_comp, time_map, time_tick,
+        le_add_iff_nonneg_left, zero_le]
     · intro j L R h_j0 hj2m hnsub hdisjoint hcov
       rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
         (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-      simp [hj2m, hnsub, hdisjoint]
+      simp only [hj2m, ↓reduceDIte, hnsub, hdisjoint, bind_pure_comp, time_map, time_tick,
+        le_add_iff_nonneg_left, zero_le]
     · intro j L R h_j0 hj2m hnsub hnotdisjoint C ihLeft ihRight hcov
       have hcovj := hcov hj2m
       have hjm : j < st.m := split_node_lt_m st h_j0 hj2m hcovj hnsub hnotdisjoint
@@ -260,7 +262,8 @@ theorem query_time (α : Type) (inst : Monoid α) (n : ℕ) (st : SegmentTree α
       have hLR : L ≤ R := by
         rcases hcovj with ⟨hL, hR⟩
         rw [hL, hR]
-        simp [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
+        simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
+          le_add_iff_nonneg_right, zero_le]
       have hLC : L ≤ C := by
         rw [hC]
         omega
@@ -289,7 +292,7 @@ theorem query_time (α : Type) (inst : Monoid α) (n : ℕ) (st : SegmentTree α
       have hcntpos := endpointCount_pos_of_partial L R p q hnsub hnotdisjoint
       have hlogj_lt : Nat.log2 j < st.H := by
         have hjpow : j < 2 ^ st.H := by
-          simpa [st.h_m_pow2H] using hjm
+          simpa only [st.h_m_pow2H] using hjm
         exact (Nat.log2_lt (Nat.ne_of_gt h_j0)).2 hjpow
       have hleftHeight : st.H - Nat.log2 (2 * j) + 1 = st.H - Nat.log2 j := by
         rw [log2_two_mul j h_j0]
@@ -297,26 +300,61 @@ theorem query_time (α : Type) (inst : Monoid α) (n : ℕ) (st : SegmentTree α
       have hrightHeight : st.H - Nat.log2 (2 * j + 1) + 1 = st.H - Nat.log2 j := by
         rw [log2_two_mul_add_one j h_j0]
         omega
+      have hbase : 2 * (st.H - Nat.log2 (2 * j)) ≤ 2 * (st.H - Nat.log2 j) - 2 := by omega
+      have hbase' : 2 * (st.H - Nat.log2 (2 * j + 1)) ≤ 2 * (st.H - Nat.log2 j) - 2 := by omega
+      have hKpos : 2 ≤ 2 * (st.H - Nat.log2 j) := by omega
+      have hprod :
+          2 * (st.H - Nat.log2 (2 * j)) * endpointCount L C p q +
+              2 * (st.H - Nat.log2 (2 * j + 1)) * endpointCount C R p q + 2 ≤
+            2 * (st.H - Nat.log2 j) * endpointCount L R p q := by
+        calc
+          2 * (st.H - Nat.log2 (2 * j)) * endpointCount L C p q +
+                2 * (st.H - Nat.log2 (2 * j + 1)) * endpointCount C R p q + 2
+              ≤ (2 * (st.H - Nat.log2 j) - 2) * endpointCount L C p q +
+                  (2 * (st.H - Nat.log2 j) - 2) * endpointCount C R p q + 2 :=
+                Nat.add_le_add_right
+                  (Nat.add_le_add (Nat.mul_le_mul_right _ hbase) (Nat.mul_le_mul_right _ hbase')) 2
+          _ = (2 * (st.H - Nat.log2 j) - 2) * (endpointCount L C p q + endpointCount C R p q) + 2 := by
+                rw [Nat.mul_add]
+          _ ≤ (2 * (st.H - Nat.log2 j) - 2) * endpointCount L R p q + 2 :=
+                Nat.add_le_add_right (Nat.mul_le_mul_left _ hcnt) 2
+          _ ≤ 2 * (st.H - Nat.log2 j) * endpointCount L R p q := by
+                have hexp :
+                    2 * (st.H - Nat.log2 j) * endpointCount L R p q =
+                      (2 * (st.H - Nat.log2 j) - 2) * endpointCount L R p q +
+                        2 * endpointCount L R p q := by
+                  rw [← Nat.add_mul]
+                  congr 1
+                  omega
+                rw [hexp]
+                have : 2 ≤ 2 * endpointCount L R p q := by omega
+                omega
       rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
         (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-      simp [hj2m, hnsub, hnotdisjoint]
-      nlinarith [hleft, hright, hcnt, hcntpos, hleftHeight, hrightHeight]
+      simp only [hj2m, ↓reduceDIte, hnsub, hnotdisjoint, bind_pure_comp, time_bind, time_map,
+        time_tick, ge_iff_le]
+      rw [← hC]
+      omega
     · intro j L R h_j0 hnot hcov
       rw [query.query_aux.eq_def (α := α) (n := n) (st := st) (p := p) (q := q)
         (j := j) (L := L) (R := R) (h_j0 := h_j0)]
-      simp [hnot]
+      simp only [hnot, ↓reduceDIte, bind_pure_comp, time_map, time_tick, le_add_iff_nonneg_left,
+        zero_le]
   have hroot := haux 1 0 st.m (by omega)
     (by
       intro h12m
       constructor
-      · norm_num [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
-          Nat.log2_eq_log_two]
-      · norm_num [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
-          st.h_m_pow2H, Nat.log2_eq_log_two])
+      · simp only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
+          Nat.log2_eq_log_two, Nat.log_one_right, pow_zero, tsub_self, tsub_zero, mul_zero, zero_add]
+      · simp only [st.h_m_pow2H, CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions,
+          Nat.log2_eq_log_two, Nat.log_one_right, pow_zero, tsub_self, tsub_zero, mul_zero,
+          zero_add])
   have hroot' : (query α n st p q).time ≤ 2 * st.H * endpointCount 0 st.m p q + 1 := by
-    simpa [query] using hroot
+    simpa only [query] using hroot
   have hcnt := endpointCount_le_two 0 st.m p q
   have hH := height_le_log_add_four st
-  nlinarith
+  have hmul : 2 * st.H * endpointCount 0 st.m p q ≤ 2 * st.H * 2 :=
+    Nat.mul_le_mul_left _ hcnt
+  omega
 
 end Cslib.Algorithms.Lean.TimeM

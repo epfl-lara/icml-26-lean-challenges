@@ -26,14 +26,14 @@ private lemma contains_insert_iff {α : Type u} :
   intro t x y f
   induction t generalizing y with
   | leaf =>
-      simp [BinaryTree.insert, contains]
+      simp only [BinaryTree.insert, contains, Bool.false_eq_true, or_self, or_false, false_or]
       exact eq_comm
   | node l v r ihl ihr =>
       by_cases h : f y ≤ f v
-      · simp [BinaryTree.insert, contains, h, ihl]
-        grind
-      · simp [BinaryTree.insert, contains, h, ihl]
-        grind
+      · simp only [BinaryTree.insert, h, ↓reduceIte, contains, ihl, eq_comm]
+        tauto
+      · simp only [BinaryTree.insert, h, ↓reduceIte, contains, ihl, eq_comm]
+        tauto
 
 
 private def StrongHeap : BinaryTree α → (α → ENat) → Prop
@@ -60,13 +60,13 @@ private lemma strongHeap_insert {α : Type u} :
   intro t y f hheap
   induction t generalizing y with
   | leaf =>
-      simp [BinaryTree.insert, StrongHeap]
+      simp only [BinaryTree.insert, StrongHeap, and_self, and_true]
       intro x hx
       cases hx
   | node l v r ihl ihr =>
       rcases hheap with ⟨hl, hr, hhl, hhr⟩
       by_cases h : f y ≤ f v
-      · simp [BinaryTree.insert, h, StrongHeap]
+      · simp only [BinaryTree.insert, h, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hx' := (contains_insert_iff l x v f).mp hx
@@ -79,7 +79,7 @@ private lemma strongHeap_insert {α : Type u} :
           · constructor
             · exact ihl v hhl
             · exact hhr
-      · simp [BinaryTree.insert, h, StrongHeap]
+      · simp only [BinaryTree.insert, h, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hx' := (contains_insert_iff l x y f).mp hx

@@ -26,29 +26,27 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
         l.all_keys ∪ r.all_keys = (TreapNode.merge l r).all_keys := by
     intro l r
     fun_induction TreapNode.merge l r
-    · simp [TreapNode.all_keys]
-    · simp [TreapNode.all_keys]
-    · simp [TreapNode.all_keys]
+    · simp only [TreapNode.all_keys, Set.union_self]
+    · simp only [TreapNode.all_keys, Set.union_singleton, Set.empty_union]
+    · simp only [TreapNode.all_keys, Set.union_singleton, Set.union_empty]
     case case4 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
       subst new_l
       subst new_r
       ext x
       simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
       rw [← ih1]
-      simp only [Set.mem_union]
-      tauto
+      simp only [Set.mem_union, or_assoc]
     case case5 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
       subst new_l
       subst new_r
       ext x
       simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
       rw [← ih1]
-      simp only [Set.mem_union]
-      tauto
+      simp only [Set.mem_union, or_assoc]
   fun_induction TreapNode.merge l r
   · exact IsBST.nil
-  · simpa [TreapNode.merge] using r_proof
-  · simpa [TreapNode.merge] using l_proof
+  · exact r_proof
+  · exact l_proof
   case case4 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
     subst new_l
     subst new_r
@@ -59,7 +57,7 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
             ∀ kr ∈ TreapNode.all_keys (Tree.node kp_2 l_2 r_2 : TreapNode Key Prio),
               kl < kr := by
         intro kl hkl kr hkr
-        exact sorted_l_r kl (by simp [TreapNode.all_keys, hkl]) kr hkr
+        exact sorted_l_r kl (by simp only [TreapNode.all_keys, Set.union_singleton, Set.mem_union, Set.mem_insert_iff, hkl, or_true]) kr hkr
       have bst_new_r : IsBST (TreapNode.merge r_1 (Tree.node kp_2 l_2 r_2)) :=
         ih1 bst_r1 r_proof sorted_r1_r
       apply IsBST.node
@@ -73,7 +71,7 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
         cases hk' with
         | inl hk_r1 => exact right_ge_root k hk_r1
         | inr hk_r =>
-            exact le_of_lt (sorted_l_r kp_1.key (by simp [TreapNode.all_keys]) k hk_r)
+            exact le_of_lt (sorted_l_r kp_1.key (by simp only [TreapNode.all_keys, Set.union_singleton, Set.mem_union, Set.mem_insert_iff, true_or]) k hk_r)
       · exact bst_l1
       · exact bst_new_r
   case case5 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
@@ -85,7 +83,7 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
           ∀ kl ∈ TreapNode.all_keys (Tree.node kp_1 l_1 r_1 : TreapNode Key Prio),
             ∀ kr ∈ TreapNode.all_keys l_2, kl < kr := by
         intro kl hkl kr hkr
-        exact sorted_l_r kl hkl kr (by simp [TreapNode.all_keys, hkr])
+        exact sorted_l_r kl hkl kr (by simp only [TreapNode.all_keys, Set.union_singleton, Set.mem_union, Set.mem_insert_iff, hkr, or_true, true_or])
       have bst_new_l : IsBST (TreapNode.merge (Tree.node kp_1 l_1 r_1) l_2) :=
         ih1 l_proof bst_l2 sorted_l_l2
       apply IsBST.node
@@ -96,7 +94,7 @@ theorem merge_IsBST (l r : TreapNode Key Prio)
           rw [all_keys_union_merge_local]
           exact hk
         cases hk' with
-        | inl hk_l => exact sorted_l_r k hk_l kp_2.key (by simp [TreapNode.all_keys])
+        | inl hk_l => exact sorted_l_r k hk_l kp_2.key (by simp only [TreapNode.all_keys, Set.union_singleton, Set.mem_union, Set.mem_insert_iff, true_or])
         | inr hk_l2 => exact left_lt_root k hk_l2
       · exact right_ge_root
       · exact bst_new_l

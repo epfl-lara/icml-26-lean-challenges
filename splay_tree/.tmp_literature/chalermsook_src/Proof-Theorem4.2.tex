@@ -1,0 +1,73 @@
+
+
+We are now ready to prove the decomposition theorem. Let $Y$ be the output of \agreedy on a permutation of $P$ of size $n$, and let $\tset$ be the block decomposition tree of $P$. We wish to bound $|Y|$. 
+
+For each leaf block $P \in L(\tset)$, let $Y_P$ be the points in  $P \cap Y$.  
+For each non-leaf block $\tP \in N(\tset)$, with children $P_1,\ldots, P_k$, let $\tY$ be the set of points in $Y \cap (\tP \setminus \bigcup_{j} P_j)$. In words, these are the points in block ${\tilde{P}}$ that are not in any of its children (we do not want to overcount the cost). It is clear that we have already accounted for all points in $Y$, i.e. $Y = \bigcup_{P \in \tset} Y_P$, so it suffices to bound $\sum_{P \in \tset} |Y_P|$. 
+
+For each non-leaf block $\tP  \in N(\tset)$, we show later that $|\tY| \leq 4 \cdot \Greedy(\tP) + 5\degree(\tP) + \junk(\tP)$, where $\degree(\tP)$ is the number of children of $\tP$, and the 
+term $\junk(\tP)$ will be defined such that $\sum_{\tP \in N(\tset)}\junk(\tP) \leq 2n$.
+For each leaf block $P$, notice that apart from the \agreedy augmentation in the last row, the cost is exactly $\Greedy(P)$. Including the extra points touched by \agreedy we have that $|Y_P| = \Greedy(P) + |\topwing(P)|$. Since leaf blocks are induced by a partitioning of $[n]$ into disjoint intervals, we have that $\sum_{P \in L(\tset)}{|\topwing(P)|} \leq n$. So in total, the cost can be written as $4 \cdot \sum_{{\tilde{P}} \in N(\tset)}\textsc{Greedy}({\tilde{P}}) + \sum_{P \in L(\tset)}\textsc{Greedy}(P) + 5n$ as desired.
+It remains to bound $\sum_{\tilde{P} \in N(\tset)}{|Y_{\tilde{P}}|}$.
+
+Consider any non-leaf block $\tP$. Define the rectangular regions $R(i,j)$ as before. We split $\abs{\tY}$ into three separate parts. Let $\tY^1$ be the subset of $\tY$ consisting of points that are \emph{in the first row} of some region $R(i,j)$. Let $\tY^3$ be the subset of $\tY$ consisting of points that are \emph{in the last row} of some region $R(i,j)$. Observe that any points possibly touched in an \agreedy augmentation step fall into $\tY^3$. Let $\tY^2 = \tY - (\tY^1 \cup \tY^3)$ be the set of touch points that are not in the first or the last row of any region $R(i,j)$. 
+
+Denote by $\textit{left}(R)$ and $\textit{right}(R)$ the leftmost, respectively rightmost column of a region $R$. Similarly, denote by $\textit{top}(R)$ and $\textit{bottom}(R)$ the topmost, respectively bottommost $y$-coordinate of a region $R$.
+
+%%%\laszlo{illustrations badly needed for the proof of the following two lemmas and the claim afterwards.}
+
+\begin{lemma}
+\label{lem: onlytwo}
+If region $R(i,j)$ has no block $P_q$ below it, \agreedy touches no point in $R(i,j)$. 
+If $R(i,j)$ has a block $P_q$ below it, \agreedy touches only points in columns $\textit{left}(R(i,j))$ and $\textit{right}(R(i,j))$.
+\end{lemma}
+
+\begin{proof}
+If $R(i,j)$ has no block $P_q$ below it, then it is never touched. Assume therefore that $R(i,j)$ is above (and aligned with) block $P_q$ for some $q<j$. When \agreedy accessed the last element in $P_q$, it touched the left and right upper corners of $P_q$ in the augmentation step (since the topmost element in the leftmost and rightmost columns belong to $\topwing(P_q)$). As there are no more accesses after $\textit{top}(P_q)$ inside $[\textit{left}(P_q)+1, \textit{right}(P_q)-1]$, all elements in this interval are hidden in $[\textit{left}(P_q)+1, \textit{right}(P_q)-1]$, and therefore not touched again.
+\end{proof}
+
+Let $m_{i,j}$ be the indicator variable of whether the region $R(i,j)$ is touched by \agreedy. 
+Consider the execution of \greedy on permutation $\tP$ and define $n_{i,j}$ to be the indicator variable of whether the element $(i,j)$ is touched by \greedy on input $\tilde{P}$. Notice that $\sum_{i,j} n_{i,j} =  \Greedy(\tP)$. We refer to the execution of \greedy on permutation $\tP$ as the ``execution on the contracted instance'', to avoid confusion with the execution of \agreedy on block $\tP$.
+
+\begin{lemma}
+\label{lem: greedy-rgreedy} Before the augmentation of the last row of $\tP$ by $\topwing(\tP)$ the following holds:
+A rectangular area $R(i,j)$ in block $\tilde{P}$ is touched by \agreedy iff \greedy touches $(i,j)$ in the contracted instance $\tilde{P}$; in other words, $m_{i,j} = n_{i,j}$ for all $i,j$. 
+\end{lemma}
+
+Lemma~\ref{lem: onlytwo} and Lemma~\ref{lem: greedy-rgreedy} together immediately imply the bounds $|\tY^1| \le 2 \cdot \Greedy(\tP)$, and $|\tY^3| \le 2 \cdot \Greedy(\tP) + |\topwing(\tP)|$, since in the first or last row of a region $R(i,j)$ that is not one of the $P_j$'s at most two points are touched and no point is touched if \greedy does not touch the region. In the case of $\tY^3$, \agreedy also touches the elements in $\topwing(\tP)$ after the last access to a point in $\tP$. 
+
+\begin{proof}
+We prove by induction on $j$ that after $P_j$ is processed, the rectangular area $R(i,j)$ is touched by \agreedy if and only if $(i,j)$ is touched by \greedy in the contracted instance.
+
+We consider the processing of $P_j$ and argue that this invariant is maintained. When $j=1$, the induction hypothesis clearly holds.
+There are no other touch points below the block $\tP$ (due to the property of the decomposition), so when points in $P_1$ are accessed, no points in $\tilde{P} \setminus P_1$ are touched. Similarly, in the contracted instance when the first point in $\tilde{P}$ is accessed by \greedy, no other points are touched. 
+
+First we prove that \greedy touching $(i,j)$ in the contracted instance implies that \agreedy touches $R(i,j)$.
+Suppose \greedy touches point $(i,j)$. 
+Let $p_j$ be the access point in the contracted instance at time $j$. There has to be an access or touch point $(i,j')$ where $j'<j$ such that the rectangle with corners $(i,j')$, and $p'$ had no other points before adding $(i,j)$ (the point $(i,j')$ was on the stair of $p_j$ at time $j$). The induction hypothesis guarantees that $R(i,j')$ is touched by \agreedy, so some point $q$ is touched or accessed in this region.
+Choose $q$ to be the topmost such point, and if there are more points in the same row, choose $q$ to be as close to block $P_j$ as possible.
+
+We claim that $q$ is in the stair of the first access point $p^*$ of $P_j$, therefore touching $R(i,j)$: If $q$ was not in the stair, there would be another point $q'$ in the rectangle formed by $p^*$ and $q$. 
+Observe that $q'$ cannot be in $R(i,j')$, because it would contradict the choice of $q$ being closest to $p^*$. So $q'$ is in some region $R(i'',j'')$ that lies inside the minimal  rectangle embracing $R(i,j')$, and the region immediately below $P_j$. By induction hypothesis, the fact that $R(i'',j'')$ contains point $q'$ implies that $(i'',j'')$ is touched by \greedy in the contracted instance, contradicting the claim that the rectangle with corners $(i,j')$, $p_j$ is empty.
+
+Now we prove the other direction. Suppose \agreedy touches region $R(i,j)$. This also implies that \greedy (without augmentation step) already touches $R(i,j)$.  But then \greedy must touch a point in $R(i,j)$ when accessing the first element $p^*$ in $P_j$. Assume w.l.o.g.\ that $R(i,j)$ is to the right of $P_j$. It means that there is a point $q$ in the stair of $p^*$, such that $q$ is in some region $R(i,j')$ for $j' < j$.
+If in the contracted instance $(i,j')$ is in the stair of the access point $p_j$ at time $j$, we would be done (because \greedy would add point $(i,j)$), so asssume otherwise that this is not the case. Let $(i'',j'')$ 
+be the point that blocks $(i,j')$, so the corresponding region $R(i'',j'')$ lies inside the minimal rectangle embracing both $P_j$ and $R(i,j')$.  Also note that the region $R(i'',j'')$ cannot be vertically aligned with $P_j$ because $\tilde P$ is a permutation. Thus $i < i''$.  
+The fact that $(i'',j'')$ is touched by \greedy implies, by induction hypothesis, the existence of a point $q' \in R(i'',j'')$, and therefore the augmentation step of \agreedy touches some point $q^*$ on the top row of region $R(i'',j'')$. This point would prevent $q$ from being on the stair of $p^*$, a contradiction.
+\end{proof}
+
+\begin{lemma}$\abs{\topwing(\tP)} \le 2 \cdot \degree(\tP)$.\end{lemma}
+\begin{proof} $\topwing(\tP)$ contains at most 2 points in block $R(i,k)$ for every $k$. \end{proof}
+
+The only task left is to bound $|\tY^2|$, the number of touch points in non-first and non-last rows of a region. 
+This will be the \textit{junk} term mentioned earlier, that sums to $2n$ over all blocks $\tilde{P} \in N(\tset)$. In particular we show that every access point can contribute at most $2$ to the entire sum $\sum_{\tP \in N(\tset)} {|\tY^2|}$.
+
+
+
+Consider any access point $X = (x,t_x)$, and let $P^*$ denote the smallest block that contains $X$, and in which $X$ is \emph{not} the first access point (such a block exists for all but the very first access point of the input). Further observe, that every point touched at time $t_x$ \emph{inside} $P^*$ is accounted for already in the sum $\sum_{\tP \in N(\tset)} |Y_{\tilde{P}}^1|$, since these points are in the first row of some region inside $P^*$. It remains to show that at time $t_x$ at most two points are touched outside of $P^*$, excluding a possible \agreedy augmentation step (which we already accounted for). Let $p^*$ denote the first access point in $P^*$, i.e.\ at time $\textit{bottom}(P^*)$. At the time of accessing $p^*$ several points might be touched. Notice that all these points must be outside of $P^*$, since no element is touched before being accessed. Let $p_{\mleft}$ and $p_{\mright}$ be the nearest of these touch points to $p^*$ on its left, respectively on its right.
+
+We claim that for all the access points in $P^*$ other than the first access point $p^*$, only $p_{\mleft}$ and $p_{\mright}$ can be touched outside of $P^*$. Since, by definition $X$ is a non-first element of $P^*$, it follows that at time $t_x$ at most two points are touched outside of $P^*$, exactly what we wish to prove.
+
+Indeed, elements in the interval $[1, p_{\mleft}-1]$, and in the interval $[p_{\mright}+1, n]$ are hidden in $[1, p_{\mleft}-1]$, respectively in $[p_{\mright}+1, n]$, in the time interval $[\textit{bottom}(P^*)+1, \textit{top}(P^*)]$ and therefore cannot be touched when accessing non-first elements in $P^*$. The case remains when $p_{\mleft}$ or $p_{\mright}$ or both are nonexistent. In this case it is easy to see that if on the corresponding side an element outside of $P^*$ were to be touched at the time of a non-first access in $P^*$, then it would have had to be touched at the time of $p^*$, a contradiction.
+
+This concludes the proof.

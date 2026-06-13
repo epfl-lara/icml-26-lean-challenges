@@ -1,0 +1,19 @@
+import Challenges.Splay_Tree.Def_Containment
+import Challenges.Splay_Tree.Def_Ackermann
+import Challenges.Splay_Tree.Def_Splay
+
+#check List.finRange
+#check List.mem_finRange
+#check List.length_finRange
+#check List.map_finRange
+#check List.finRange_succ
+#check List.finRange_zero
+#check List.finRange_eq_fin_range
+#check Fin.castLT
+#check Fin.castAdd
+#check Fin.natAdd
+#check Fin.succ
+#check Fin.succAbove
+#check List.ext
+#check List.ext_get
+#check List.ext_getElem_iff

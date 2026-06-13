@@ -1,0 +1,38 @@
+<svg width="680" viewBox="0 0 680 540" role="img" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+<title>Figure 2: the splay Deque O(n alpha(n)) reduction</title>
+<desc>Splay.deque reduces via the proved capstone deque_challenge_CLOSED_of_touched to the named core TouchedSumAlpha, then via a proved reduction layer to three open residuals, of which Blocking_inblock_recursion is the single inverse-Ackermann core.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>
+.t{font-size:13px;fill:#2C2C2A}.th{font-size:13px;font-weight:500;fill:#04342C}
+.ts{font-size:11px;fill:#444441}
+.proven{fill:#E1F5EE;stroke:#0F6E56}.core{fill:#F1EFE8;stroke:#5F5E5A}.open{fill:#FCEBEB;stroke:#A32D2D}
+.lp{fill:#04342C}.lc{fill:#2C2C2A}.lo{fill:#501313}
+</style>
+</defs>
+
+<rect class="proven" x="40" y="34" width="14" height="14" rx="3" stroke-width="0.5"/><text class="ts" x="60" y="45">machine-checked</text>
+<rect class="core" x="190" y="34" width="14" height="14" rx="3" stroke-width="0.5"/><text class="ts" x="210" y="45">goal / named core</text>
+<rect class="open" x="350" y="34" width="14" height="14" rx="3" stroke-width="0.5"/><text class="ts" x="370" y="45">open obligation</text>
+
+<rect class="core" x="205" y="68" width="270" height="46" rx="8" stroke-width="0.8"/><text class="th lc" x="340" y="88" text-anchor="middle">Splay.deque</text><text class="ts" x="340" y="105" text-anchor="middle">cost ≤ c·n·α(n)  —  50-pt challenge</text>
+<line x1="340" y1="114" x2="340" y2="136" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect class="proven" x="155" y="136" width="370" height="50" rx="8" stroke-width="0.8"/><text class="th" x="340" y="156" text-anchor="middle">deque_challenge_CLOSED_of_touched</text><text class="ts" x="340" y="174" text-anchor="middle">sequence_cost = Σ costN ≤ Σ tpLenN + n</text>
+<line x1="340" y1="186" x2="340" y2="208" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect class="core" x="200" y="208" width="280" height="50" rx="8" stroke-width="0.8"/><text class="th lc" x="340" y="228" text-anchor="middle">TouchedSumAlpha</text><text class="ts" x="340" y="246" text-anchor="middle">Σ tpLenN ≤ c·n·α(n)  (named core)</text>
+<line x1="340" y1="258" x2="340" y2="280" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect class="proven" x="135" y="280" width="410" height="60" rx="8" stroke-width="0.8"/><text class="th" x="340" y="299" text-anchor="middle">proven reduction layer</text><text class="ts" x="340" y="317" text-anchor="middle">recursion_telescope · depth-projection · cost bridge</text><text class="ts" x="340" y="333" text-anchor="middle">per-level-flat recurrence + O(α) recursion depth</text>
+
+<line x1="250" y1="340" x2="140" y2="384" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="340" y1="340" x2="340" y2="384" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="430" y1="340" x2="540" y2="384" stroke="#0F6E56" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<rect class="open" x="40" y="384" width="190" height="74" rx="8" stroke-width="0.8"/><text class="ts lo" x="135" y="404" text-anchor="middle">Blocking_reaffiliationLinear</text><text class="ts" x="135" y="423" text-anchor="middle">Σ ≤ c·n — linear</text><text class="ts" x="135" y="440" text-anchor="middle">tractable</text>
+<rect class="open" x="245" y="384" width="190" height="74" rx="8" stroke-width="0.8"/><text class="ts lo" x="340" y="404" text-anchor="middle">Blocking_reentryPerSwitch</text><text class="ts" x="340" y="423" text-anchor="middle">Σ ≤ c·n — linear</text><text class="ts" x="340" y="440" text-anchor="middle">tractable</text>
+<rect class="open" x="450" y="384" width="190" height="74" rx="8" stroke-width="1.6"/><text class="th lo" x="545" y="404" text-anchor="middle">Blocking_inblock_recursion</text><text class="ts" x="545" y="423" text-anchor="middle">Sundar §5 — α core</text><text class="ts" x="545" y="440" text-anchor="middle">the one open gap</text>
+
+<rect class="proven" x="90" y="486" width="500" height="32" rx="8" stroke-width="0.8"/><text class="ts" x="340" y="503" text-anchor="middle">teal: standard axioms {propext, Classical.choice, Quot.sound}, no sorry</text>
+</svg>

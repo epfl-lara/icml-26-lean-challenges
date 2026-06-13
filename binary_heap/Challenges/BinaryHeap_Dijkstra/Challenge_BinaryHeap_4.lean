@@ -34,21 +34,22 @@ private lemma contains_insert_iff {α : Type u} :
   intro t x y f
   induction t generalizing y with
   | leaf =>
-      simp [BinaryTree.insert, contains]
+      simp only [BinaryTree.insert, contains, Bool.false_eq_true, or_self, or_false, false_or]
       exact eq_comm
   | node l v r ihl ihr =>
       by_cases h : f y ≤ f v
-      · simp [BinaryTree.insert, contains, h, ihl]
-        grind
-      · simp [BinaryTree.insert, contains, h, ihl]
-        grind
+      · simp only [BinaryTree.insert, h, ↓reduceIte, contains, ihl]
+        tauto
+      · simp only [BinaryTree.insert, h, ↓reduceIte, contains, ihl]
+        tauto
 
 
 private lemma contains_merge_iff {α : Type u} :
     ∀ (t₁ t₂ : BinaryTree α) (x : α) (f : α → ENat),
       contains (merge t₁ t₂ f) x ↔ contains t₁ x ∨ contains t₂ x := by
   intro t₁ t₂ x f
-  fun_induction merge t₁ t₂ f <;> simp [merge, contains, *] <;> grind
+  fun_induction merge t₁ t₂ f <;>
+    simp only [contains, Bool.false_eq_true, false_or, or_false, *] <;> aesop
 
 
 private lemma contains_remove_subset {α : Type u} [DecidableEq α] :
@@ -136,13 +137,13 @@ private lemma strongHeap_insert {α : Type u} :
   intro t y f hheap
   induction t generalizing y with
   | leaf =>
-      simp [BinaryTree.insert, StrongHeap]
+      simp only [BinaryTree.insert, StrongHeap, and_self, and_true]
       intro x hx
       cases hx
   | node l v r ihl ihr =>
       rcases hheap with ⟨hl, hr, hhl, hhr⟩
       by_cases h : f y ≤ f v
-      · simp [BinaryTree.insert, h, StrongHeap]
+      · simp only [BinaryTree.insert, h, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hx' := (contains_insert_iff l x v f).mp hx
@@ -155,7 +156,7 @@ private lemma strongHeap_insert {α : Type u} :
           · constructor
             · exact ihl v hhl
             · exact hhr
-      · simp [BinaryTree.insert, h, StrongHeap]
+      · simp only [BinaryTree.insert, h, ↓reduceIte, StrongHeap]
         constructor
         · intro x hx
           have hx' := (contains_insert_iff l x y f).mp hx
@@ -182,7 +183,7 @@ private lemma strongHeap_merge {α : Type u} :
       have h₂root : ∀ x, contains (node l2 v2 r2) x → f v2 ≤ f x := by
         intro x hx
         exact strongHeap_root_le h₂ hx
-      simp [merge, hle, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         have hx' := (contains_merge_iff l1 (node l2 v2 r2) x f).mp hx
@@ -200,7 +201,7 @@ private lemma strongHeap_merge {α : Type u} :
       have h₁root : ∀ x, contains (node l1 v1 r1) x → f v1 ≤ f x := by
         intro x hx
         exact strongHeap_root_le h₁ hx
-      simp [merge, hnot, StrongHeap]
+      simp only [StrongHeap]
       constructor
       · intro x hx
         have hx' := (contains_merge_iff (node l1 v1 r1) l2 x f).mp hx

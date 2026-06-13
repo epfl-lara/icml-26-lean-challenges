@@ -1,0 +1,99 @@
+% Blueprint content for the splay-tree formalization.
+% leanblueprint conventions:
+%   \lean{Name}   ties a node to a Lean declaration
+%   \leanok       the Lean side is complete (declaration compiles, std axioms)
+%   \uses{a,b}    dependency edges (drives the dependency graph)
+%   a theorem WITHOUT \leanok is an open / unproved node (shows red in the graph)
+
+\section{Cost model}
+
+\begin{definition}[Pairing splay and its cost]\label{def:splay}\lean{splay, splay.cost, splay.sequence_cost}\leanok
+  \texttt{splay} is the top-down pairing splay; \texttt{splay.cost} charges $+1$ per
+  zig and $+2$ per two-level step; \texttt{splay.sequence\_cost init X} folds the
+  cost over the access sequence $X$.
+\end{definition}
+
+\begin{definition}[Inverse Ackermann]\label{def:alpha}\lean{KlazarAckermann.alpha}\leanok
+  Klazar's $N_5$ hierarchy $F\,1\,n=2n$, $F(k{+}1)n=(F\,k\,\cdot)^{[n]}1$,
+  $F_\omega n = F\,n\,n$, and $\alpha=\mathrm{Nat.find}\,\dots$.
+\end{definition}
+
+\section{Sequential Access Theorem (solved)}
+
+\begin{theorem}[Sequential access is linear]\label{thm:sequential}\lean{Splay.sequential}\leanok\uses{def:splay}
+  There is a constant $c$ such that accessing $0,1,\dots,n-1$ in order on any
+  $n$-node BST costs at most $c\cdot n$. Proved (no \texttt{sorry}, standard axioms).
+\end{theorem}
+
+\begin{lemma}[Links bound cost]\label{lem:links}\lean{two_splayLinks_le_cost}\leanok
+  $2\cdot\mathrm{splayLinks}\,t\,q \le \mathrm{splay.cost}\,t\,q$.
+\end{lemma}
+
+\begin{lemma}[Total links are linear]\label{lem:totallinks}\lean{totalLinks_le}\leanok\uses{lem:links}
+  $\sum_k \mathrm{splayLinks}(\mathrm{seqTree}\,init\,k)\,k \le 13n$, via the
+  left-spine potential \texttt{omegaNB} and \texttt{links\_telescope}.
+\end{lemma}
+
+\section{Deque bound (sound reduction to one open core)}
+
+\begin{theorem}[Deque $O(n\alpha)$ challenge]\label{thm:deque}\lean{Splay.deque}\uses{def:splay,def:alpha,thm:touchedsum}
+  Deque-class access costs $\le c\cdot n\cdot\alpha(n)$. \emph{Open}: reduces to
+  \ref{thm:touchedsum}; not closed.
+\end{theorem}
+
+\begin{lemma}[Reduction capstone]\label{lem:closed}\lean{deque_challenge_CLOSED_of_touched}\leanok\uses{def:splay}
+  $\mathrm{sequence\_cost} = \sum \mathrm{costN} \le \sum \mathrm{tpLenN} + n$,
+  so \ref{thm:touchedsum} implies \ref{thm:deque}. Proved against the genuine
+  \texttt{sequence\_cost} (cost-bridge lemmas \texttt{splay\_cost\_eq\_search\_path\_len\_sub\_one},
+  \texttt{sequence\_cost\_eq\_process\_sum}).
+\end{lemma}
+
+\begin{definition}[Touched-sum core]\label{def:touchedsum}\lean{TouchedSumAlpha}\leanok
+  $\exists c,\ \sum_i \mathrm{tpLenN}\,init\,X\,i \le c\cdot n\cdot\alpha(n)$ on the
+  deque class.
+\end{definition}
+
+\begin{theorem}[Touched-sum bound]\label{thm:touchedsum}\uses{def:touchedsum,lem:telescope,lem:step1,lem:outchannel,thm:inblock}
+  \texttt{TouchedSumAlpha} holds. \emph{Open}: follows from the proven reduction
+  layer once \ref{thm:inblock} (and the linear residuals) are discharged.
+\end{theorem}
+
+\begin{lemma}[Telescope backbone]\label{lem:telescope}\lean{recursion_telescope}\leanok\uses{def:alpha}
+  A per-level-flat recurrence with $O(\alpha)$ recursion depth telescopes to
+  $c\cdot n\cdot\alpha(n)$. Depth bound via \texttt{gamma\_poly\_alpha\_proved}.
+\end{lemma}
+
+\begin{lemma}[Depth-projection identity (STEP 1)]\label{lem:step1}\lean{inblock_touched_eq_depth_projection}\leanok
+  The in-block touched count of an access equals the search-path length in the
+  restricted tree $\mathrm{restrict}\,T\,lo\,hi$.
+\end{lemma}
+
+\begin{lemma}[Outside channel is linear]\label{lem:outchannel}\uses{lem:reaff,lem:reentry}
+  $\sum \mathrm{outBlockTp} \le c\cdot n$. \emph{Open via} two linear residuals.
+\end{lemma}
+
+\begin{lemma}[Reaffiliation linear]\label{lem:reaff}\lean{Blocking_reaffiliationLinear}
+  $\sum$ per-node cross-period affiliation changes $\le c\cdot n$. \emph{Open},
+  empirically linear (tractable corridor counting).
+\end{lemma}
+
+\begin{lemma}[Reentry/dedup linear]\label{lem:reentry}\lean{Blocking_reentryPerSwitch}
+  Side-switch re-entry charge $\le c\cdot n$. \emph{Open}, empirically linear.
+\end{lemma}
+
+\begin{theorem}[In-block recursion (the hard core)]\label{thm:inblock}\lean{Blocking_inblock_recursion}\uses{lem:step1}
+  $\sum_i \mathrm{inBlockTp} \le \sum_b g(b)$. \emph{Open}: this is Sundar's
+  in-block recursion (\S5), the genuine inverse-Ackermann content; STEP~1
+  (\ref{lem:step1}) is proved, STEP~2 (the drifting-BST amortization) is the gap.
+\end{theorem}
+
+\section{Davenport--Schinzel toolkit (auxiliary, proved)}
+
+\begin{lemma}[Order-5 middles]\label{lem:middles}\lean{middlesKey_proved}\leanok
+  In an \emph{ababa}-free context, $|\mathrm{middleRaw}| \le |\mathrm{middleSymbols}| + \#blocks$.
+\end{lemma}
+
+\begin{lemma}[$\gamma$ collapses to $\alpha$]\label{lem:gamma}\lean{gamma_poly_alpha_proved}\leanok\uses{def:alpha}
+  For monotone poly-$\alpha$ $\beta$, the iterate-to-constant count of
+  $\beta\circ\beta$ is $\le c'(\alpha+1)$.
+\end{lemma}

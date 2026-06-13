@@ -49,17 +49,17 @@ def CoverageIntervalDefs.from_assumptions (j H : ℕ) (h0j : 0 < j) (hj2m: j < 2
   }
 
 def CoverageIntervalDefs.from_st {α : Type*} [Monoid α] (n j : ℕ) (st : SegmentTree α n) (h0j : 0 < j) (hj2m: j < 2*st.m) :
-  CoverageIntervalDefs j st.H := CoverageIntervalDefs.from_assumptions j st.H h0j (by simp [← st.h_m_pow2H, hj2m])
+  CoverageIntervalDefs j st.H := CoverageIntervalDefs.from_assumptions j st.H h0j (by simp only [← st.h_m_pow2H, hj2m])
 
 private theorem array_toList_extract_split {α : Type*} (xs : Array α) {l m r : ℕ}
     (hlm : l ≤ m) (hmr : m ≤ r) :
     (xs.extract l r).toList = (xs.extract l m).toList ++ (xs.extract m r).toList := by
-  simp [Array.toList_extract, List.extract]
+  simp only [Array.toList_extract, List.extract]
   rw [← List.take_append_drop (m - l) (List.take (r - l) (List.drop l xs.toList))]
   congr 1
   · rw [List.take_take]
     have hle : m - l ≤ r - l := Nat.sub_le_sub_right hmr l
-    simp [min_eq_left hle]
+    simp only [min_eq_left hle]
   · rw [List.drop_take]
     congr 1
     · omega
@@ -109,12 +109,12 @@ private theorem vector_get_eq_toArray_getElem {α : Type*} {N : ℕ} (v : Vector
 private theorem log2_two_mul (j : ℕ) (h0j : 0 < j) :
     Nat.log2 (2 * j) = Nat.log2 j + 1 := by
   rw [Nat.log2_eq_log_two, Nat.log2_eq_log_two,
-    show 2 * j = Nat.bit false j by simp [Nat.bit], Nat.log_two_bit (Nat.ne_of_gt h0j)]
+    show 2 * j = Nat.bit false j by simp only [Nat.bit, cond_false], Nat.log_two_bit (Nat.ne_of_gt h0j)]
 
 private theorem log2_two_mul_add_one (j : ℕ) (h0j : 0 < j) :
     Nat.log2 (2 * j + 1) = Nat.log2 j + 1 := by
   rw [Nat.log2_eq_log_two, Nat.log2_eq_log_two,
-    show 2 * j + 1 = Nat.bit true j by simp [Nat.bit, Nat.add_comm],
+    show 2 * j + 1 = Nat.bit true j by simp only [Nat.add_comm, Nat.bit, cond_true],
     Nat.log_two_bit (Nat.ne_of_gt h0j)]
 
 private theorem log2_le_of_lt_two_mul_pow {j H : ℕ} (h0j : 0 < j)
@@ -132,7 +132,7 @@ private theorem left_start_eq (H h j : ℕ) (h0j : 0 < j)
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) := by
   let l := Nat.log2 j
   have hpowle : 2 ^ l ≤ j := (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl l)
-  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa [l] using log2_two_mul j h0j
+  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa only using log2_two_mul j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [hlog, hsubH, hsubHparent]
@@ -148,7 +148,7 @@ private theorem left_stop_eq (H h j : ℕ) (h0j : 0 < j)
         2 ^ (H - Nat.log2 (2 * j)) =
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) + 2 ^ h := by
   let l := Nat.log2 j
-  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa [l] using log2_two_mul j h0j
+  have hlog : Nat.log2 (2 * j) = l + 1 := by simpa only using log2_two_mul j h0j
   have hsubH : H - (l + 1) = h := by omega
   rw [left_start_eq H h j h0j hh, hlog, hsubH]
 
@@ -159,7 +159,7 @@ private theorem right_start_eq (H h j : ℕ) (h0j : 0 < j)
   let l := Nat.log2 j
   have hpowle : 2 ^ l ≤ j := (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl l)
   have hlog : Nat.log2 (2 * j + 1) = l + 1 := by
-    simpa [l] using log2_two_mul_add_one j h0j
+    simpa only using log2_two_mul_add_one j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [hlog, hsubH, hsubHparent]
@@ -176,7 +176,7 @@ private theorem right_stop_eq (H h j : ℕ) (h0j : 0 < j)
       2 ^ (H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) + 2 ^ (H - Nat.log2 j) := by
   let l := Nat.log2 j
   have hlog : Nat.log2 (2 * j + 1) = l + 1 := by
-    simpa [l] using log2_two_mul_add_one j h0j
+    simpa only using log2_two_mul_add_one j h0j
   have hsubH : H - (l + 1) = h := by omega
   have hsubHparent : H - l = h + 1 := by omega
   rw [right_start_eq H h j h0j hh, hlog, hsubH, hsubHparent]
@@ -197,11 +197,11 @@ private theorem SegmentTree.coverage_interval_aux {α : Type*} [Monoid α] {n : 
   | zero =>
       intro j h0j hj2m hh
       have hjpow : j < 2 * 2 ^ st.H := by
-        simpa [st.h_m_pow2H] using hj2m
+        simpa only [st.h_m_pow2H] using hj2m
       have hle_log : Nat.log2 j ≤ st.H := log2_le_of_lt_two_mul_pow h0j hjpow
       have hlogH : Nat.log2 j = st.H := by omega
       have hpowle : 2 ^ st.H ≤ j := by
-        simpa [hlogH] using (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl (Nat.log2 j))
+        simpa only [hlogH] using (Nat.le_log2 (Nat.ne_of_gt h0j)).1 (le_refl (Nat.log2 j))
       have hstart : st.m + 2 ^ (st.H - Nat.log2 j) * (j - 2 ^ Nat.log2 j) = j := by
         rw [st.h_m_pow2H, hlogH]
         simp only [tsub_self, pow_zero, one_mul]
@@ -217,7 +217,7 @@ private theorem SegmentTree.coverage_interval_aux {α : Type*} [Monoid α] {n : 
   | succ h ih =>
       intro j h0j hj2m hh
       have hjpow : j < 2 * 2 ^ st.H := by
-        simpa [st.h_m_pow2H] using hj2m
+        simpa only [st.h_m_pow2H] using hj2m
       have hle_log : Nat.log2 j ≤ st.H := log2_le_of_lt_two_mul_pow h0j hjpow
       have hlt_log : Nat.log2 j < st.H := by omega
       have hj_lt_pow_succ : j < 2 ^ (Nat.log2 j + 1) :=
@@ -273,5 +273,5 @@ theorem SegmentTree.coverage_interval {α : Type*} [Monoid α] (n j : ℕ) (st :
   let d := CoverageIntervalDefs.from_st n j st h0j hj2m
   st.a.get ⟨j, hj2m⟩ = (st.a.toArray.extract (st.m+d.L) (st.m+d.R)).foldl (fun a b => a * b) 1
 := by
-  simpa [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions]
-    using SegmentTree.coverage_interval_aux st (st.H - Nat.log2 j) j h0j hj2m rfl
+  simpa only [CoverageIntervalDefs.from_st, CoverageIntervalDefs.from_assumptions, Array.size_extract,
+    Vector.size_toArray] using SegmentTree.coverage_interval_aux st (st.H - Nat.log2 j) j h0j hj2m rfl

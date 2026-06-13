@@ -1,0 +1,19 @@
+import Challenges.Splay_Tree.Def_Containment
+import Challenges.Splay_Tree.Def_Splay
+
+#check List.getElem_of_mem
+#check List.getElem_finRange
+#check List.getElem?_eq_some_iff
+#check List.getElem_lt_length
+#check List.getElem_mem
+#check List.getElem_cons_zero
+#check List.getElem_cons_succ
+#check List.Sublist.getElem?
+#check List.Sublist.get
+#check List.Pairwise
+#check List.Sorted
+#check List.Sorted.filter
+#check List.sorted_finRange
+#check List.Sorted.rel_get_of_lt
+#check List.Sorted.rel_get
+#check List.get_of_mem

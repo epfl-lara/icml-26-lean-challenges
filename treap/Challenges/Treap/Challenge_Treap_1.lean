@@ -22,25 +22,23 @@ variable {Prio : Type} [LinearOrder Prio]
 theorem all_keys_union_merge (l r : TreapNode Key Prio) :
     l.all_keys ∪ r.all_keys = (TreapNode.merge l r).all_keys := by
   fun_induction TreapNode.merge l r
-  · simp [TreapNode.all_keys]
-  · simp [TreapNode.all_keys]
-  · simp [TreapNode.all_keys]
+  · simp only [TreapNode.all_keys, Set.union_self]
+  · simp only [TreapNode.all_keys, Set.union_singleton, Set.empty_union]
+  · simp only [TreapNode.all_keys, Set.union_singleton, Set.union_empty]
   case case4 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
     subst new_l
     subst new_r
     ext x
     simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
     rw [← ih1]
-    simp only [Set.mem_union]
-    tauto
+    simp only [Set.mem_union, or_assoc]
   case case5 kp_1 l_1 r_1 kp_2 l_2 r_2 h new_l new_r ih1 =>
     subst new_l
     subst new_r
     ext x
     simp only [TreapNode.all_keys, Set.mem_union] at ih1 ⊢
     rw [← ih1]
-    simp only [Set.mem_union]
-    tauto
+    simp only [Set.mem_union, or_assoc]
 
 end TreapLogic
 end Cslib.Algorithms.Lean.TimeM
