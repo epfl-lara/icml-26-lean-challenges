@@ -1,5 +1,7 @@
 {
-  "id": "Lemmy00/ShadowBench-skeletons-prod",
-  "private": true,
-  "source": "/tmp/shadowbench_skeletons/test.parquet"
+  "config": "default",
+  "id": "DicoTiar/ShadowBench",
+  "private": false,
+  "source": "Hugging Face Dataset Viewer API",
+  "split": "test"
 }

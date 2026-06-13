@@ -1,3 +1,3 @@
-# Lemmy00/ShadowBench-skeletons-prod
+# DicoTiar/ShadowBench
 
-Loaded from local Parquet file `/tmp/shadowbench_skeletons/test.parquet`.
+Loaded from the Hugging Face Dataset Viewer API, config `default`, split `test`.
