@@ -37,6 +37,7 @@ SORRY_WARNING_MARKERS = (
     "warning: declaration uses `sorry`",
     "warning: declaration uses 'sorry'",
 )
+PROOF_GUARD_FAILED = "PROOF_GUARD_FAILED"
 
 
 def utc_now() -> str:
@@ -145,6 +146,7 @@ def classify_log(log_path: Path, returncode: int | None, phase: str, *, strict_e
         "disk_full": False,
         "rate_limited": False,
         "has_sorry_warning": False,
+        "proof_guard_failed": False,
         "needs_review": False,
     }
     if phase not in WORKFLOW_PHASES:
@@ -157,6 +159,7 @@ def classify_log(log_path: Path, returncode: int | None, phase: str, *, strict_e
     evidence["disk_full"] = DISK_FULL in text
     evidence["rate_limited"] = any(marker in text for marker in RATE_LIMIT_MARKERS)
     evidence["has_sorry_warning"] = any(marker in text for marker in SORRY_WARNING_MARKERS)
+    evidence["proof_guard_failed"] = PROOF_GUARD_FAILED in text
     if evidence["rate_limited"]:
         reset_values = [int(match.group(1)) for match in RATE_LIMIT_RESET_RE.finditer(text)]
         if reset_values:
@@ -166,6 +169,9 @@ def classify_log(log_path: Path, returncode: int | None, phase: str, *, strict_e
     evidence["verified_by_lean"] = bool(FINAL_VERIFIED_RE.search(tail))
 
     if evidence["disk_full"]:
+        return "failed", evidence
+
+    if evidence["proof_guard_failed"]:
         return "failed", evidence
 
     if evidence["rate_limited"]:
@@ -210,6 +216,12 @@ def command_for(problem: dict[str, Any], args: argparse.Namespace) -> list[str]:
         command.append("--force-project-init")
     if args.no_project_init:
         command.append("--no-project-init")
+    if getattr(args, "proof_guard", False):
+        command.append("--proof-guard")
+    if getattr(args, "no_proof_guard", False):
+        command.append("--no-proof-guard")
+    if getattr(args, "proof_guard_require_allowed_imports", False):
+        command.append("--proof-guard-require-allowed-imports")
     return command
 
 
@@ -454,6 +466,21 @@ def parse_args() -> argparse.Namespace:
     run_parser.add_argument("--lake-update", action="store_true", help="run lake update before each problem")
     run_parser.add_argument("--check-before", action="store_true", help="run Lean before EPFLemma")
     run_parser.add_argument("--check-after", action="store_true", help="run Lean after EPFLemma")
+    run_parser.add_argument(
+        "--proof-guard",
+        action="store_true",
+        help="force the import/statement guard for any run phase that invokes proving",
+    )
+    run_parser.add_argument(
+        "--no-proof-guard",
+        action="store_true",
+        help="disable the prove-only import/statement guard",
+    )
+    run_parser.add_argument(
+        "--proof-guard-require-allowed-imports",
+        action="store_true",
+        help="make prove-only runs fail unless local imports match docs/instructions.md",
+    )
     run_parser.add_argument("--force-project-init", action="store_true", help="force epflemma project init in each selected project")
     run_parser.add_argument("--no-project-init", action="store_true", help="skip epflemma project init")
     run_parser.set_defaults(func=cmd_run)

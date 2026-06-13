@@ -30,6 +30,8 @@ The skeleton Lean files are suggestions for initial theorem statements, definiti
 - Use `docs/instructions.md` to confirm required declaration names and formalization rules. Do not rename required declarations during proving.
 - Use skeletons only as hints for alternate formulations, missing helper names, or likely imports. Do not change a reviewed statement just because a skeleton is easier to prove.
 - Preserve source-backed theorem statements by default. If a statement appears false or impossible, stop and report the statement/source mismatch instead of weakening it.
+- In prove-only runs, do not add, remove, or reorder `import` lines. Work with the imports already selected for the problem; if a missing theorem comes from another Mathlib file, copy the needed helper statement/proof into this file only when that is source-faithful and rule-compliant.
+- In prove-only runs, do not change required theorem/lemma signatures or required definition/class bodies. The wrapper snapshots these protected declarations before the run and rejects the result if they drift.
 - Prefer local definitions and lemmas in `Main.lean`, then project-local imports, then Mathlib search. Add helper lemmas only when they directly reduce the active proof.
 - After each proof edit, verify with `lake env lean ShadowBench/Source/Main.lean`; a proof is not complete while any submitted declaration still contains `sorry`, `admit`, or open goals.
 
@@ -40,6 +42,7 @@ The skeleton Lean files are suggestions for initial theorem statements, definiti
 - Preserve theorem and definition names required by `docs/instructions.md`.
 - Compare any adopted skeleton against `docs/source.tex` and the formalization rules before using it.
 - Do not weaken or strengthen a source claim to fit a convenient skeleton.
+- Do not introduce `axiom`, `constant`, `opaque`, `unsafe`, `native_decide`, fake `Prop := True` definitions, or mechanism hypotheses unless they are already part of the official problem target code.
 - Record in `ShadowBench/Source/Blueprint.md` which skeleton, if any, shaped the final statement and why it matches the source.
 - Keep proof notes close enough that a later proof run can recover the source argument after context compaction.
 

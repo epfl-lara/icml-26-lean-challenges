@@ -74,3 +74,26 @@ Per-problem peak memory	8 GB
 Submissions exceeding the total time budget are scored on whatever problems finished; the rest are recorded as compile_failed.
 
 
+Forum Questions / Addenda
+
+Q1: Is it allowed to add extra helper lemmas and definitions in the solution beyond those required by the problem statement? This at least sometimes seems helpful, but I am not sure if this is punished in any way.
+Yes. Extra helper lemmas and definitions are fine and not penalized.
+The only restriction is on axioms: only the global whitelist (propext, Quot.sound, Classical.choice) plus any axioms declared in the problem's target_code are accepted. Any new axiom you introduce is rejected.
+
+Q2: Evaluation in this project seems tricky, will at any point intermediate evaluations be run to ensure our submissions abide by the various rules, and to see how well we perform? This would be extremely useful, especially since this benchmark has a much less clear evaluation methodology than the other competitions.
+Evaluation has two stages, as stated.
+(1) Compilation: your formal_proof must type-check.
+(2) Hidden checker: once it compiles, a private checker theorem is applied to your declaration to verify that the theorem is stated in the form the problem intended.
+If your theorem proves a weaker or differently shaped statement, the checker fails to compile against it, and the row does not pass.
+The checker must remain hidden because revealing it would expose the canonical statement.
+Please check the number of hidden checker passes as your intermediate result.
+
+Operational consequences for this repository:
+
+- Helper `def`, `abbrev`, `lemma`, `theorem`, local structures, and copied library support code are allowed inside a problem's single `formal_proof`.
+- Do not introduce new `axiom`, `constant`, `opaque`, `unsafe`, `native_decide`, `sorry`, or `admit` shortcuts.
+- Do not encode a mathematical conclusion as `Prop := True`, `theorem ... : True`, `by trivial`, or an equivalent vacuous placeholder. A compiling row with a weakened or vacuous statement is not a solved row.
+- Every required declaration name from the problem rules must be declared explicitly in that problem's `ShadowBench/Source/Main.lean`. Do not rely on the exporter to synthesize `_root_` bridge declarations for missing theorem bodies.
+- When an allowed import is missing a declaration that a proof needs, either copy the real definitions and proof lemmas needed into the same problem file or leave the problem as a known failure. Do not replace rich source notions by weaker placeholder definitions just to compile.
+- Preserve the intended declaration name, theorem shape, hypotheses, conclusion, and namespace. The hidden checker applies the submitted declaration directly, so compile-only fixes can still fail SA-Pass if they change the statement.
+- Local audits and export checks run with `set_option autoImplicit false` before the submitted proof. Unknown identifiers must be real imported or locally declared names, not silently created implicit variables.

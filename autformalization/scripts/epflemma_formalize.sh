@@ -10,7 +10,11 @@ PROJECT_INIT="auto"
 LAKE_UPDATE=0
 CHECK_BEFORE=0
 CHECK_AFTER=0
+PROOF_GUARD="auto"
+PROOF_GUARD_REQUIRE_ALLOWED_IMPORTS=0
 SHADOWBENCH_SKILL="$ROOT/skills/shadowbench-formalization-context/SKILL.md"
+PROOF_GUARD_SCRIPT="$SCRIPT_DIR/shadowbench_proof_guard.py"
+PROOF_GUARD_SNAPSHOT=".epflemma/proof-guard-before.json"
 
 usage() {
   cat <<'USAGE'
@@ -27,6 +31,10 @@ Options:
   --lake-update              Run lake update before EPFLemma.
   --check-before             Run lake env lean before EPFLemma.
   --check-after              Run lake env lean after EPFLemma.
+  --proof-guard              Reject prove runs that change imports or required declaration statements.
+  --no-proof-guard           Disable the prove-only import/statement guard.
+  --proof-guard-require-allowed-imports
+                              Also require current imports to match docs/instructions.md.
   --force-project-init       Run epflemma project init even if .epflemma/project.yaml exists.
   --no-project-init          Skip epflemma project init for workflow phases.
   -h, --help                 Show this help.
@@ -93,6 +101,39 @@ run_cmd_with_exit_command() {
   printf '/exit\n' | "$@"
 }
 
+proof_guard_enabled() {
+  case "$PROOF_GUARD" in
+    always)
+      return 0
+      ;;
+    never)
+      return 1
+      ;;
+    auto)
+      [[ "$PHASE" == "prove" ]]
+      ;;
+    *)
+      die "internal error: unknown proof guard mode: $PROOF_GUARD"
+      ;;
+  esac
+}
+
+proof_guard_args() {
+  if [[ "$PROOF_GUARD_REQUIRE_ALLOWED_IMPORTS" -eq 1 ]]; then
+    printf '%s\n' --require-allowed-imports
+  fi
+}
+
+proof_guard_snapshot() {
+  mapfile -t GUARD_ARGS < <(proof_guard_args)
+  run_cmd python3 "$PROOF_GUARD_SCRIPT" snapshot --problem-dir "$PROBLEM_DIR" --output "$PROOF_GUARD_SNAPSHOT" "${GUARD_ARGS[@]}"
+}
+
+proof_guard_check() {
+  mapfile -t GUARD_ARGS < <(proof_guard_args)
+  run_cmd python3 "$PROOF_GUARD_SCRIPT" check --problem-dir "$PROBLEM_DIR" --input "$PROOF_GUARD_SNAPSHOT" "${GUARD_ARGS[@]}"
+}
+
 run_project_init() {
   case "$PROJECT_INIT" in
     always)
@@ -153,6 +194,18 @@ while [[ $# -gt 0 ]]; do
       CHECK_AFTER=1
       shift
       ;;
+    --proof-guard)
+      PROOF_GUARD="always"
+      shift
+      ;;
+    --no-proof-guard)
+      PROOF_GUARD="never"
+      shift
+      ;;
+    --proof-guard-require-allowed-imports)
+      PROOF_GUARD_REQUIRE_ALLOWED_IMPORTS=1
+      shift
+      ;;
     --no-project-init)
       PROJECT_INIT="never"
       shift
@@ -204,6 +257,10 @@ if [[ "$PHASE" == "formalize" || "$PHASE" == "both" ]]; then
 fi
 
 if [[ "$PHASE" == "prove" || "$PHASE" == "both" ]]; then
+  PROVE_RC=0
+  if proof_guard_enabled; then
+    proof_guard_snapshot
+  fi
   PROVE_ARGS=(workflow --provider "$PROVIDER" prove ShadowBench/Source/Main.lean)
   mapfile -t PROVE_SKILL_ARGS < <(shadowbench_skill_args)
   PROVE_ARGS+=("${PROVE_SKILL_ARGS[@]}")
@@ -211,9 +268,16 @@ if [[ "$PHASE" == "prove" || "$PHASE" == "both" ]]; then
   if [[ -f "$BLUEPRINT_SKILL" ]]; then
     PROVE_ARGS+=(--additional-skill "$BLUEPRINT_SKILL")
   fi
-  run_cmd_with_exit_command epflemma "${PROVE_ARGS[@]}"
+  run_cmd_with_exit_command epflemma "${PROVE_ARGS[@]}" || PROVE_RC=$?
+  if proof_guard_enabled; then
+    proof_guard_check
+  fi
 fi
 
 if [[ "$PHASE" == "check" || "$CHECK_AFTER" -eq 1 ]]; then
   run_cmd lake env lean ShadowBench/Source/Main.lean
+fi
+
+if [[ "${PROVE_RC:-0}" -ne 0 ]]; then
+  exit "$PROVE_RC"
 fi

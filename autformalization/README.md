@@ -70,6 +70,8 @@ The lower-level `scripts/epflemma_formalize.sh` is still available when you want
 
 EPFLemma workflow commands are fed a final `/exit` line, like `printf '/exit\n' | epflemma workflow ...`, so finished agent-mode sessions leave the prompt cleanly instead of hitting EOF cleanup paths. Project init still runs with stdin closed.
 
+Prove-only runs are guarded by default. Before EPFLemma starts, `scripts/shadowbench_proof_guard.py` snapshots the import lines and every required declaration from `docs/instructions.md`; after EPFLemma exits, the wrapper rejects the run if imports, theorem/lemma signatures, or required definition/class bodies changed. This keeps prove runs focused on proof bodies and same-file helper lemmas. Use `--no-proof-guard` only when intentionally doing a formalization/setup repair, not proof completion. Use `--proof-guard-require-allowed-imports` when you also want to fail immediately unless local imports exactly match the allowed imports in `docs/instructions.md`.
+
 By default, `scripts/epflemma_formalize.sh` runs `epflemma project init` only when `.epflemma/project.yaml` is missing. Use `--force-project-init` to rebuild EPFLemma project metadata, or `--no-project-init` when you already ran the batch init phase.
 
 Phases:
@@ -115,6 +117,7 @@ Prove already formalized files:
 
 ```bash
 scripts/epflemma_batch_prove.sh --level L2 --check-after --skip-success
+scripts/epflemma_batch_prove.sh --only analysis/L3/ana_gen_L3_004 --proof-guard-require-allowed-imports --check-after
 ```
 
 Inspect status:
@@ -173,5 +176,24 @@ The submission writer emits `submission/shadowbench_submission.jsonl` with one r
 ```
 
 For serious submissions, put the actual model conversation in `docs/llm_history.json` for each solved problem and use `--strict-history`.
+
+By default, the exporter fails closed when `data/dicotiar_test_imports.json` is present and the local rows do not match the official `DicoTiar/ShadowBench` test `idx`/import manifest. Use `--allow-official-mismatch` or `--allow-import-fallback` only for local debugging, not for final submissions.
+
+## Rules Audit
+
+Run the generated-submission audit before treating a proof batch as submission-ready:
+
+```bash
+python3 scripts/audit_submission_rules.py --output-dir runs/rules-audit-latest --compile --axioms
+```
+
+This checks the exported `formal_proof` snippets, not the raw project files:
+
+- every snippet is wrapped in the required `ABM.<area>.<level>.<problem>` namespace
+- no `import` lines remain in `formal_proof`
+- official `DicoTiar/ShadowBench` imports are used for compilation
+- no `sorry`, `admit`, new `axiom`, `constant`, `opaque`, `unsafe`, or `native_decide` shortcuts appear
+- required declarations are present and not weakened by `*Mechanism` hypotheses
+- compile-passing rows are checked with `#print axioms` against the competition whitelist
 
 See also [SKELETONS.md](SKELETONS.md) for the intended skeleton usage policy.
